@@ -2,6 +2,8 @@
 {
   # Nix configuration ------------------------------------------------------------------------------
 
+  system.stateVersion = 6;
+
   nix.binaryCaches = [
     "https://cache.nixos.org/"
   ];
@@ -11,7 +13,6 @@
   nix.trustedUsers = [
     "@admin"
   ];
-  users.nix.configureBuildUsers = true;
 
   # 2025-10-25
   #  Necessary for using flakes on this system.
@@ -26,11 +27,18 @@
     extra-platforms = x86_64-darwin aarch64-darwin
   '';
 
+  #users.${username} = {
+  users = {
+    users.jevans = {
+      #home = "/Users/${username}";
+      home = "/Users/jevans";
+      #name = "${username}";
+      name = "jevans";
+    };
+  };
+
   # Create /etc/bashrc that loads the nix-darwin environment.
   programs.zsh.enable = true;
-
-  # Auto upgrade nix package and the daemon service.
-  services.nix-daemon.enable = true;
 
   # Apps
   # `home-manager` currently has issues adding them to `~/Applications`
@@ -41,18 +49,11 @@
 
   programs.nix-index.enable = true;
 
-  # Fonts
-  fonts.enableFontDir = true;
-  fonts.fonts = with pkgs; [
-     recursive
-     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
-   ];
-
   # Keyboard
   system.keyboard.enableKeyMapping = true;
   system.keyboard.remapCapsLockToEscape = true;
 
   # Add ability to used TouchID for sudo authentication
-  security.pam.enableSudoTouchIdAuth = true;
-
+  #security.pam.enableSudoTouchIdAuth = true;
+  security.pam.services.sudo_local.touchIdAuth = true;
 }

@@ -23,6 +23,8 @@
     inherit (darwin.lib) darwinSystem;
     inherit (inputs.nixpkgs-unstable.lib) attrValues makeOverridable optionalAttrs singleton;
 
+    username = "jevans";
+
     # Configuration for `nixpkgs`
     nixpkgsConfig = {
       config = { allowUnfree = true; };
@@ -47,6 +49,10 @@
         modules = attrValues self.darwinModules ++ [ 
           # Main `nix-darwin` config
           ./configuration.nix
+
+          # This goes somewhere
+          #users.user.jevans.home = "/Users/jevans";
+
           # `home-manager` module
           home-manager.darwinModules.home-manager
           {
@@ -54,7 +60,7 @@
             # `home-manager` config
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.users.jevans = import ./home.nix;
+            home-manager.users.${username} = import ./home.nix;
           }
         ];
       };
@@ -121,7 +127,7 @@
           mkSudoTouchIdAuthScript = isEnabled:
           let
             file   = "/etc/pam.d/sudo";
-            option = "security.pam.enableSudoTouchIdAuth";
+            option = "security.pam.services.sudo_local.touchIdAuth";
           in ''
             ${if isEnabled then ''
               # Enable sudo Touch ID authentication, if not already enabled
@@ -141,7 +147,7 @@
 
         {
           options = {
-            security.pam.enableSudoTouchIdAuth = mkEnableOption ''
+            security.pam.services.sudo_local.touchIdAuth = mkEnableOption ''
               Enable sudo authentication with Touch ID
               When enabled, this option adds the following line to /etc/pam.d/sudo:
                   auth       sufficient     pam_tid.so

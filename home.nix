@@ -1,7 +1,9 @@
 { config, pkgs, lib, ... }:
 
 {
-  home.stateVersion = "22.05";
+  home.stateVersion = "25.05";
+  #home.username = "jevans";
+  #home.homeDirectory = "/Users/jevans";
 
   # https://github.com/malob/nixpkgs/blob/master/home/default.nix
 
