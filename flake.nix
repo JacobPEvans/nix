@@ -8,6 +8,7 @@
 #   └─ ./nix
 #       └─ default.nix
 #
+# See also: https://github.com/NixOS/nixpkgs/blob/master/nixos/default.nix
 
 {
 
