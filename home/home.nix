@@ -28,8 +28,8 @@
       tgz = "tar --disable-copyfile --exclude='.DS_Store' -czf";
     };
 
-    # Init extra - for custom functions and scripts
-    initExtra = ''
+    # Init content - for custom functions and scripts
+    initContent = ''
       # Set tabs to 2 spaces
       tabs -2
 
