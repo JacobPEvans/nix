@@ -28,11 +28,8 @@
       llt = "ls -ahltFG -D '%Y-%m-%d %H:%M:%S'";
       lls = "ls -ahlsFG -D '%Y-%m-%d %H:%M:%S'";
 
-      # Python aliases
-      python3 = "eval $(which python3.12)";
-      pip3 = "eval $(which pip3.12)";
-      python = "eval $(which python3.12)";
-      pip = "eval $(which pip3.12)";
+      # Python alias - use macOS built-in python3
+      python = "python3";
 
       # Tar alias for Mac
       tgz = "tar --disable-copyfile --exclude='.DS_Store' -czf";
