@@ -47,17 +47,19 @@ This setup uses multiple tools working together:
 
 ```
 ~/.config/nix/
-├── flake.nix              # Main entry point - inputs and outputs
-├── flake.lock             # Locked dependencies (auto-managed)
+├── flake.nix                  # Main entry point - inputs and outputs
+├── flake.lock                 # Locked dependencies (auto-managed)
 ├── darwin/
-│   └── configuration.nix  # System packages, homebrew, macOS settings
+│   └── configuration.nix      # System packages, homebrew, macOS settings
 ├── home/
-│   └── home.nix           # User shell, aliases, dotfiles
-├── CLAUDE.md              # This file - AI agent instructions
-├── README.md              # User documentation and commands
-├── SETUP.md               # Setup history and troubleshooting
-├── CHANGELOG.md           # Version history
-└── PLANNING.md            # Roadmap and future work
+│   ├── home.nix               # User shell, aliases, dotfiles, Claude config
+│   ├── claude-permissions.nix # Claude Code auto-approved commands (categorized)
+│   └── zsh/                   # Modular shell configuration files
+├── CLAUDE.md                  # This file - AI agent instructions
+├── README.md                  # User documentation and commands
+├── SETUP.md                   # Setup history and troubleshooting
+├── CHANGELOG.md               # Version history
+└── PLANNING.md                # Roadmap and future work
 ```
 
 ## Common Commands
@@ -180,6 +182,51 @@ programs.vscode = {
   profiles.default.userSettings = { ... };
 };
 ```
+
+## Claude Code Configuration Management
+
+This Nix configuration manages Claude Code settings declaratively while maintaining flexibility.
+
+### Layered Configuration Strategy
+
+**Nix-managed baseline** (`~/.claude/settings.json`):
+- Defined in `home/claude-permissions.nix`
+- Contains ~300+ pre-approved safe commands
+- Version controlled and reproducible
+- Updated via `darwin-rebuild switch`
+
+**User-managed overrides** (`~/.claude/settings.local.json`):
+- Intentionally NOT managed by Nix (remains writable)
+- Claude writes here when you click "accept indefinitely"
+- Allows ad-hoc approvals without rebuilding
+- Local to this machine only
+
+**How they merge:**
+- Claude combines both files at runtime
+- `settings.local.json` overrides `settings.json`
+- Best of both worlds: reproducible + flexible
+
+### Modifying Approved Commands
+
+**To add commands to version-controlled baseline:**
+1. Edit `home/claude-permissions.nix`
+2. Add to appropriate category (gitCommands, dockerCommands, etc.)
+3. Commit changes
+4. Run: `darwin-rebuild switch --flake ~/.config/nix#default`
+
+**To quickly approve during a session:**
+- Just click "accept indefinitely" in Claude
+- Command gets added to `settings.local.json` automatically
+- Consider moving to baseline later for reproducibility
+
+### Security Notes
+
+The deny list blocks:
+- Destructive operations (`rm -rf /`, system modifications)
+- Sensitive file access (`.env`, SSH keys, AWS credentials)
+- Write HTTP methods (POST, PUT, DELETE, PATCH)
+- Privilege escalation (`sudo su`, `sudo -i`)
+- Network listeners (reverse shells)
 
 ## Important Notes
 
