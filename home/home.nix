@@ -1,5 +1,9 @@
 { config, pkgs, ... }:
 
+let
+  # Import Claude Code permission definitions
+  claudePerms = import ./claude-permissions.nix { };
+in
 {
   home.stateVersion = "24.05";
 
@@ -52,4 +56,40 @@
 
   # Let Home Manager install and manage itself
   programs.home-manager.enable = true;
+
+  # ====================================================================
+  # Claude Code Configuration
+  # ====================================================================
+  # Strategy: Layered configuration approach
+  #
+  # 1. Nix manages settings.json (this file) - baseline approved commands
+  # 2. settings.local.json remains WRITABLE - for interactive "accept indefinitely"
+  # 3. Claude merges both: local overrides base
+  #
+  # Benefits:
+  # - Reproducible baseline (version controlled)
+  # - Still allows ad-hoc approvals via UI
+  # - Easy to sync across machines
+  #
+  # To add more approved commands:
+  # - Edit home/claude-permissions.nix
+  # - Run: darwin-rebuild switch --flake ~/.config/nix#default
+  # ====================================================================
+
+  home.file.".claude/settings.json".text = builtins.toJSON {
+    # Enable extended thinking mode
+    alwaysThinkingEnabled = true;
+
+    # Auto-approved commands (managed by Nix)
+    # See home/claude-permissions.nix for full categorized list
+    permissions = {
+      allow = claudePerms.allowList;
+      deny = claudePerms.denyList;
+      ask = [];
+    };
+  };
+
+  # NOTE: settings.local.json is intentionally NOT managed by Nix
+  # This allows Claude to write interactive approvals there
+  # If you want FULL Nix control, add it here and it will become read-only
 }
