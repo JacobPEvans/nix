@@ -39,9 +39,28 @@
 ├── CLAUDE.md                 # This file - AI instructions
 ├── README.md                 # User quick reference
 ├── SETUP.md                  # Detailed troubleshooting
-├── CHANGELOG.md              # Version history
-└── PLANNING.md               # Roadmap
+├── CHANGELOG.md              # Completed tasks only
+└── PLANNING.md               # Future/in-progress tasks only
 ```
+
+## Task Management Workflow
+
+**STRICT PATTERN - Follow without exception:**
+
+1. **Tasks come from user** - All tasks originate from user requests
+2. **PLANNING.md for active work** - Not started or in-progress tasks ONLY
+3. **CHANGELOG.md for completed work** - ALL completed tasks ONLY
+4. **NO overlap** - A task must NEVER appear in both files
+5. **Clean up regularly** - Reorganize PLANNING.md and clean CHANGELOG.md as needed
+
+**When completing a task:**
+1. Remove from PLANNING.md immediately
+2. Add to CHANGELOG.md under appropriate date
+3. Ensure no task exists in both files
+
+**File purposes:**
+- `PLANNING.md` = Future roadmap + current work in progress
+- `CHANGELOG.md` = Historical record of completed work
 
 ## Common Mistakes to Avoid
 

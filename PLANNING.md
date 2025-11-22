@@ -1,4 +1,6 @@
-# Project Status & Planning
+# Project Planning & Roadmap
+
+**Future work and in-progress tasks only. For completed work, see CHANGELOG.md.**
 
 ## Repository Context
 
@@ -7,80 +9,7 @@
 - **Approach**: Clean slate, minimal initial setup, incremental enhancement
 - **Tools**: nix-darwin 25.05, home-manager 25.05, Determinate Nix 2.31.2
 
-### Key Files
-
-- `flake.nix` - Main entry point defining darwinConfigurations.default
-- `flake.lock` - Locked dependency versions for reproducibility
-- `darwin/configuration.nix` - System-level macOS settings and packages
-- `home/home.nix` - User environment (shell, aliases, dotfiles)
-- `SETUP.md` - Comprehensive setup guide and troubleshooting
-- `CHANGELOG.md` - Version history and completed changes
-- `README.md` - Quick reference guide
-- `CLAUDE.md` - AI agent instructions for modifying this configuration
-- `PLANNING.md` - This file, tracking current status and roadmap
-
-## Current System State (2025-11-22)
-
-### ✅ Fully Operational
-
-**Package Management**:
-- ALL packages now managed via nix/nix-darwin (no imperative installs)
-- Homebrew configured as fallback-only (currently empty)
-- No duplicate packages between nix and homebrew
-
-**System Packages** (darwin/configuration.nix):
-- claude-code - AI coding assistant
-- gemini-cli - Google Gemini CLI
-- gh - GitHub CLI
-- git - Version control
-- gnupg - GPG encryption (keys preserved)
-- nodejs_latest - Node.js runtime
-- vim - Text editor
-
-**User Packages** (home/home.nix):
-- VS Code - Declarative settings management
-- Complete zsh configuration (aliases, functions, logging)
-- Claude Code permissions - 277+ auto-approved commands (declarative)
-
-**Configuration Health**:
-- ✅ All packages resolve to nix store paths
-- ✅ PATH correctly prioritizes nix over homebrew
-- ✅ GPG keys preserved and functional
-- ✅ VS Code settings managed declaratively
-- ✅ Claude Code permissions managed declaratively
-- ✅ All documentation up to date
-
-## Completed Work
-
-### Phase 1: Initial Setup (2025-11-19)
-- ✅ Created flake-based nix-darwin configuration
-- ✅ Integrated home-manager
-- ✅ Migrated complete zsh configuration
-- ✅ Resolved Determinate Nix compatibility (nix.enable = false)
-- ✅ Created comprehensive documentation (SETUP.md)
-
-### Phase 2: Package Management (2025-11-20)
-- ✅ Added GitHub CLI (gh)
-- ✅ Established documentation standards (CHANGELOG.md, README.md, PLANNING.md)
-
-### Phase 3: Complete Package Migration (2025-11-21)
-- ✅ Added all essential CLI tools via nix (claude, gemini, gpg, node)
-- ✅ Added VS Code via home-manager
-- ✅ Removed all homebrew package duplicates
-- ✅ Resolved PATH priority issues
-- ✅ Fixed GPG permissions and preserved keys
-- ✅ Fixed VS Code userSettings deprecation
-- ✅ Enhanced documentation with troubleshooting guides
-
-### Phase 4: Declarative Configuration Management (2025-11-22)
-- ✅ Implemented layered Claude Code permission management
-- ✅ Created home/claude-permissions.nix with 277+ categorized commands
-- ✅ Configured Nix-managed settings.json with user-writable settings.local.json
-- ✅ Organized commands into 24 categories with security deny list
-- ✅ Documented configuration strategy in CLAUDE.md
-- ✅ Updated all documentation files for accuracy
-
-## Near-Term Enhancements (Next 1-2 Months)
+## Near-Term Goals (Next 1-2 Months)
 
 ### 1. Profile Development
 
@@ -207,15 +136,6 @@ system.defaults = {
 
 ## Success Criteria
 
-### Immediate (Completed ✅)
-- ✅ Minimal nix-darwin setup working
-- ✅ Home-manager integrated and functional
-- ✅ All shell configuration migrated
-- ✅ Comprehensive documentation created
-- ✅ All essential packages installed via nix
-- ✅ No duplicate packages (homebrew cleaned up)
-- ✅ PATH priority correct (nix before homebrew)
-
 ### Short-Term (Next 1-2 Months)
 - ⬜ At least 2 profiles implemented (default + work or dev)
 - ⬜ Essential GUI applications installed via Nix
@@ -251,14 +171,14 @@ system.defaults = {
 ## Maintenance Plan
 
 ### Weekly
-- Review and update PLANNING.md with progress
+- Review and update PLANNING.md with new tasks
 - Commit any configuration tweaks
 - Test system updates: `darwin-rebuild switch`
 
 ### Monthly
 - Update flake dependencies: `nix flake update`
 - Review and test new package versions
-- Update CHANGELOG.md with notable changes
+- Move completed work from PLANNING.md to CHANGELOG.md
 - Garbage collect old generations: `nix-collect-garbage -d`
 
 ### Quarterly
