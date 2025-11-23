@@ -3,6 +3,7 @@
 let
   # Import Claude Code permission definitions
   claudePerms = import ./claude-permissions.nix { };
+  claudeAsks = import ./claude-permissions-ask.nix { };
 in
 {
   home.stateVersion = "24.05";
@@ -82,10 +83,11 @@ in
 
     # Auto-approved commands (managed by Nix)
     # See home/claude-permissions.nix for full categorized list
+    # User-prompted commands in home/claude-permissions-ask.nix
     permissions = {
       allow = claudePerms.allowList;
       deny = claudePerms.denyList;
-      ask = [];
+      ask = claudeAsks.askList;
     };
   };
 

@@ -67,7 +67,8 @@ sudo /nix/var/nix/profiles/system-<N>-link/activate
 │   └── configuration.nix      # System packages, homebrew, macOS settings
 ├── home/
 │   ├── home.nix               # User shell config, aliases, Claude settings
-│   ├── claude-permissions.nix # Claude Code auto-approved commands
+│   ├── claude-permissions.nix # Claude Code auto-approved commands (allow list)
+│   ├── claude-permissions-ask.nix # Claude Code user-prompted operations (ask list)
 │   └── zsh/                   # Modular shell configuration files
 ├── CLAUDE.md                  # Instructions for AI agents
 ├── README.md                  # This file - quick reference
@@ -89,7 +90,10 @@ sudo /nix/var/nix/profiles/system-<N>-link/activate
 
 **User packages** (home/home.nix):
 - VS Code - Code editor with declarative settings
-- Claude Code permissions - 277+ auto-approved commands (declarative)
+- Claude Code permissions - Three-tier strategy with allow/ask/deny lists
+  - **Allow list**: 277+ safe auto-approved commands (claude-permissions.nix)
+  - **Ask list**: Potentially dangerous operations requiring user approval (claude-permissions-ask.nix)
+  - **Deny list**: 36 explicitly blocked dangerous operations
 
 ## Why Packages "Disappear"
 
