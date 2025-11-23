@@ -3,11 +3,20 @@
 # This file defines baseline permissions that Claude can execute without approval.
 # Commands are organized by category for easy maintenance.
 #
-# Security Notes:
-# - These are AUTO-APPROVED - only add commands you trust 100%
-# - Read-only web access (GET requests only)
-# - No destructive operations (rm -rf, system modifications, etc.)
-# - settings.local.json can override these for ad-hoc additions
+# THREE-TIER PERMISSION STRATEGY:
+# - ALLOW: Safe commands auto-approved (this file)
+# - ASK: Potentially dangerous, requires user confirmation (claude-permissions-ask.nix)
+# - DENY: Catastrophic operations, permanently blocked (denyList below)
+#
+# PRINCIPLE OF LEAST PRIVILEGE:
+# - Only include commands with minimal risk in allow list
+# - Read-only operations preferred (ls, cat, grep, etc.)
+# - No destructive file operations (chmod, rm, cp, mv with wildcards)
+# - No arbitrary code execution (osascript, sqlite3, mongosh, npx, docker exec)
+# - No cloud infrastructure modification (aws s3 cp/rm, aws ec2 terminate)
+# - No Kubernetes cluster modification (kubectl apply/create/delete)
+# - Curl limited to GET requests only
+# - sed/awk without -i (no in-place file modification)
 
 { ... }:
 
@@ -129,6 +138,7 @@ let
   ];
 
   # JavaScript/TypeScript ecosystem
+  # NOTE: npx removed - can execute arbitrary packages from npm registry
   nodeCommands = [
     "Bash(node --version:*)"
     "Bash(npm --version:*)"
@@ -145,7 +155,6 @@ let
     "Bash(npm run start:*)"
     "Bash(npm outdated:*)"
     "Bash(npm audit:*)"
-    "Bash(npx:*)"
     "Bash(yarn --version:*)"
     "Bash(yarn install:*)"
     "Bash(yarn add:*)"
@@ -216,15 +225,16 @@ let
     "Bash(helm search:*)"
   ];
 
-  # AWS CLI
-  # NOTE: Removed aws s3 rm, aws ec2 terminate - these require user approval
-  #       These are destructive cloud operations with serious consequences
+  # AWS CLI (read-only operations only)
+  # NOTE: Removed write operations - moved to ask list:
+  #       - aws s3 cp/sync (can overwrite files, exfiltrate data)
+  #       - aws s3 rm (destructive)
+  #       - aws ec2 terminate (destructive)
+  #       - aws lambda invoke (can trigger arbitrary Lambda functions)
   awsCommands = [
     "Bash(aws --version:*)"
     "Bash(aws sts get-caller-identity:*)"
     "Bash(aws s3 ls:*)"
-    "Bash(aws s3 cp:*)"
-    "Bash(aws s3 sync:*)"
     "Bash(aws ec2 describe-instances:*)"
     "Bash(aws ecr get-login-password:*)"
     "Bash(aws lambda list-functions:*)"
@@ -245,7 +255,10 @@ let
   ];
 
   # File operations and text processing
-  # NOTE: Removed chmod, rm, rmdir - these are in ask list (moved to claude-permissions-ask.nix)
+  # NOTE: Read-only operations only
+  # - Removed: chmod, rm, rmdir, cp, mv (require user approval - moved to ask list)
+  # - Removed: sed, awk (can modify files with -i flag - moved to ask list)
+  # - Kept: mkdir, touch (safe - only create, don't modify)
   fileCommands = [
     "Bash(ls:*)"
     "Bash(cat:*)"
@@ -261,11 +274,7 @@ let
     "Bash(cd:*)"
     "Bash(mkdir:*)"
     "Bash(touch:*)"
-    "Bash(cp:*)"
-    "Bash(mv:*)"
     "Bash(diff:*)"
-    "Bash(sed:*)"
-    "Bash(awk:*)"
     "Bash(cut:*)"
     "Bash(sort:*)"
     "Bash(uniq:*)"
@@ -286,9 +295,14 @@ let
   ];
 
   # Network operations (READ-ONLY: GET requests only)
+  # NOTE: curl patterns restricted to GET-only to prevent data exfiltration
+  # - "curl -s" alone is too permissive (can be followed by -X POST)
+  # - Only allow explicit GET patterns
   networkCommands = [
-    "Bash(curl -s:*)"
-    "Bash(curl --silent:*)"
+    "Bash(curl -s -X GET:*)"
+    "Bash(curl -s --request GET:*)"
+    "Bash(curl --silent -X GET:*)"
+    "Bash(curl --silent --request GET:*)"
     "Bash(curl -X GET:*)"
     "Bash(curl --request GET:*)"
     "Bash(wget:*)"
@@ -349,11 +363,6 @@ let
     "TodoRead"
   ];
 
-  # Special: Read access with sensitive file exclusions
-  readPermissions = [
-    "Read(**)"
-  ];
-
 in
 {
   # Export the complete allow list
@@ -377,20 +386,30 @@ in
     ++ macosCommands
     ++ claudeTools;
 
-  # Explicitly denied commands (destructive operations)
+  # Explicitly DENIED commands - absolutely catastrophic operations
+  # These are blocked permanently and cannot be approved interactively
+  # They represent system-level threats that should never be auto-executed
   denyList = [
-    # Destructive file operations
-    "Bash(rm -rf /*:*)"
-    "Bash(rm -rf ~:*)"
-    "Bash(rm -rf /:*)"
+    # === CATASTROPHIC FILE DESTRUCTION ===
+    # Covers all rm -rf variants with /
+    "Bash(rm -rf /*:*)"           # rm -rf /
+    "Bash(rm -rf /:*)"            # Alternative spacing
+    "Bash(rm -rf ~:*)"            # Home directory destruction
+    "Bash(rm -fr /*:*)"           # Reversed flags
+    "Bash(rm -fr /:*)"
+    "Bash(rm --recursive --force /*:*)"
+    "Bash(rm --recursive --force /:*)"
 
-    # Sensitive file access
+    # === SENSITIVE FILE ACCESS ===
+    # Credential files
     "Read(.env)"
     "Read(.env.*)"
     "Read(**/.env)"
     "Read(**/.env.*)"
     "Read(**/secrets/**)"
     "Read(**/credentials/**)"
+
+    # SSH/GPG/AWS credentials
     "Read(**/*_rsa)"
     "Read(**/*_dsa)"
     "Read(**/*_ecdsa)"
@@ -399,7 +418,8 @@ in
     "Read(~/.aws/credentials)"
     "Read(~/.gnupg/**)"
 
-    # Write operations (POST, PUT, DELETE, PATCH)
+    # === HTTP WRITE OPERATIONS (Data Exfiltration) ===
+    # Block all POST/PUT/DELETE/PATCH to prevent data theft
     "Bash(curl -X POST:*)"
     "Bash(curl -X PUT:*)"
     "Bash(curl -X DELETE:*)"
@@ -411,18 +431,20 @@ in
     "Bash(curl -d:*)"
     "Bash(curl --data:*)"
 
-    # System modifications
+    # === SYSTEM-LEVEL DESTRUCTION ===
     "Bash(sudo rm:*)"
     "Bash(sudo dd:*)"
     "Bash(mkfs:*)"
     "Bash(fdisk:*)"
+    "Bash(diskutil:*)"
 
-    # Privilege escalation concerns
+    # === PRIVILEGE ESCALATION ===
     "Bash(sudo su:*)"
     "Bash(sudo -i:*)"
     "Bash(sudo bash:*)"
+    "Bash(sudo -s:*)"
 
-    # Network security
+    # === REVERSE SHELLS / NETWORK LISTENERS ===
     "Bash(nc -l:*)"
     "Bash(ncat -l:*)"
     "Bash(socat:*)"

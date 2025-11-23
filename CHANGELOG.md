@@ -10,41 +10,68 @@ and this project adheres to [Calendar Versioning](https://calver.org/) using YYY
 ### Added
 
 - **Declarative Claude Code Permission Management**: Implemented layered configuration strategy for Claude Code auto-approved commands.
-  - Created `home/claude-permissions.nix` with auto-approved safe commands organized into 24 categories
-  - Created `home/claude-permissions-ask.nix` with user-prompted potentially dangerous operations
+  - Created `home/claude-permissions.nix` with 285 safe auto-approved commands in 24 categories
+  - Created `home/claude-permissions-ask.nix` with 32 potentially dangerous commands requiring user approval
   - Nix manages baseline permissions in `~/.claude/settings.json` (version controlled, reproducible)
-  - `~/.claude/settings.local.json` remains writable for interactive "accept indefinitely" approvals
-  - Three-tier permission strategy: allow (auto-approved), ask (user confirmation), deny (blocked)
-  - 36 explicitly denied dangerous operations (destructive commands, sensitive files, write HTTP methods, privilege escalation)
+  - `~/.claude/settings.local.json` remains writable for interactive approvals
+  - Three-tier permission strategy: allow (auto-approved), ask (user confirmation), deny (permanently blocked)
+  - 40 explicitly DENIED catastrophic operations
 
 ### Changed
 
-- **home/home.nix**: Added Claude Code settings.json generation with permissions from both claude-permissions.nix and claude-permissions-ask.nix
-- **CLAUDE.md**: Added comprehensive section on Claude Code configuration management strategy
-- **Security Hardening** (PR #2 review feedback): Moved potentially dangerous operations from allow list to ask list:
-  - osascript (arbitrary AppleScript execution)
-  - system_profiler (system information disclosure)
-  - defaults read (system configuration exposure)
-  - chmod/rm/rmdir (file operations with unintended consequences)
-  - docker exec/run (arbitrary container code execution)
-  - kubectl delete (destructive Kubernetes operations)
-  - helm uninstall (destructive Helm operations)
-  - sqlite3/mongosh (database write operations)
-  - aws s3 rm / aws ec2 terminate (destructive cloud operations)
+- **Security Hardening (after comprehensive PR #2 code review)**:
+  - **Allow list (285 commands)**: Only safe, read-only operations with minimal risk
+  - **Ask list (32 commands)**: Potentially dangerous but legitimate use cases requiring user approval
+    - System scripting: osascript (arbitrary AppleScript control)
+    - System info: system_profiler, defaults read (information disclosure)
+    - File operations: chmod, rm, rmdir, cp, mv, sed, awk (modification/deletion risks)
+    - Container operations: docker exec/run (arbitrary code execution in containers)
+    - Kubernetes: kubectl apply/create/delete/set/patch, helm install/upgrade/uninstall
+    - Cloud: aws s3 cp/sync/rm, aws ec2 run/terminate, aws lambda invoke, aws cloudformation delete
+    - Database: sqlite3, mongosh (arbitrary SQL execution)
+    - Package execution: npx (arbitrary package download/execution)
+  - **Deny list (40 commands)**: Absolutely catastrophic operations, permanently blocked
+    - File destruction: rm -rf / variants, system-level modifications
+    - Privilege escalation: sudo su/bash/bash -i
+    - Credential theft: sensitive file reads (.env, .ssh, .aws, .gnupg)
+    - HTTP write operations: curl POST/PUT/DELETE/PATCH (data exfiltration)
+    - Network listeners: nc/ncat/socat (reverse shells)
+
+- **Curl security hardening**: Restricted from generic `-s` flag to explicit GET patterns only
+  - Prevents ambiguous commands like `curl -s -X POST` bypassing deny rules
+  - Only allows: `curl -s -X GET`, `curl --silent --request GET`, etc.
+
+- **Remove dangerous but commonly used commands from auto-approve**:
+  - npx (can execute arbitrary npm packages)
+  - sed/awk without restrictions (in-place file editing with -i)
+  - cp/mv (file overwrite risks)
+  - chmod (permission modification risks)
+  - docker rm/rmi (removed, moved to ask - destructive)
+  - kubernetes apply/create (removed, moved to ask - cluster modification)
+  - aws s3 cp/sync (removed, moved to ask - data write/overwrite)
+  - aws lambda invoke (removed, moved to ask - execution of arbitrary functions)
+  - sqlite3/mongosh (removed, moved to ask - arbitrary SQL)
+
+- **Code cleanup**:
+  - Removed unused `readPermissions` variable (duplicate of coreReadTools)
+  - Consolidated rm -rf deny patterns (now covers -rf, -fr variants)
+  - Removed redundant patterns, added variants for privilege escalation
 
 ### Fixed
 
-- Corrected database command globbing patterns (sqlite3 patterns had syntax issues)
-- Removed `docker rm` and `docker rmi` from auto-approved list (destructive)
-- Removed `kubectl apply`, `kubectl create`, `helm install`, `helm upgrade` pending review
-- Implemented principle of least privilege in baseline allow list
+- Database command syntax issues (removed malformed sqlite3 patterns)
+- Duplicate `Bash(sudo rm:*)` - kept only in deny list (catastrophic)
+- Curl patterns too permissive (`curl -s:*` could be followed by -X POST)
+- Kubernetes and Helm operations that modify cluster state now require user approval
+- AWS operations that can incur costs now require user approval
 
 ### Documentation
 
-- Updated file structure documentation across README.md, CLAUDE.md, and PLANNING.md
-- Added detailed explanation of three-tier permission strategy: allow, ask, deny
-- Documented security hardening approach and rationale
-- Added explanation of why dangerous operations moved to ask list
+- Updated PLANNING.md with "Recently Completed" section detailing security hardening
+- Added comprehensive comments to both permission files explaining risk levels
+- Documented principle of least privilege in baseline configuration
+- Clarified three-tier strategy with specific risk classifications
+- Added comments explaining why each dangerous command is in ask (not deny) list
 
 ## 2025-11-21
 
