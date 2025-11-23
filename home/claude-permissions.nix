@@ -180,54 +180,45 @@ let
   ];
 
   # Docker commands
+  # NOTE: Removed docker exec, docker run - these require user approval (in ask list)
+  #       These allow arbitrary code execution in containers
   dockerCommands = [
     "Bash(docker --version:*)"
     "Bash(docker ps:*)"
     "Bash(docker images:*)"
     "Bash(docker logs:*)"
     "Bash(docker inspect:*)"
-    "Bash(docker exec:*)"
-    "Bash(docker run:*)"
     "Bash(docker start:*)"
     "Bash(docker stop:*)"
     "Bash(docker restart:*)"
-    "Bash(docker rm:*)"
-    "Bash(docker rmi:*)"
     "Bash(docker build:*)"
     "Bash(docker pull:*)"
     "Bash(docker push:*)"
     "Bash(docker tag:*)"
     "Bash(docker compose:*)"
-    "Bash(docker network:*)"
-    "Bash(docker volume:*)"
-    "Bash(docker system:*)"
     "Bash(docker info:*)"
   ];
 
   # Kubernetes commands
+  # NOTE: Removed kubectl delete, helm uninstall - these require user approval
+  #       These are destructive operations that can break production systems
   kubernetesCommands = [
     "Bash(kubectl version:*)"
     "Bash(kubectl get:*)"
     "Bash(kubectl describe:*)"
     "Bash(kubectl logs:*)"
-    "Bash(kubectl exec:*)"
-    "Bash(kubectl apply:*)"
-    "Bash(kubectl create:*)"
-    "Bash(kubectl delete:*)"
     "Bash(kubectl port-forward:*)"
     "Bash(kubectl config:*)"
     "Bash(kubectl rollout:*)"
-    "Bash(kubectl scale:*)"
     "Bash(helm version:*)"
     "Bash(helm list:*)"
-    "Bash(helm install:*)"
-    "Bash(helm upgrade:*)"
-    "Bash(helm uninstall:*)"
     "Bash(helm repo:*)"
     "Bash(helm search:*)"
   ];
 
   # AWS CLI
+  # NOTE: Removed aws s3 rm, aws ec2 terminate - these require user approval
+  #       These are destructive cloud operations with serious consequences
   awsCommands = [
     "Bash(aws --version:*)"
     "Bash(aws sts get-caller-identity:*)"
@@ -237,22 +228,16 @@ let
     "Bash(aws ec2 describe-instances:*)"
     "Bash(aws ecr get-login-password:*)"
     "Bash(aws lambda list-functions:*)"
-    "Bash(aws lambda invoke:*)"
     "Bash(aws cloudformation list-stacks:*)"
     "Bash(aws cloudformation describe-stacks:*)"
     "Bash(aws logs tail:*)"
     "Bash(aws ssm get-parameter:*)"
   ];
 
-  # Database clients (read-focused operations)
+  # Database clients (read-focused operations only)
+  # NOTE: Removed sqlite3, mongosh - these require user approval for write operations
+  #       Keep only read-only commands; full access moved to ask list
   databaseCommands = [
-    "Bash(sqlite3 --version:*)"
-    "Bash(sqlite3 *.db .tables:*)"
-    "Bash(sqlite3 *.db .schema:*)"
-    "Bash(sqlite3 *.db \"SELECT:*)"
-    "Bash(mongo --version:*)"
-    "Bash(mongosh --version:*)"
-    "Bash(mongosh --eval:*)"
     "Bash(redis-cli --version:*)"
     "Bash(redis-cli ping:*)"
     "Bash(redis-cli info:*)"
@@ -260,6 +245,7 @@ let
   ];
 
   # File operations and text processing
+  # NOTE: Removed chmod, rm, rmdir - these are in ask list (moved to claude-permissions-ask.nix)
   fileCommands = [
     "Bash(ls:*)"
     "Bash(cat:*)"
@@ -277,7 +263,6 @@ let
     "Bash(touch:*)"
     "Bash(cp:*)"
     "Bash(mv:*)"
-    "Bash(chmod:*)"
     "Bash(diff:*)"
     "Bash(sed:*)"
     "Bash(awk:*)"
@@ -347,11 +332,10 @@ let
   ];
 
   # macOS specific
+  # NOTE: Removed osascript, system_profiler, defaults read to ask list
+  #       These pose security risks and are in claude-permissions-ask.nix
   macosCommands = [
     "Bash(sw_vers:*)"
-    "Bash(system_profiler:*)"
-    "Bash(defaults read:*)"
-    "Bash(osascript -e:*)"
     "Bash(mdls:*)"
     "Bash(mdfind:*)"
     "Bash(pbcopy:*)"

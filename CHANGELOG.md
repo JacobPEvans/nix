@@ -10,22 +10,41 @@ and this project adheres to [Calendar Versioning](https://calver.org/) using YYY
 ### Added
 
 - **Declarative Claude Code Permission Management**: Implemented layered configuration strategy for Claude Code auto-approved commands.
-  - Created `home/claude-permissions.nix` with 277+ safe commands organized into 24 categories
+  - Created `home/claude-permissions.nix` with auto-approved safe commands organized into 24 categories
+  - Created `home/claude-permissions-ask.nix` with user-prompted potentially dangerous operations
   - Nix manages baseline permissions in `~/.claude/settings.json` (version controlled, reproducible)
   - `~/.claude/settings.local.json` remains writable for interactive "accept indefinitely" approvals
-  - Categories include: Git/GitHub, Nix, Python, JavaScript/TypeScript, Rust, Docker, Kubernetes, AWS, databases, file operations, and more
+  - Three-tier permission strategy: allow (auto-approved), ask (user confirmation), deny (blocked)
   - 36 explicitly denied dangerous operations (destructive commands, sensitive files, write HTTP methods, privilege escalation)
 
 ### Changed
 
-- **home/home.nix**: Added Claude Code settings.json generation with permissions from claude-permissions.nix
+- **home/home.nix**: Added Claude Code settings.json generation with permissions from both claude-permissions.nix and claude-permissions-ask.nix
 - **CLAUDE.md**: Added comprehensive section on Claude Code configuration management strategy
+- **Security Hardening** (PR #2 review feedback): Moved potentially dangerous operations from allow list to ask list:
+  - osascript (arbitrary AppleScript execution)
+  - system_profiler (system information disclosure)
+  - defaults read (system configuration exposure)
+  - chmod/rm/rmdir (file operations with unintended consequences)
+  - docker exec/run (arbitrary container code execution)
+  - kubectl delete (destructive Kubernetes operations)
+  - helm uninstall (destructive Helm operations)
+  - sqlite3/mongosh (database write operations)
+  - aws s3 rm / aws ec2 terminate (destructive cloud operations)
+
+### Fixed
+
+- Corrected database command globbing patterns (sqlite3 patterns had syntax issues)
+- Removed `docker rm` and `docker rmi` from auto-approved list (destructive)
+- Removed `kubectl apply`, `kubectl create`, `helm install`, `helm upgrade` pending review
+- Implemented principle of least privilege in baseline allow list
 
 ### Documentation
 
 - Updated file structure documentation across README.md, CLAUDE.md, and PLANNING.md
-- Added detailed explanation of layered configuration approach and workflow
-- Documented security deny list and command organization strategy
+- Added detailed explanation of three-tier permission strategy: allow, ask, deny
+- Documented security hardening approach and rationale
+- Added explanation of why dangerous operations moved to ask list
 
 ## 2025-11-21
 
