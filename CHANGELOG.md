@@ -9,6 +9,19 @@ and this project adheres to [Calendar Versioning](https://calver.org/) using YYY
 
 ### Added
 
+- **Nix-Managed Git Configuration**: Full git configuration via home-manager `programs.git`
+  - GPG signing enabled by default (`commit.gpgsign = true`, `tag.gpgSign = true`)
+  - Created `home/user-config.nix` for centralized user variables (name, email, GPG key ID)
+  - Created `home/git-aliases.nix` with 20 common git aliases (st, ll, lg, co, etc.)
+  - Created `home/shell-aliases.nix` with macOS-specific shell aliases
+  - Migrated to new `programs.git.settings` syntax (from deprecated `extraConfig`)
+  - Comprehensive git settings: histogram diff, rerere, fetch pruning, rebase on pull
+
+- **Sudo Requirements Documentation**: Added TROUBLESHOOTING.md section documenting:
+  - Commands that REQUIRE sudo (darwin-rebuild switch)
+  - Commands that should NOT use sudo (nix build, git, brew)
+  - Instructions for fixing root-owned files
+
 - **VS Code Nix Migration**: Migrated VS Code from native macOS install to Nix-managed
   - Added `vscode` to `darwin/configuration.nix` system packages
   - Created `home/vscode-settings.nix` with migrated general settings (git, terminal, Python, extensions)
