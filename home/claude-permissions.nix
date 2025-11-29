@@ -254,12 +254,12 @@ let
     "Bash(redis-cli get:*)"
   ];
 
-  # File operations and text processing
-  # NOTE: Read-only operations only
+  # File operations and text processing (READ-ONLY)
+  # NOTE: Strictly read-only operations - no file creation or modification
   # - Removed: chmod, rm, rmdir, cp, mv (require user approval - moved to ask list)
   # - Removed: sed, awk (can modify files with -i flag - moved to ask list)
-  # - Kept: mkdir, touch (safe - only create, don't modify)
-  fileCommands = [
+  # - Removed: mkdir, touch (moved to fileCreationCommands below)
+  fileReadCommands = [
     "Bash(ls:*)"
     "Bash(cat:*)"
     "Bash(head:*)"
@@ -272,14 +272,21 @@ let
     "Bash(tree:*)"
     "Bash(pwd:*)"
     "Bash(cd:*)"
-    "Bash(mkdir:*)"
-    "Bash(touch:*)"
     "Bash(diff:*)"
     "Bash(cut:*)"
     "Bash(sort:*)"
     "Bash(uniq:*)"
     "Bash(jq:*)"
     "Bash(yq:*)"
+  ];
+
+  # Safe file creation commands
+  # NOTE: These create new files/directories but do NOT modify existing content
+  # - mkdir: Creates directories (fails if exists without -p, safe with -p)
+  # - touch: Creates empty files or updates timestamps (non-destructive)
+  fileCreationCommands = [
+    "Bash(mkdir:*)"
+    "Bash(touch:*)"
   ];
 
   # Compression and archiving
@@ -378,7 +385,8 @@ in
     ++ kubernetesCommands
     ++ awsCommands
     ++ databaseCommands
-    ++ fileCommands
+    ++ fileReadCommands
+    ++ fileCreationCommands
     ++ archiveCommands
     ++ networkCommands
     ++ systemCommands

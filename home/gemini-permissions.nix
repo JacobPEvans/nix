@@ -248,8 +248,9 @@ let
     "ShellTool(redis-cli get)"
   ];
 
-  # File operations and text processing (read-only)
-  fileCommands = [
+  # File operations and text processing (READ-ONLY)
+  # NOTE: Strictly read-only operations - no file creation or modification
+  fileReadCommands = [
     "ShellTool(ls)"
     "ShellTool(cat)"
     "ShellTool(head)"
@@ -262,14 +263,27 @@ let
     "ShellTool(tree)"
     "ShellTool(pwd)"
     "ShellTool(cd)"
-    "ShellTool(mkdir)"
-    "ShellTool(touch)"
     "ShellTool(diff)"
     "ShellTool(cut)"
     "ShellTool(sort)"
     "ShellTool(uniq)"
     "ShellTool(jq)"
     "ShellTool(yq)"
+  ];
+
+  # Safe file creation commands
+  # NOTE: These create new files/directories but do NOT modify existing content
+  fileCreationCommands = [
+    "ShellTool(mkdir)"
+    "ShellTool(touch)"
+  ];
+
+  # Text processing tools
+  # NOTE: General sed/awk allowed for read-only text processing
+  # In-place editing (sed -i) blocked in excludeTools
+  textProcessingCommands = [
+    "ShellTool(sed)"
+    "ShellTool(awk)"
   ];
 
   # Compression and archiving
@@ -361,7 +375,9 @@ in
     ++ kubernetesCommands
     ++ awsCommands
     ++ databaseCommands
-    ++ fileCommands
+    ++ fileReadCommands
+    ++ fileCreationCommands
+    ++ textProcessingCommands
     ++ archiveCommands
     ++ networkCommands
     ++ systemCommands
@@ -425,8 +441,12 @@ in
     "ShellTool(rmdir)"
     "ShellTool(cp)"
     "ShellTool(mv)"
-    "ShellTool(sed)"
-    "ShellTool(awk)"
+
+    # === IN-PLACE FILE MODIFICATION ===
+    # sed/awk general use allowed in coreTools for text processing
+    # Only block the destructive in-place editing variants
+    "ShellTool(sed -i)"
+    "ShellTool(sed --in-place)"
 
     # === CLOUD INFRASTRUCTURE DESTRUCTION ===
     "ShellTool(aws s3 cp)"
