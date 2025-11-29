@@ -15,7 +15,7 @@ let
   vscodeGithubCopilotSettings = import ./vscode-copilot-settings.nix { };
 
   # Import VS Code general settings (git, terminal, python, etc.)
-  vscodeGeneralSettings = import ./vscode-settings.nix { };
+  vscodeGeneralSettings = import ./vscode-settings.nix { inherit config; };
 in
 {
   home.stateVersion = "24.05";

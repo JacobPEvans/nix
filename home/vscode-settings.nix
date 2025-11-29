@@ -13,8 +13,11 @@
 #
 # Migrated from manual settings.json backup
 
-{ ... }:
+{ config, ... }:
 
+let
+  homeDir = config.home.homeDirectory;
+in
 {
   # === GIT INTEGRATION ===
 
@@ -95,7 +98,7 @@
   # Custom instruction file locations
   "chat.instructionsFilesLocations" = {
     ".github/instructions" = true;
-    "/Users/jevans/.aitk/instructions/" = true;
+    "${homeDir}/.aitk/instructions/" = true;
   };
 
   # Enable nested agent MD files
