@@ -1,6 +1,15 @@
 { config, pkgs, ... }:
 
 let
+  # User-specific configuration (identity, GPG keys, preferences)
+  userConfig = import ./user-config.nix;
+
+  # Git aliases (cross-platform)
+  gitAliases = import ./git-aliases.nix;
+
+  # Shell aliases (macOS - see file for sudo requirements)
+  shellAliases = import ./shell-aliases.nix;
+
   # VS Code settings imports
   vscodeGeneralSettings = import ./vscode-settings.nix { inherit config; };
   vscodeGithubCopilotSettings = import ./vscode-copilot-settings.nix { };
@@ -31,26 +40,8 @@ in
   programs.zsh = {
     enable = true;
 
-    shellAliases = {
-      # Directory listing
-      ll = "ls -ahlFG -D '%Y-%m-%d %H:%M:%S'";
-      llt = "ls -ahltFG -D '%Y-%m-%d %H:%M:%S'";
-      lls = "ls -ahlsFG -D '%Y-%m-%d %H:%M:%S'";
-
-      # Docker
-      dps = "docker ps -a";
-      dcu = "docker compose up -d";
-      dcd = "docker compose down";
-
-      # Nix
-      d-r = "sudo darwin-rebuild switch --flake ~/.config/nix#default";
-
-      # Python (use macOS built-in)
-      python = "python3";
-
-      # Tar (macOS-friendly)
-      tgz = "tar --disable-copyfile --exclude='.DS_Store' -czf";
-    };
+    # Shell aliases - see shell-aliases.nix for full list and sudo requirements
+    shellAliases = shellAliases;
 
     # Source modular shell functions
     # NOTE: session-logging.zsh MUST be last (takes over terminal)
@@ -60,6 +51,85 @@ in
       source ${./zsh/macos-setup.zsh}
       source ${./zsh/session-logging.zsh}
     '';
+  };
+
+  # ==========================================================================
+  # Git
+  # ==========================================================================
+  # Replaces ~/.gitconfig - fully Nix-managed
+  # User values from user-config.nix
+  programs.git = {
+    enable = true;
+
+    # GPG signing configuration
+    # NOTE: Key ID is a public identifier, not the private key (safe to commit)
+    signing = {
+      key = userConfig.gpg.signingKey;
+      signByDefault = true;  # Sign all commits
+    };
+
+    # All git settings (new unified syntax)
+    settings = {
+      # User identity
+      user = {
+        name = userConfig.user.fullName;
+        email = userConfig.user.email;
+      };
+
+      # Core settings
+      core = {
+        editor = userConfig.git.editor;
+        autocrlf = "input";           # LF on commit, unchanged on checkout (Unix-style)
+        whitespace = "trailing-space,space-before-tab";  # Highlight whitespace issues
+      };
+
+      # Repository initialization
+      init.defaultBranch = userConfig.git.defaultBranch;
+
+      # Pull behavior - rebase keeps history cleaner than merge commits
+      pull.rebase = true;
+
+      # Push behavior
+      push = {
+        autoSetupRemote = true;       # Auto-track remote branches
+        default = "current";          # Push current branch to same-named remote
+      };
+
+      # Fetch behavior
+      fetch = {
+        prune = true;                 # Auto-remove deleted remote branches
+        pruneTags = true;             # Auto-remove deleted remote tags
+      };
+
+      # Merge & diff improvements
+      merge = {
+        conflictstyle = "diff3";      # Show original in conflicts (easier resolution)
+        ff = "only";                  # Only fast-forward merges (use rebase for others)
+      };
+      diff = {
+        algorithm = "histogram";      # Better diff algorithm than default
+        colorMoved = "default";       # Highlight moved lines in different color
+        mnemonicPrefix = true;        # Use i/w/c/o instead of a/b in diffs
+      };
+
+      # Rerere - remember merge conflict resolutions
+      rerere = {
+        enabled = true;               # Remember how you resolved conflicts
+        autoupdate = true;            # Auto-stage rerere resolutions
+      };
+
+      # Tags
+      tag.gpgSign = true;             # Sign all tags
+
+      # Helpful features
+      help.autocorrect = 10;          # Auto-correct typos after 1 second
+      status.showStash = true;        # Show stash count in git status
+      log.date = "iso";               # Use ISO date format in logs
+      branch.sort = "-committerdate"; # Sort branches by recent commits
+
+      # Git aliases - see git-aliases.nix for full list
+      alias = gitAliases;
+    };
   };
 
   # ==========================================================================
