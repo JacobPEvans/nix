@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 let
+  # User-specific configuration (identity, GPG keys, preferences)
+  userConfig = import ./user-config.nix;
+
   # VS Code settings imports
   vscodeGeneralSettings = import ./vscode-settings.nix { inherit config; };
   vscodeGithubCopilotSettings = import ./vscode-copilot-settings.nix { };
@@ -66,20 +69,111 @@ in
   # Git
   # ==========================================================================
   # Replaces ~/.gitconfig - fully Nix-managed
+  # User values from user-config.nix
   programs.git = {
     enable = true;
-    userName = "JacobPEvans";
-    userEmail = "20714140+JacobPEvans@users.noreply.github.com";
+    userName = userConfig.user.fullName;
+    userEmail = userConfig.user.email;
 
     # GPG signing configuration
+    # NOTE: Key ID is a public identifier, not the private key (safe to commit)
     signing = {
-      key = "31652F22BF6AC286";
+      key = userConfig.gpg.signingKey;
       signByDefault = true;  # Sign all commits
     };
 
     extraConfig = {
-      tag.gpgSign = true;           # Sign all tags
-      push.autoSetupRemote = true;  # Auto-setup remote tracking
+      # Core settings
+      core = {
+        editor = userConfig.git.editor;
+        autocrlf = "input";           # LF on commit, unchanged on checkout (Unix-style)
+        whitespace = "trailing-space,space-before-tab";  # Highlight whitespace issues
+      };
+
+      # Repository initialization
+      init.defaultBranch = userConfig.git.defaultBranch;
+
+      # Pull behavior - rebase keeps history cleaner than merge commits
+      pull.rebase = true;
+
+      # Push behavior
+      push = {
+        autoSetupRemote = true;       # Auto-track remote branches
+        default = "current";          # Push current branch to same-named remote
+      };
+
+      # Fetch behavior
+      fetch = {
+        prune = true;                 # Auto-remove deleted remote branches
+        pruneTags = true;             # Auto-remove deleted remote tags
+      };
+
+      # Merge & diff improvements
+      merge = {
+        conflictstyle = "diff3";      # Show original in conflicts (easier resolution)
+        ff = "only";                  # Only fast-forward merges (use rebase for others)
+      };
+      diff = {
+        algorithm = "histogram";      # Better diff algorithm than default
+        colorMoved = "default";       # Highlight moved lines in different color
+        mnemonicPrefix = true;        # Use i/w/c/o instead of a/b in diffs
+      };
+
+      # Rerere - remember merge conflict resolutions
+      rerere = {
+        enabled = true;               # Remember how you resolved conflicts
+        autoupdate = true;            # Auto-stage rerere resolutions
+      };
+
+      # Tags
+      tag.gpgSign = true;             # Sign all tags
+
+      # Helpful features
+      help.autocorrect = 10;          # Auto-correct typos after 1 second
+      status.showStash = true;        # Show stash count in git status
+      log.date = "iso";               # Use ISO date format in logs
+      branch.sort = "-committerdate"; # Sort branches by recent commits
+    };
+
+    # Git aliases for common operations
+    aliases = {
+      # Status & info
+      st = "status -sb";              # Short status with branch info
+      ll = "log --oneline -20";       # Quick log view
+      lg = "log --graph --oneline --decorate --all";  # Visual branch graph
+      last = "log -1 HEAD --stat";    # Show last commit with stats
+
+      # Branch operations
+      co = "checkout";
+      cob = "checkout -b";            # Create and checkout branch
+      br = "branch -vv";              # Verbose branch list with tracking
+
+      # Staging & commits
+      aa = "add --all";               # Stage everything
+      cm = "commit -m";               # Quick commit with message
+      ca = "commit --amend";          # Amend last commit
+      can = "commit --amend --no-edit";  # Amend without changing message
+
+      # Sync operations
+      pl = "pull --rebase";           # Pull with rebase
+      pf = "push --force-with-lease"; # Safe force push
+
+      # Diff shortcuts
+      df = "diff";
+      dfs = "diff --staged";          # Diff staged changes
+      dfn = "diff --name-only";       # Just show changed files
+
+      # Undo operations
+      unstage = "reset HEAD --";      # Unstage files
+      undo = "reset --soft HEAD~1";   # Undo last commit, keep changes staged
+
+      # Stash shortcuts
+      ss = "stash save";
+      sp = "stash pop";
+      sl = "stash list";
+
+      # Cleanup
+      cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d";
     };
   };
 
