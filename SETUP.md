@@ -11,16 +11,8 @@ Minimal nix-darwin configuration with home-manager for macOS system management.
 - **Home Manager**: 25.05
 
 ## Configuration Structure
-```
-~/.config/nix/
-├── flake.nix                 # Main flake with default profile
-├── flake.lock                # Locked dependencies
-├── darwin/
-│   └── configuration.nix     # System-level configuration
-├── home/
-│   └── home.nix             # User-level home-manager config
-└── backup/                   # Old Linux-based config (archived)
-```
+
+See [CLAUDE.md](CLAUDE.md) for complete directory structure with all files and descriptions.
 
 ## Issues Solved
 
@@ -108,13 +100,6 @@ sudo darwin-rebuild switch --flake ~/.config/nix#default
 darwin-rebuild --version
 home-manager --version
 ```
-
-## Future Enhancements
-- [ ] Add work profile for profile switching
-- [ ] Add essential applications (Obsidian, Raycast, Brave, Slack)
-- [ ] Configure AI research profile with APFS volume for models
-- [ ] Replace Homebrew with nix-darwin's Homebrew management
-- [ ] Add dev profile with language runtimes
 
 ## Key Decisions
 
@@ -325,6 +310,5 @@ programs.vscode = {
 **Why This Happens**: macOS's `/etc/zshenv` (managed by nix-darwin) sets up nix paths, but `~/.zprofile` (sourced later) may add homebrew first, overriding the correct order.
 
 ## Resources
-- [nix-darwin documentation](https://github.com/LnL7/nix-darwin)
-- [Home Manager manual](https://nix-community.github.io/home-manager/)
-- [Determinate Nix](https://determinate.systems/nix-installer/)
+
+See [README.md](README.md) for documentation links and references.
