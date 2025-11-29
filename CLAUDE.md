@@ -2,6 +2,17 @@
 
 **Strict guidance for AI agents modifying this nix-darwin configuration.**
 
+## Scope of This Document
+
+This file contains **AI-specific instructions only** - rules and patterns that AI agents need beyond their base training. It should NOT contain:
+- General project documentation (belongs in README.md)
+- Directory structure or file listings (belongs in README.md)
+- Setup guides or troubleshooting (belongs in SETUP.md or TROUBLESHOOTING.md)
+- Historical changes (belongs in CHANGELOG.md)
+- Future plans (belongs in PLANNING.md)
+
+**Rule**: If information is useful for humans reading project docs, it belongs in README.md or other project files, not here.
+
 ## Critical Requirements
 
 ### 1. Flakes-Only Configuration
@@ -25,28 +36,6 @@
 - Show empty sections with examples (even if commented out)
 - Visibility > minimalism
 - Use `_latest` variants (e.g., `nodejs_latest`)
-
-## File Organization
-
-```
-~/.config/nix/
-├── flake.nix                      # Entry point - darwinConfigurations.default
-├── darwin/configuration.nix       # System packages, settings
-├── home/
-│   ├── home.nix                   # User environment, AI CLI settings
-│   ├── claude-permissions.nix     # Claude Code: auto-approved commands
-│   ├── claude-permissions-ask.nix # Claude Code: user-prompted commands
-│   ├── gemini-permissions.nix     # Gemini CLI: coreTools & excludeTools
-│   ├── copilot-permissions.nix    # Copilot CLI: trusted_folders config
-│   ├── vscode-settings.nix        # VS Code: general editor settings
-│   ├── vscode-copilot-settings.nix # VS Code Copilot: AI assistant settings
-│   └── zsh/                       # Modular shell configs
-├── CLAUDE.md                     # This file - AI instructions
-├── README.md                     # User quick reference
-├── SETUP.md                      # Detailed troubleshooting
-├── CHANGELOG.md                  # Completed tasks only
-└── PLANNING.md                   # Future/in-progress tasks only
-```
 
 ## Task Management Workflow
 

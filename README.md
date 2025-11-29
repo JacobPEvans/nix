@@ -59,7 +59,28 @@ sudo /nix/var/nix/profiles/system-<N>-link/activate
 
 ## Directory Structure
 
-See [CLAUDE.md](CLAUDE.md) for complete file organization with descriptions.
+```
+~/.config/nix/
+├── flake.nix                      # Entry point - darwinConfigurations.default
+├── flake.lock                     # Locked dependency versions (auto-managed)
+├── darwin/
+│   └── configuration.nix          # System packages, homebrew, macOS settings
+├── home/
+│   ├── home.nix                   # User environment, shell, AI CLI integration
+│   ├── claude-permissions.nix     # Claude Code: auto-approved commands
+│   ├── claude-permissions-ask.nix # Claude Code: user-prompted commands
+│   ├── gemini-permissions.nix     # Gemini CLI: coreTools & excludeTools
+│   ├── copilot-permissions.nix    # Copilot CLI: trusted_folders config
+│   ├── vscode-settings.nix        # VS Code: general editor settings
+│   ├── vscode-copilot-settings.nix # VS Code: GitHub Copilot settings
+│   └── zsh/                       # Modular shell configuration files
+├── CLAUDE.md                      # AI agent instructions (for Claude Code)
+├── README.md                      # This file - project overview
+├── SETUP.md                       # Initial setup and configuration decisions
+├── TROUBLESHOOTING.md             # Common issues and solutions
+├── CHANGELOG.md                   # Completed work history
+└── PLANNING.md                    # Future roadmap and tasks
+```
 
 ## Current Packages
 
@@ -86,7 +107,7 @@ See [CLAUDE.md](CLAUDE.md) for complete file organization with descriptions.
 | Copilot CLI | `~/.copilot/config.json` | `copilot-permissions.nix` |
 | VS Code Copilot | VS Code `settings.json` | `vscode-copilot-settings.nix` |
 
-See [CLAUDE.md](CLAUDE.md) for detailed permission models and the comparison table.
+All AI tools follow principle of least privilege with categorized command structures.
 
 ## Why Packages "Disappear"
 
@@ -120,7 +141,8 @@ sudo -u jevans brew uninstall <package>
 which <package>
 ```
 
-For detailed setup instructions and comprehensive troubleshooting, see [SETUP.md](SETUP.md).
+For comprehensive troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+For initial setup and configuration decisions, see [SETUP.md](SETUP.md).
 
 ## Resources
 
