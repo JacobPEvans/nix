@@ -13,13 +13,17 @@
 
 **Branch**: `feat/system-config-migration`
 
-### Phase 1: Fix Git/GPG Configuration (IN PROGRESS)
-- [ ] Add `programs.git` to home-manager
-- [ ] Enable GPG signing (`commit.gpgsign = true`)
-- [ ] Configure signing key
-- [ ] Test signed commits
+### Phase 1: Fix Git/GPG Configuration ✅ COMPLETE
+- [x] Add `programs.git` to home-manager
+- [x] Enable GPG signing (`commit.gpgsign = true`)
+- [x] Configure signing key in `user-config.nix`
+- [x] Migrate to new `programs.git.settings` syntax
+- [x] Extract git aliases to dedicated file (`git-aliases.nix`)
+- [x] Extract shell aliases to dedicated file (`shell-aliases.nix`)
+- [x] Document sudo requirements in TROUBLESHOOTING.md
+- [x] Test signed commits (verified via PR)
 
-### Phase 2: Application Migration
+### Phase 2: Application Migration (NEXT)
 - [ ] Migrate ripgrep to nixpkgs
 - [ ] Migrate raycast (evaluate: nixpkgs vs homebrew cask)
 - [ ] Migrate oh-my-zsh to `programs.zsh.oh-my-zsh`
