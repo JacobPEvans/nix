@@ -33,13 +33,14 @@
 ├── flake.nix                      # Entry point - darwinConfigurations.default
 ├── darwin/configuration.nix       # System packages, settings
 ├── home/
-│   ├── home.nix                  # User environment, AI CLI settings
-│   ├── claude-permissions.nix     # Claude Code: 277+ auto-approved commands
+│   ├── home.nix                   # User environment, AI CLI settings
+│   ├── claude-permissions.nix     # Claude Code: auto-approved commands
 │   ├── claude-permissions-ask.nix # Claude Code: user-prompted commands
 │   ├── gemini-permissions.nix     # Gemini CLI: coreTools & excludeTools
 │   ├── copilot-permissions.nix    # Copilot CLI: trusted_folders config
-│   ├── vscode-copilot-settings.nix # VS Code Copilot: comprehensive settings
-│   └── zsh/                      # Modular shell configs
+│   ├── vscode-settings.nix        # VS Code: general editor settings
+│   ├── vscode-copilot-settings.nix # VS Code Copilot: AI assistant settings
+│   └── zsh/                       # Modular shell configs
 ├── CLAUDE.md                     # This file - AI instructions
 ├── README.md                     # User quick reference
 ├── SETUP.md                      # Detailed troubleshooting
