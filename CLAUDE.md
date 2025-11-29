@@ -112,81 +112,6 @@ This file contains **AI-specific instructions only** - rules and patterns that A
 
 **For quick approval**: Just click "accept indefinitely" in Claude UI
 
-## Gemini CLI Permission Management
-
-**Strategy**: Nix-managed configuration using coreTools and excludeTools
-
-**Configuration location**: `~/.gemini/settings.json`
-
-**Nix-managed** (`home/gemini-permissions.nix`):
-- `coreTools`: List of allowed built-in tools and shell commands
-- `excludeTools`: List of permanently blocked commands
-- Mirrors Claude Code's permission structure for consistency
-- Uses `ShellTool(command)` syntax for shell command restrictions
-
-**Permission model**:
-- **ReadFileTool, GlobTool, GrepTool**: Core read-only tools (always allowed)
-- **ShellTool(cmd)**: Shell commands with specific restrictions
-  - Example: `ShellTool(git status)` allows only `git status`
-  - Example: `ShellTool(rm -rf /)` in excludeTools blocks permanently
-- **WebFetchTool**: Web fetching capabilities
-
-**To add commands permanently**:
-1. Edit `home/gemini-permissions.nix`
-2. Add to appropriate category in `coreTools` or `excludeTools`
-3. Use format: `ShellTool(command)` for shell commands
-4. Commit and rebuild
-
-**Security notes**:
-- Command-specific restrictions use simple string matching
-- Not a security boundary - use for workflow control
-- Explicitly list allowed commands in coreTools for safety
-- See: https://google-gemini.github.io/gemini-cli/docs/get-started/configuration.html
-
-## GitHub Copilot CLI Permission Management
-
-**Strategy**: Directory trust model + runtime CLI flags
-
-**Configuration location**: `~/.copilot/config.json`
-
-**Nix-managed** (`home/copilot-permissions.nix`):
-- `trusted_folders`: Array of directory paths where Copilot can operate
-- Default trusted directories: `~/projects`, `~/repos`, `~/.config/nix`
-- Recommended CLI flag patterns documented in comments
-
-**Permission model**:
-- **Directory trust**: Copilot requires explicit directory approval
-- **Tool permissions**: Controlled via CLI flags (NOT config file)
-  - `--allow-tool 'shell'`: Allow all shell commands
-  - `--allow-tool 'write'`: Allow file writes
-  - `--deny-tool 'shell(rm)'`: Block specific shell commands
-  - Supports glob patterns: `--deny-tool 'shell(npm run test:*)'`
-
-**Runtime usage**:
-```bash
-# Allow all tools except dangerous commands
-copilot --allow-all-tools --deny-tool 'shell(rm -rf)'
-
-# Allow shell but deny specific commands
-copilot --allow-tool 'shell' --deny-tool 'shell(git push)'
-
-# Block MCP server tools
-copilot --deny-tool 'My-MCP-Server(tool_name)'
-```
-
-**To modify trusted directories**:
-1. Edit `home/copilot-permissions.nix`
-2. Add/remove paths in `trustedDevelopmentDirs` or `trustedConfigDirs`
-3. Commit and rebuild
-
-**Implementation options**:
-- **Shell alias**: Add to ~/.zshrc or Nix shell config
-- **Wrapper script**: Create script with preferred flags
-- **Per-session**: Manually specify flags when invoking copilot
-
-**Note**: Unlike Claude/Gemini, Copilot's command-level permissions require
-runtime flags. The config file only manages directory trust.
-
 ## VS Code GitHub Copilot Configuration
 
 **Strategy**: Full Nix-managed settings for reproducibility
@@ -218,23 +143,21 @@ runtime flags. The config file only manages directory trust.
 
 **Reference**: https://code.visualstudio.com/docs/copilot/reference/copilot-settings
 
-## AI CLI Tools Comparison
+## AI Tools Comparison
 
-| Feature | Claude Code | Gemini CLI | Copilot CLI | VS Code Copilot |
-|---------|-------------|------------|-------------|-----------------|
-| **Config file** | `.claude/settings.json` | `.gemini/settings.json` | `.copilot/config.json` | VS Code `settings.json` |
-| **Permission model** | allow/ask/deny lists | coreTools/excludeTools | trusted_folders + flags | settings-based |
-| **Command format** | `Bash(cmd:*)` | `ShellTool(cmd)` | `shell(cmd)` patterns | N/A (editor-based) |
-| **Runtime control** | settings.local.json | settings.json | CLI flags | VS Code UI |
-| **Nix file** | `claude-permissions.nix` | `gemini-permissions.nix` | `copilot-permissions.nix` | `vscode-copilot-settings.nix` |
-| **Categories** | 24 categories, 277+ cmds | Mirrors Claude structure | Directory trust only | 50+ settings |
-| **Security model** | Three-tier (allow/ask/deny) | Two-tier (allow/exclude) | Trust + runtime flags | Per-language enable |
+| Feature | Claude Code | VS Code Copilot |
+|---------|-------------|-----------------|
+| **Config file** | `.claude/settings.json` | VS Code `settings.json` |
+| **Permission model** | allow/ask/deny lists | settings-based |
+| **Command format** | `Bash(cmd:*)` | N/A (editor-based) |
+| **Runtime control** | settings.local.json | VS Code UI |
+| **Nix file** | `claude-permissions.nix` | `vscode-copilot-settings.nix` |
+| **Categories** | 24 categories, 277+ cmds | 50+ settings |
+| **Security model** | Three-tier (allow/ask/deny) | Per-language enable |
 
-**Consistency philosophy**:
-- CLI tools (Claude, Gemini, Copilot) use same categorized command structure
-- Same principle of least privilege across all tools
+**Philosophy**:
 - Nix ensures reproducible, version-controlled configuration
-- Different syntax, same security approach
+- Principle of least privilege for command permissions
 
 ## Workflow
 

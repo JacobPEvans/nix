@@ -7,8 +7,6 @@ let
 
   # AI CLI configuration imports (home.file entries)
   claudeFiles = import ./ai-cli/claude.nix { inherit config pkgs; };
-  geminiFiles = import ./ai-cli/gemini.nix { inherit config; };
-  copilotFiles = import ./ai-cli/copilot.nix { inherit config; };
 in
 {
   home.stateVersion = "24.05";
@@ -70,14 +68,7 @@ in
   # ==========================================================================
   # AI CLI Configurations
   # ==========================================================================
-  # Each AI CLI has its own file in ai-cli/ directory:
-  # - claude.nix: Claude Code settings + status line script
-  # - gemini.nix: Gemini CLI settings
-  # - copilot.nix: GitHub Copilot CLI config
-  #
-  # Permission definitions are in separate files:
-  # - claude-permissions.nix, claude-permissions-ask.nix
-  # - gemini-permissions.nix
-  # - copilot-permissions.nix
-  home.file = claudeFiles // geminiFiles // copilotFiles;
+  # Claude Code configuration in ai-cli/claude.nix
+  # Permission definitions in claude-permissions.nix and claude-permissions-ask.nix
+  home.file = claudeFiles;
 }
