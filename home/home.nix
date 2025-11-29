@@ -42,6 +42,9 @@ in
       llt = "ls -ahltFG -D '%Y-%m-%d %H:%M:%S'";
       lls = "ls -ahlsFG -D '%Y-%m-%d %H:%M:%S'";
 
+      # Nix-related aliases
+      d-r = sudo darwin-rebuild switch --flake ~/.config/nix#default
+
       # Python alias - use macOS built-in python3
       python = "python3";
 
