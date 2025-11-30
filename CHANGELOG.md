@@ -5,6 +5,72 @@ All notable changes to this nix-darwin configuration will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/) using YYYY-MM-DD format.
 
+## 2025-11-30 (Evening)
+
+### Added
+
+- **SSH/Remote Login**: Enabled via `services.openssh.enable = true` in macbook-m4 host config
+  - Declaratively manages macOS Remote Login setting via launchd
+
+- **Comprehensive Dock Configuration** (`modules/darwin/dock.nix`):
+  - 30+ documented options with defaults and explanations
+  - Icon size: 64px (cleaned from 71), magnification: 80px
+  - Hot corners configured: Mission Control, Notification Center, App Windows, Quick Note
+  - Disabled recent apps, enabled minimize-to-application
+  - Fixed space ordering (mru-spaces = false)
+  - All gesture settings documented
+
+- **Power-User Finder Configuration** (`modules/darwin/finder.nix`):
+  - Show hidden files, all extensions, full POSIX path in title
+  - Folders sorted first, search defaults to current folder
+  - List view default, status bar and path bar visible
+  - Disabled .DS_Store on network/USB volumes
+  - Auto-remove trash items after 30 days
+  - CustomUserPreferences for additional settings
+
+- **REFERENCES.md**: External documentation hub (links only, minimal examples)
+
+- **Keyboard Configuration** (`modules/darwin/keyboard.nix`):
+  - Fast key repeat (KeyRepeat=5, InitialKeyRepeat=25)
+  - Full keyboard access (AppleKeyboardUIMode=3)
+  - Disabled press-and-hold for key repeat
+
+- **Trackpad Configuration** (`modules/darwin/trackpad.nix`):
+  - Tap-to-click enabled
+  - Two-finger right-click
+  - Natural scrolling, force click enabled
+
+- **System UI Configuration** (`modules/darwin/system-ui.nix`):
+  - Dark mode, auto-scrollbars
+  - Disabled auto-capitalization, smart quotes, spell correction
+  - Expanded save/print panels by default
+  - Menu bar clock with date and day of week
+  - Guest account disabled
+  - Screensaver password required immediately
+  - Screenshots: PNG, no shadow, default location
+  - Control center: battery %, Bluetooth, Sound, Display visible
+
+- **Security Policies** (`lib/security-policies.nix`):
+  - NEW: Policy document for git security requirements
+  - Documents what we want (signed commits/tags, fsck checks)
+  - Implemented via home-manager's native git options
+
+- **GPG Shell Integration**:
+  - Added `export GPG_TTY=$(tty)` to zsh initContent
+  - Required for pinentry to prompt for passphrase in terminal
+
+### Changed
+
+- **Git Configuration** (Nix-native approach):
+  - `programs.git.signing.signByDefault = true` in home-manager
+  - `settings.tag.gpgSign = true` for signed tags
+  - Removed conflicting `~/.gitconfig` (was overriding Nix-managed config)
+
+- **REFERENCES.md**: Trimmed from 284 to 70 lines (removed verbose examples)
+- **modules/darwin/common.nix**: Now imports keyboard, trackpad, system-ui modules
+
+---
+
 ## 2025-11-30
 
 ### Added

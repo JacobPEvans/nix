@@ -4,6 +4,14 @@ let
   userConfig = import ../../lib/user-config.nix;
 in
 {
+  imports = [
+    ./dock.nix
+    ./finder.nix
+    ./keyboard.nix
+    ./trackpad.nix
+    ./system-ui.nix
+  ];
+
   # ==========================================================================
   # Nixpkgs Configuration
   # ==========================================================================
