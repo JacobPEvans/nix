@@ -22,8 +22,7 @@ in
     alwaysThinkingEnabled = true;
 
     # Auto-approved commands (managed by Nix)
-    # See home/claude-permissions.nix for full categorized list
-    # User-prompted commands in home/claude-permissions-ask.nix
+    # See modules/home-manager/permissions/claude-permissions-*.nix
     permissions = {
       allow = claudeAllow.allowList;
       deny = claudeDeny.denyList;
