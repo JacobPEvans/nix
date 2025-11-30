@@ -9,6 +9,7 @@
 
 {
   # Use nixpkgs from the system flake (not a separate instance)
+  # This inherits nixpkgs.config.allowUnfree from modules/darwin/common.nix
   useGlobalPkgs = true;
 
   # Install user packages to /etc/profiles instead of ~/.nix-profile
