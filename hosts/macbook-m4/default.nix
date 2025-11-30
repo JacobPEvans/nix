@@ -7,6 +7,10 @@
 
 { pkgs, ... }:
 
+let
+  # User-specific configuration (hostname, identity, etc.)
+  userConfig = import ../../lib/user-config.nix;
+in
 {
   imports = [
     # Darwin system modules
@@ -17,9 +21,9 @@
   # Host-Specific Settings
   # ==========================================================================
   # Settings that are unique to this specific machine
+  # Hostname from lib/user-config.nix
 
-  # Network hostname
-  networking.hostName = "macbook-m4";
+  networking.hostName = userConfig.host.name;
 
   # Machine-specific packages (if any beyond common)
   # environment.systemPackages = with pkgs; [ ];
