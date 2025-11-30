@@ -5,11 +5,6 @@
   # PLACEHOLDER: Native Windows Nix support is in development
   # See: https://determinate.systems/posts/nix-on-windows
   # ==========================================================================
-  #
-  # When Windows support arrives, this flake will be updated with:
-  # - Appropriate system type for Windows
-  # - Windows-specific modules
-  # - Home-manager integration
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -20,8 +15,13 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
-    # Placeholder - will be populated when Windows Nix support is available
-    # Expected: windowsConfigurations or similar
-  };
+  outputs = { self, nixpkgs, home-manager, ... }:
+    let
+      # Windows system type TBD - placeholder
+      system = "x86_64-windows";  # Future: actual Windows system type
+      # pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      # Placeholder - will be populated when Windows Nix support is available
+      # Expected: homeConfigurations.jevans or similar
+    };
 }

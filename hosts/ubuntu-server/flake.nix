@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration for Ubuntu Server";
+  description = "Home-manager configuration for Ubuntu Server";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -10,20 +10,18 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
-    nixosConfigurations.default = nixpkgs.lib.nixosSystem {
+  outputs = { self, nixpkgs, home-manager, ... }:
+    let
       system = "x86_64-linux";
-      modules = [
-        ./default.nix
-        home-manager.nixosModules.home-manager
-        {
-          nixpkgs.config.allowUnfree = true;
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.jevans = import ./home.nix;
-        }
-      ];
+      pkgs = nixpkgs.legacyPackages.${system};
+    in {
+      # Home-manager standalone configuration
+      # Usage: home-manager switch --flake .#jevans
+      homeConfigurations.jevans = home-manager.lib.homeManagerConfiguration {
+        inherit pkgs;
+        modules = [
+          ./home.nix
+        ];
+      };
     };
-  };
 }
