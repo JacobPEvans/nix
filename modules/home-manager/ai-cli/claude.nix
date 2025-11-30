@@ -34,6 +34,16 @@ in
       type = "command";
       command = "${config.home.homeDirectory}/.claude/statusline-command.sh";
     };
+
+    # MCP Servers
+    # Bitwarden MCP requires: nodejs (npx), bitwarden-cli
+    # Session: run `bw unlock` and export BW_SESSION before starting Claude
+    mcpServers = {
+      bitwarden = {
+        command = "npx";
+        args = [ "-y" "@bitwarden/mcp-server" ];
+      };
+    };
   };
 
   # Claude Code status line script
