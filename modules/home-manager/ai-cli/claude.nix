@@ -11,8 +11,9 @@
 { config, pkgs, ... }:
 
 let
-  claudePerms = import ../permissions/claude-permissions.nix { };
-  claudeAsks = import ../permissions/claude-permissions-ask.nix { };
+  claudeAllow = import ../permissions/claude-permissions-allow.nix { };
+  claudeAsk = import ../permissions/claude-permissions-ask.nix { };
+  claudeDeny = import ../permissions/claude-permissions-deny.nix { };
 in
 {
   # Claude Code settings.json
@@ -21,12 +22,20 @@ in
     alwaysThinkingEnabled = true;
 
     # Auto-approved commands (managed by Nix)
-    # See home/claude-permissions.nix for full categorized list
-    # User-prompted commands in home/claude-permissions-ask.nix
+    # See modules/home-manager/permissions/claude-permissions-*.nix
     permissions = {
-      allow = claudePerms.allowList;
-      deny = claudePerms.denyList;
-      ask = claudeAsks.askList;
+      allow = claudeAllow.allowList;
+      deny = claudeDeny.denyList;
+      ask = claudeAsk.askList;
+
+      # Directory-level read access
+      # Grants Claude access to files outside the current working directory
+      # This prevents "allow reading from X/" prompts for common locations
+      additionalDirectories = [
+        "~/"              # Full home directory access
+        "~/.claude/"      # Claude configuration
+        "~/.config/"      # XDG config directory
+      ];
     };
 
     # Status line configuration

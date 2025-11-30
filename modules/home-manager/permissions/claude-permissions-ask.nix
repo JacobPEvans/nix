@@ -1,17 +1,21 @@
-# Claude Code User-Prompted Commands
+# Claude Code User-Prompted Commands (ASK List)
 #
 # This file defines commands that require explicit user approval.
 # These are potentially dangerous but may be necessary in specific contexts.
+#
+# FILE STRUCTURE:
+# - claude-permissions-allow.nix - Auto-approved commands
+# - claude-permissions-ask.nix (this file) - Commands requiring user confirmation
+# - claude-permissions-deny.nix - Permanently blocked commands
+#
+# NOTE: These permission lists are kept in sync across Claude, Gemini, and Copilot.
+# Currently each AI has separate files. Future improvement: DRY refactor to share
+# common command lists across all AI tools.
 #
 # SECURITY STRATEGY:
 # - User must explicitly approve each execution (not auto-approved)
 # - Useful for ad-hoc tasks but not automation
 # - Provides flexibility while maintaining baseline security
-#
-# PHILOSOPHY:
-# - Principle of least privilege in baseline (allow list)
-# - Dangerous capabilities require explicit confirmation
-# - User retains full control when needed
 #
 
 { ... }:
@@ -27,9 +31,11 @@ let
 
   # === SYSTEM INFORMATION DISCLOSURE ===
   # system_profiler reveals detailed hardware/software configuration
+  # log show exposes macOS unified logging (system/app data)
   # Moderate risk: can leak system information useful for targeting attacks
   systemInfoDisclosureCommands = [
     "Bash(system_profiler:*)"
+    "Bash(log show:*)"
   ];
 
   # === SYSTEM CONFIGURATION ACCESS ===
@@ -37,6 +43,21 @@ let
   # Moderate risk: settings may contain security-relevant information
   macosConfigCommands = [
     "Bash(defaults read:*)"
+  ];
+
+  # === VERSION CONTROL DESTRUCTIVE OPERATIONS ===
+  # git reset can discard commits and lose work if misused
+  # Moderate risk: can lose uncommitted/committed work
+  gitDestructiveOperations = [
+    "Bash(git reset:*)"
+  ];
+
+  # === SECURITY & CRYPTOGRAPHY ===
+  # gpg can sign/encrypt/decrypt files, manage keys
+  # chown can change file ownership (can cause permission issues)
+  securityOperations = [
+    "Bash(gpg:*)"
+    "Bash(chown:*)"
   ];
 
   # === FILE SYSTEM OPERATIONS ===
@@ -122,6 +143,8 @@ in
   askList = systemScriptCommands
     ++ systemInfoDisclosureCommands
     ++ macosConfigCommands
+    ++ gitDestructiveOperations
+    ++ securityOperations
     ++ dangerousFileOperations
     ++ dockerPrivilegedOperations
     ++ kubernetesDestructiveOperations
