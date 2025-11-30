@@ -29,6 +29,7 @@ The environment will now load automatically when you `cd` into the project.
 | `python-data/` | Data science / ML | Python, pandas, numpy, jupyter |
 | `js/` | Node.js development | Node.js, npm, yarn, pnpm |
 | `go/` | Go development | Go, gopls, delve |
+| `terraform/` | Infrastructure as Code | Terraform, Terragrunt, OpenTofu, tflint, checkov, tfsec, trivy, infracost |
 
 ## Customization
 
@@ -56,3 +57,24 @@ nix develop ~/myproject
 # Or run a single command
 nix develop ~/myproject -c python --version
 ```
+
+## Template Details
+
+### Terraform/Terragrunt (`terraform/`)
+
+Complete Infrastructure-as-Code development environment:
+
+| Category | Tools |
+|----------|-------|
+| Core IaC | terraform, terragrunt, opentofu |
+| Documentation | terraform-docs |
+| Linting | tflint |
+| Security Scanners | checkov, terrascan, tfsec, trivy |
+| Cost Estimation | infracost |
+| Utilities | jq, yq |
+
+**Note:** Terraform uses BSL license (unfree). This shell enables `allowUnfree`.
+OpenTofu is included as a fully open-source alternative.
+
+**Note:** `pre-commit` and `markdownlint-cli2` are already available system-wide
+via `modules/common/packages.nix` - no need to add them to project shells.
