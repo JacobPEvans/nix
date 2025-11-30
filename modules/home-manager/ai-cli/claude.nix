@@ -36,12 +36,26 @@ in
     };
 
     # MCP Servers
-    # Bitwarden MCP requires: nodejs (npx), bitwarden-cli
-    # Session: run `bw unlock` and export BW_SESSION before starting Claude
+    #
+    # Bitwarden MCP Server - provides Claude access to Bitwarden vault
+    #
+    # Security Model:
+    #   - Dedicated machine account (NOT personal vault access)
+    #   - Least privilege: only secrets the AI workflow requires
+    #   - Short-lived session tokens (BW_SESSION expires on lock/timeout)
+    #   - Credentials auto-rotated via Bitwarden Secrets Manager policies
+    #
+    # Setup:
+    #   1. Install: npm install -g @bitwarden/mcp-server
+    #   2. Unlock vault: bw unlock
+    #   3. Export session: export BW_SESSION="<session_key>"
+    #
+    # Binary installed to ~/.npm-packages/bin via npm global prefix
+    # (configured in modules/home-manager/npm/config.nix)
     mcpServers = {
       bitwarden = {
-        command = "npx";
-        args = [ "-y" "@bitwarden/mcp-server" ];
+        command = "${config.home.homeDirectory}/.npm-packages/bin/mcp-server-bitwarden";
+        args = [ ];
       };
     };
   };
