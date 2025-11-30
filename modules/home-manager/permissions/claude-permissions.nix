@@ -438,7 +438,6 @@ let
     "Bash(mdfind:*)"
     "Bash(pbcopy:*)"
     "Bash(pbpaste:*)"
-    "Bash(log show:*)"        # macOS unified logging
   ];
 
   # Claude-specific tools (generally safe)

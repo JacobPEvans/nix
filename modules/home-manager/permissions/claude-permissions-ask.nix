@@ -27,9 +27,11 @@ let
 
   # === SYSTEM INFORMATION DISCLOSURE ===
   # system_profiler reveals detailed hardware/software configuration
+  # log show exposes macOS unified logging (system/app data)
   # Moderate risk: can leak system information useful for targeting attacks
   systemInfoDisclosureCommands = [
     "Bash(system_profiler:*)"
+    "Bash(log show:*)"
   ];
 
   # === SYSTEM CONFIGURATION ACCESS ===

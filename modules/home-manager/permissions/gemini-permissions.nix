@@ -429,7 +429,6 @@ let
     "ShellTool(mdfind)"
     "ShellTool(pbcopy)"
     "ShellTool(pbpaste)"
-    "ShellTool(log show)"        # macOS unified logging
   ];
 
   # Gemini-specific web tools
@@ -521,6 +520,9 @@ in
     # === SECURITY & CRYPTOGRAPHY ===
     "ShellTool(gpg)"
     "ShellTool(chown)"
+
+    # === SYSTEM INFORMATION DISCLOSURE ===
+    "ShellTool(log show)"
 
     # === DESTRUCTIVE FILE OPERATIONS ===
     "ShellTool(chmod)"
