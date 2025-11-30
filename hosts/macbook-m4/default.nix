@@ -25,6 +25,15 @@ in
 
   networking.hostName = userConfig.host.name;
 
+  # ==========================================================================
+  # System Services
+  # ==========================================================================
+
+  # SSH/Remote Login
+  # Enables macOS Remote Login via launchd (System Settings > General > Sharing)
+  # Allows SSH access to this development machine
+  services.openssh.enable = true;
+
   # Machine-specific packages (if any beyond common)
   # environment.systemPackages = with pkgs; [ ];
 }
