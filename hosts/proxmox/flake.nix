@@ -14,10 +14,11 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
+      userConfig = import ../../lib/user-config.nix;
     in {
       # Home-manager standalone configuration
       # Usage: home-manager switch --flake .#jevans
-      homeConfigurations.jevans = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations.${userConfig.user.name} = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         modules = [
           ./home.nix

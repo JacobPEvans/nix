@@ -15,20 +15,23 @@
     };
   };
 
-  outputs = { self, nixpkgs, darwin, home-manager, ... }: {
-    darwinConfigurations.default = darwin.lib.darwinSystem {
-      system = "aarch64-darwin";
-      modules = [
-        ./hosts/macbook-m4/default.nix
-        home-manager.darwinModules.home-manager
-        {
-          nixpkgs.config.allowUnfree = true;
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.jevans = import ./hosts/macbook-m4/home.nix;
-        }
-      ];
+  outputs = { self, nixpkgs, darwin, home-manager, ... }:
+    let
+      userConfig = import ./lib/user-config.nix;
+      hmDefaults = import ./lib/home-manager-defaults.nix;
+    in
+    {
+      darwinConfigurations.default = darwin.lib.darwinSystem {
+        system = "aarch64-darwin";
+        modules = [
+          ./hosts/macbook-m4/default.nix
+          home-manager.darwinModules.home-manager
+          {
+            home-manager = hmDefaults // {
+              users.${userConfig.user.name} = import ./hosts/macbook-m4/home.nix;
+            };
+          }
+        ];
+      };
     };
-  };
 }

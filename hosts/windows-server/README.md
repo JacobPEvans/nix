@@ -24,6 +24,6 @@ This directory contains placeholder configurations for when Windows support arri
 
 ## Services Running on Windows Server
 
-Document any services this Windows laptop will run:
+Document any services this Windows server will run:
 - [ ] List services planned for this machine
 - [ ] Note any Windows-specific requirements

@@ -1,14 +1,24 @@
 { pkgs, ... }:
 
+let
+  userConfig = import ../../lib/user-config.nix;
+in
 {
-  # User configuration
-  users.users.jevans = {
-    name = "jevans";
-    home = "/Users/jevans";
+  # ==========================================================================
+  # Nixpkgs Configuration
+  # ==========================================================================
+  nixpkgs.config.allowUnfree = true;
+
+  # ==========================================================================
+  # User Configuration
+  # ==========================================================================
+  users.users.${userConfig.user.name} = {
+    name = userConfig.user.name;
+    home = "/Users/${userConfig.user.name}";
   };
 
   # Required for nix-darwin with Determinate Nix
-  system.primaryUser = "jevans";
+  system.primaryUser = userConfig.user.name;
 
   # System packages from nixpkgs
   # All packages should come from nixpkgs - homebrew is fallback only
