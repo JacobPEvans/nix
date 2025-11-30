@@ -30,9 +30,28 @@ let
   # User home directory
   homeDir = config.home.homeDirectory;
 
-  # Home directory access
+  # Trusted development directories
+  # Add paths where you want Copilot to operate without directory confirmation
+  trustedDevelopmentDirs = [
+    "${homeDir}/projects"
+    "${homeDir}/repos"
+    "${homeDir}/workspace"
+    "${homeDir}/src"
+    "${homeDir}/dev"
+    "${homeDir}/git"
+  ];
+
+  # Trusted configuration directories
+  trustedConfigDirs = [
+    "${homeDir}/.config/nix"
+    "${homeDir}/.dotfiles"
+    "${homeDir}/.config"
+  ];
+
+  # Generic home directory access
   # Allows Copilot to operate anywhere under home directory
-  # Note: Explicit subdirectories are not needed when home dir is trusted
+  # Note: Explicit subdirectories are kept for documentation and future
+  # flexibility if home-wide access is ever removed
   trustedHomeDir = [
     homeDir
   ];
@@ -40,6 +59,6 @@ let
 in
 {
   # Export trusted_folders list for config.json
-  # Home dir grants access to all subdirectories
-  trusted_folders = trustedHomeDir;
+  # Includes home dir plus explicit subdirectories for documentation
+  trusted_folders = trustedHomeDir ++ trustedDevelopmentDirs ++ trustedConfigDirs;
 }
