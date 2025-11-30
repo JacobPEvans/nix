@@ -105,13 +105,15 @@ sudo /nix/var/nix/profiles/system-<N>-link/activate
 ├── lib/                           # Shared configuration variables
 │   ├── user-config.nix            # User info (name, email, GPG key)
 │   ├── server-config.nix          # Server hostnames and settings
+│   ├── security-policies.nix      # System-level security (git signing, etc.)
 │   └── home-manager-defaults.nix  # Shared home-manager settings
 │
 ├── CLAUDE.md                      # AI agent instructions
 ├── SETUP.md                       # Initial setup guide
 ├── TROUBLESHOOTING.md             # Common issues
 ├── CHANGELOG.md                   # Completed work history
-└── PLANNING.md                    # Future roadmap
+├── PLANNING.md                    # Future roadmap
+└── REFERENCES.md                  # External documentation links
 ```
 
 ## Current Packages
@@ -176,7 +178,8 @@ For initial setup and configuration decisions, see [SETUP.md](SETUP.md).
 
 ## Resources
 
-- [nix-darwin](https://github.com/LnL7/nix-darwin)
-- [home-manager](https://nix-community.github.io/home-manager/)
-- [Determinate Nix](https://determinate.systems/)
-- [nixpkgs search](https://search.nixos.org/packages)
+See [REFERENCES.md](REFERENCES.md) for comprehensive documentation links including:
+- nix-darwin and home-manager option references
+- macOS system defaults documentation
+- AI CLI tool configuration guides
+- Package search resources

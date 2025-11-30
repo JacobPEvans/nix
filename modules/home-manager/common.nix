@@ -72,6 +72,9 @@ in
     # Source modular shell functions
     # NOTE: session-logging.zsh MUST be last (takes over terminal)
     initContent = ''
+      # GPG: Required for pinentry to prompt for passphrase in terminal
+      export GPG_TTY=$(tty)
+
       source ${./zsh/git-functions.zsh}
       source ${./zsh/docker-functions.zsh}
       source ${./zsh/macos-setup.zsh}
@@ -82,8 +85,9 @@ in
   # ==========================================================================
   # Git
   # ==========================================================================
-  # Replaces ~/.gitconfig - fully Nix-managed
-  # User values from user-config.nix
+  # Fully Nix-managed git config (~/.config/git/config)
+  # Security policy: All commits and tags must be GPG signed
+  # User values from lib/user-config.nix
   programs.git = {
     enable = true;
 
@@ -91,7 +95,7 @@ in
     # NOTE: Key ID is a public identifier, not the private key (safe to commit)
     signing = {
       key = userConfig.gpg.signingKey;
-      signByDefault = true;  # Sign all commits
+      signByDefault = true;  # Enforced by security policy
     };
 
     # All git settings (new unified syntax)
@@ -144,8 +148,8 @@ in
         autoupdate = true;            # Auto-stage rerere resolutions
       };
 
-      # Tags
-      tag.gpgSign = true;             # Sign all tags
+      # Sign all tags (security policy)
+      tag.gpgSign = true;
 
       # Helpful features
       help.autocorrect = 10;          # Auto-correct typos after 1 second
