@@ -1,0 +1,104 @@
+# Claude Code Plugins Configuration
+#
+# Manages official Anthropic plugins and commands from:
+# - anthropics/claude-code (plugin marketplace)
+# - anthropics/claude-cookbooks (commands and agents)
+#
+# Strategy:
+# 1. Configure the official claude-code marketplace in settings.json
+# 2. Enable specific plugins from the marketplace
+# 3. Copy useful commands/agents from claude-cookbooks to ~/.claude/
+
+{ config, claude-code-plugins, claude-cookbooks, ... }:
+
+let
+  # Official Anthropic plugin marketplace
+  # Plugins are fetched on-demand when enabled
+  marketplaces = [
+    "https://github.com/anthropics/claude-code.git"
+  ];
+
+  # Plugins to enable from the claude-code marketplace
+  # These provide slash commands, agents, skills, and hooks
+  #
+  # Available plugins:
+  #   - commit-commands: /commit, /commit-push-pr, /clean_gone
+  #   - code-review: Multi-agent PR review with confidence scoring
+  #   - feature-dev: 7-phase feature development workflow
+  #   - pr-review-toolkit: Specialized review agents
+  #   - security-guidance: Security monitoring hook
+  #   - plugin-dev: Toolkit for creating Claude Code plugins
+  #   - hookify: Custom hook creation
+  #   - agent-sdk-dev: Agent SDK development kit
+  #   - frontend-design: UI/UX design guidance
+  #   - explanatory-output-style: Educational insights hook
+  #   - learning-output-style: Interactive learning mode
+  #   - claude-opus-4-5-migration: Model migration skill
+  #   - ralph-wiggum: Autonomous iteration loops
+  #
+  enabledPlugins = {
+    # Git workflow automation
+    "commit-commands@anthropics/claude-code" = true;
+
+    # Code review and quality
+    "code-review@anthropics/claude-code" = true;
+    "pr-review-toolkit@anthropics/claude-code" = true;
+
+    # Feature development
+    "feature-dev@anthropics/claude-code" = true;
+
+    # Security
+    "security-guidance@anthropics/claude-code" = true;
+
+    # Plugin/hook development
+    "plugin-dev@anthropics/claude-code" = true;
+    "hookify@anthropics/claude-code" = true;
+
+    # SDK development (useful for Claude Agent SDK work)
+    "agent-sdk-dev@anthropics/claude-code" = true;
+  };
+
+  # Commands from claude-cookbooks to install globally
+  # These are copied directly to ~/.claude/commands/
+  cookbookCommands = [
+    "review-pr-ci"     # CI/CD PR review (auto-posts to GitHub)
+    "review-pr"        # Interactive PR review
+    "review-issue"     # GitHub issue review
+    "notebook-review"  # Jupyter notebook review
+    "model-check"      # Model validation
+    "link-review"      # Link verification
+  ];
+
+  # Agents from claude-cookbooks to install globally
+  # These are copied to ~/.claude/agents/
+  cookbookAgents = [
+    "code-reviewer"    # Senior code review agent
+  ];
+
+in
+{
+  # Plugin marketplace and enabled plugins configuration
+  # Merged into settings.json by claude.nix
+  pluginConfig = {
+    inherit marketplaces enabledPlugins;
+  };
+
+  # Home-manager file entries for commands and agents
+  # These copy files from the claude-cookbooks repo to ~/.claude/
+  files =
+    # Commands from claude-cookbooks
+    (builtins.listToAttrs (map (cmd: {
+      name = ".claude/commands/${cmd}.md";
+      value = {
+        source = "${claude-cookbooks}/.claude/commands/${cmd}.md";
+      };
+    }) cookbookCommands))
+    //
+    # Agents from claude-cookbooks
+    (builtins.listToAttrs (map (agent: {
+      name = ".claude/agents/${agent}.md";
+      value = {
+        source = "${claude-cookbooks}/.claude/agents/${agent}.md";
+      };
+    }) cookbookAgents));
+}
