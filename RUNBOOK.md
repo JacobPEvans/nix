@@ -24,7 +24,7 @@ sudo darwin-rebuild switch --flake ~/.config/nix#default
 nix search nixpkgs <name>
 
 # Rollback if something breaks
-darwin-rebuild --rollback
+sudo darwin-rebuild --rollback
 
 # List all generations
 darwin-rebuild --list-generations
@@ -100,7 +100,7 @@ Nix flakes pin exact versions. To get newer versions:
 
 ```bash
 # 1. Update flake.lock to latest nixpkgs
-nix flake update --flake ~/.config/nix
+nix flake update ~/.config/nix
 
 # 2. Commit the updated lock file (required for flakes)
 git -C ~/.config/nix add flake.lock

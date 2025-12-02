@@ -37,25 +37,54 @@ let
 
   # Git operations (version control)
   gitCommands = [
+    # Status and inspection
     "Bash(git status:*)"
     "Bash(git log:*)"
     "Bash(git diff:*)"
     "Bash(git show:*)"
+    "Bash(git blame:*)"
+    "Bash(git shortlog:*)"
+    "Bash(git describe:*)"
+    "Bash(git rev-parse:*)"
+    "Bash(git ls-files:*)"
+    "Bash(git ls-remote:*)"
+    "Bash(git ls-tree:*)"
+    "Bash(git cat-file:*)"
+    "Bash(git reflog:*)"
+    "Bash(git for-each-ref:*)"
+    "Bash(git name-rev:*)"
+    "Bash(git worktree list:*)"
+    # Branch and tag management
     "Bash(git branch:*)"
     "Bash(git checkout:*)"
+    "Bash(git switch:*)"
+    "Bash(git tag:*)"
+    # Staging and committing
     "Bash(git add:*)"
     "Bash(git commit:*)"
+    "Bash(git reset:*)"
+    "Bash(git restore:*)"
+    # Remote operations
     "Bash(git push:*)"
     "Bash(git pull:*)"
     "Bash(git fetch:*)"
+    "Bash(git remote:*)"
+    "Bash(git clone:*)"
+    # Merging and rebasing
     "Bash(git merge:*)"
     "Bash(git rebase:*)"
+    "Bash(git cherry-pick:*)"
+    # Stash management
     "Bash(git stash:*)"
-    "Bash(git remote:*)"
-    "Bash(git tag:*)"
-    "Bash(git config:*)"
-    "Bash(git clone:*)"
+    # File operations
     "Bash(git mv:*)"
+    "Bash(git rm:*)"
+    # Configuration
+    "Bash(git config:*)"
+    # Maintenance
+    "Bash(git gc:*)"
+    "Bash(git prune:*)"
+    "Bash(git fsck:*)"
   ];
 
   # GitHub CLI (PR management, issues, etc.)
