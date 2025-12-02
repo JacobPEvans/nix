@@ -69,6 +69,8 @@ See [RUNBOOK.md](RUNBOOK.md) for detailed procedures.
     └── terraform/                 # Terraform/OpenTofu
 ```
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the full directory tree and module relationships.
+
 ## Current Packages
 
 | Category | Packages |
@@ -86,6 +88,7 @@ See [RUNBOOK.md](RUNBOOK.md) for detailed procedures.
 
 | File | Purpose |
 |------|---------|
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Detailed structure and module relationships |
 | [RUNBOOK.md](RUNBOOK.md) | Step-by-step operational procedures |
 | [SETUP.md](SETUP.md) | Initial setup and configuration decisions |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and solutions |
