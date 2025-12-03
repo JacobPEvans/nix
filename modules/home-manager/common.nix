@@ -1,4 +1,4 @@
-{ config, pkgs, lib, claude-code-plugins, claude-cookbooks, ... }:
+{ config, pkgs, lib, claude-code-plugins, claude-cookbooks, agent-os, ... }:
 
 let
   # User-specific configuration (identity, GPG keys, preferences)
@@ -27,6 +27,12 @@ let
   };
   geminiFiles = import ./ai-cli/gemini.nix { inherit config; };
   copilotFiles = import ./ai-cli/copilot.nix { inherit config; };
+
+  # Agent OS - spec-driven development system for AI coding agents
+  # Provides ~/agent-os/ with profiles, scripts, and config
+  agentOsFiles = import ./ai-cli/agent-os {
+    inherit config pkgs agent-os;
+  };
 in
 {
   home.stateVersion = "24.05";
@@ -205,5 +211,5 @@ in
   # - claude-permissions.nix, claude-permissions-ask.nix
   # - gemini-permissions.nix
   # - copilot-permissions.nix
-  home.file = npmFiles // awsFiles // claudeFiles // geminiFiles // copilotFiles;
+  home.file = npmFiles // awsFiles // claudeFiles // geminiFiles // copilotFiles // agentOsFiles;
 }

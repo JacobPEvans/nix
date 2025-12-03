@@ -37,16 +37,24 @@
       url = "github:anthropics/claude-cookbooks";
       flake = false;  # Not a flake, just fetch the repo
     };
+
+    # Agent OS - spec-driven development system for AI coding agents
+    # Provides standards, workflows, agents, and commands
+    # https://buildermethods.com/agent-os
+    agent-os = {
+      url = "github:buildermethods/agent-os";
+      flake = false;  # Not a flake, just fetch the repo
+    };
   };
 
-  outputs = { self, nixpkgs, darwin, home-manager, mac-app-util, claude-code-plugins, claude-cookbooks, ... }:
+  outputs = { self, nixpkgs, darwin, home-manager, mac-app-util, claude-code-plugins, claude-cookbooks, agent-os, ... }:
     let
       userConfig = import ./lib/user-config.nix;
       hmDefaults = import ./lib/home-manager-defaults.nix;
 
       # Pass external sources to home-manager modules
       extraSpecialArgs = {
-        inherit claude-code-plugins claude-cookbooks;
+        inherit claude-code-plugins claude-cookbooks agent-os;
       };
     in
     {
