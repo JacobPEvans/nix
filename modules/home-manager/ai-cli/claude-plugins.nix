@@ -14,9 +14,15 @@
 let
   # Official Anthropic plugin marketplace
   # Plugins are fetched on-demand when enabled
-  marketplaces = [
-    "https://github.com/anthropics/claude-code.git"
-  ];
+  # Format: object with marketplace ID as key, containing nested source object
+  marketplaces = {
+    "anthropics/claude-code" = {
+      source = {
+        source = "git";
+        url = "https://github.com/anthropics/claude-code.git";
+      };
+    };
+  };
 
   # Plugins to enable from the claude-code marketplace
   # These provide slash commands, agents, skills, and hooks
