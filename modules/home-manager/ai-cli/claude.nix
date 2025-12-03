@@ -11,17 +11,26 @@
 # Plugins: Configured via claude-plugins.nix
 # - Official Anthropic marketplace (claude-code repo)
 # - Commands/agents from claude-cookbooks repo
+#
+# Community Commands: Configured via claude-community-commands.nix
+# - Curated commands from the Claude Code community
+# - Prefixed to avoid conflicts (e.g., rok-*)
 
-{ config, pkgs, claude-code-plugins, claude-cookbooks, ... }:
+{ config, pkgs, lib, claude-code-plugins, claude-cookbooks, ... }:
 
 let
   claudeAllow = import ../permissions/claude-permissions-allow.nix { inherit config; };
   claudeAsk = import ../permissions/claude-permissions-ask.nix { };
   claudeDeny = import ../permissions/claude-permissions-deny.nix { };
 
-  # Import plugin configuration
+  # Import plugin configuration (official Anthropic repos)
   claudePlugins = import ./claude-plugins.nix {
-    inherit config claude-code-plugins claude-cookbooks;
+    inherit config lib claude-code-plugins claude-cookbooks;
+  };
+
+  # Import community commands (curated from the community)
+  communityCommands = import ./claude-community-commands.nix {
+    inherit config;
   };
 in
 {
@@ -126,3 +135,5 @@ in
 }
 # Merge with commands and agents from claude-cookbooks
 // claudePlugins.files
+# Merge with community commands
+// communityCommands.files
