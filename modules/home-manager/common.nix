@@ -28,7 +28,8 @@ let
 
   # Path to ai-assistant-instructions git repo for symlinks
   # Using mkOutOfStoreSymlink for live updates without darwin-rebuild
-  # Defined in lib/user-config.nix for DRY (also used by claude.nix)
+  # Single source of truth in lib/user-config.nix (DRY - also used by claude.nix)
+  # See user-config.nix for clone instructions if the repo is missing
   aiInstructionsRepo = userConfig.ai.instructionsRepo;
 
   # Home directory symlinks to ai-assistant-instructions repo

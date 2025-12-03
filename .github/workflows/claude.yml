@@ -21,9 +21,12 @@ jobs:
 
       - name: Run Claude Code Review
         id: claude-review
+        # Using @v1 for automatic updates of minor and patch versions
         uses: anthropics/claude-code-action@v1
         timeout-minutes: 3
         with:
+          # The ANTHROPIC_API_KEY secret must be configured in repository Settings → Secrets → Actions
+          # Obtain your API key from https://console.anthropic.com/
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
           claude_args: |

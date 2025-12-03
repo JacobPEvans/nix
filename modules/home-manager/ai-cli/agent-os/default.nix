@@ -61,6 +61,8 @@ let
 
   # Generate command symlinks to ~/.claude/commands/
   # Commands are in profiles/default/commands/{name}/{name}.md
+  # NOTE: This assumes the agent-os v1.x directory structure. If agent-os changes its structure,
+  # this symlink logic will need to be updated.
   commandFiles = builtins.listToAttrs (map (name: {
     name = ".claude/commands/${name}.md";
     value.source = "${agent-os}/profiles/default/commands/${name}/${name}.md";

@@ -82,10 +82,12 @@ let
   ];
 
   # Create symlink entries for ai-instructions commands
+  # Points directly to .ai-instructions/commands/ source files (not the .claude/commands/ symlinks)
+  # This avoids a chain of symlinks and is more resilient
   mkAiInstructionsCommandSymlinks = builtins.listToAttrs (map (cmd: {
     name = ".claude/commands/${cmd}.md";
     value = {
-      source = config.lib.file.mkOutOfStoreSymlink "${aiInstructionsRepo}/.claude/commands/${cmd}.md";
+      source = config.lib.file.mkOutOfStoreSymlink "${aiInstructionsRepo}/.ai-instructions/commands/${cmd}.md";
     };
   }) aiInstructionsCommands);
 

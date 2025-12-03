@@ -65,9 +65,13 @@ in
   # AI Assistant Configuration
   # ==========================================================================
   # Paths to AI assistant configuration repositories
+  # NOTE: The ai-assistant-instructions repository must be cloned to the path below
+  # before running darwin-rebuild. If missing, symlinks will be broken.
+  # Clone with: git clone https://github.com/JacobPEvans/ai-assistant-instructions.git ~/git/ai-assistant-instructions
   ai = {
     # Path to ai-assistant-instructions repo (must be cloned here)
     # Used by claude.nix and common.nix for symlinks
+    # Single source of truth - DRY principle
     instructionsRepo = "/Users/${username}/git/ai-assistant-instructions";
   };
 }
