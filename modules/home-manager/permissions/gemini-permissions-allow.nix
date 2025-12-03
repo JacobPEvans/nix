@@ -47,7 +47,7 @@ let
   gitCommands = [
     # Status and inspection
     "ShellTool(git status)"
-    "ShellTool(git merge-base)"
+    "ShellTool(git merge-base *)"
     "ShellTool(git log)"
     "ShellTool(git diff)"
     "ShellTool(git show)"
@@ -120,11 +120,11 @@ let
     "ShellTool(gh release list)"
     "ShellTool(gh release view)"
     # Search operations
-    "ShellTool(gh search)"
+    "ShellTool(gh search *)"
     # Gist operations
-    "ShellTool(gh gist view)"
+    "ShellTool(gh gist view *)"
     # CI/CD watching
-    "ShellTool(gh run watch)"
+    "ShellTool(gh run watch *)"
   ];
 
   # Nix package manager and darwin-rebuild
