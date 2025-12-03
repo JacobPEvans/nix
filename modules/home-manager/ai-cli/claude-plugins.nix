@@ -8,10 +8,26 @@
 # 1. Configure the official claude-code marketplace in settings.json
 # 2. Enable specific plugins from the marketplace
 # 3. Copy useful commands/agents from claude-cookbooks to ~/.claude/
+#
+# Schema validation: Assertions below ensure the settings.json structure
+# matches what Claude Code expects. Build fails if format is wrong.
 
-{ config, claude-code-plugins, claude-cookbooks, ... }:
+{ config, lib, claude-code-plugins, claude-cookbooks, ... }:
 
 let
+  # Validate marketplace entry has correct nested structure
+  # Claude Code schema: { "id": { source: { source: "git", url: "..." } } }
+  validateMarketplace = name: value:
+    assert lib.assertMsg (builtins.isAttrs value)
+      "Marketplace '${name}' must be an attrset, got ${builtins.typeOf value}";
+    assert lib.assertMsg (value ? source && builtins.isAttrs value.source)
+      "Marketplace '${name}' must have a 'source' attrset";
+    assert lib.assertMsg (value.source ? source && builtins.isString value.source.source)
+      "Marketplace '${name}.source' must have a 'source' string (git, github, npm, etc)";
+    assert lib.assertMsg (value.source ? url && builtins.isString value.source.url)
+      "Marketplace '${name}.source' must have a 'url' string";
+    true;
+
   # Official Anthropic plugin marketplace
   # Plugins are fetched on-demand when enabled
   # Format: object with marketplace ID as key, containing nested source object
@@ -81,7 +97,13 @@ let
     "code-reviewer"    # Senior code review agent
   ];
 
+  # Validate all marketplaces at evaluation time
+  # If any marketplace has wrong structure, build fails with clear error
+  validatedMarketplaces = lib.mapAttrs validateMarketplace marketplaces;
+
 in
+# Force evaluation of validations
+assert lib.all (x: x) (lib.attrValues validatedMarketplaces);
 {
   # Plugin marketplace and enabled plugins configuration
   # Merged into settings.json by claude.nix
