@@ -30,6 +30,8 @@ The environment will now load automatically when you `cd` into the project.
 | `js/` | Node.js development | Node.js, npm, yarn, pnpm |
 | `go/` | Go development | Go, gopls, delve |
 | `terraform/` | Infrastructure as Code | Terraform, Terragrunt, OpenTofu, tflint, checkov, tfsec, trivy, infracost |
+| `claude-sdk-python/` | Claude Agent SDK (Python) | Python 3.11, Anthropic SDK, pytest, black, mypy, ruff |
+| `claude-sdk-typescript/` | Claude Agent SDK (TypeScript) | Node.js 20, TypeScript, prettier, eslint |
 
 ## Customization
 
@@ -78,3 +80,26 @@ OpenTofu is included as a fully open-source alternative.
 
 **Note:** `pre-commit` and `markdownlint-cli2` are already available system-wide
 via `modules/common/packages.nix` - no need to add them to project shells.
+
+### Claude Agent SDK Shells (`claude-sdk-*/`)
+
+Development environments for building AI agents with Claude:
+
+**Python SDK** (`claude-sdk-python/`):
+- Python 3.11+ with modern package management
+- Anthropic Python SDK pre-installed
+- Testing tools (pytest, pytest-asyncio)
+- Code quality tools (black, mypy, ruff)
+- Interactive IPython shell with rich formatting
+
+**TypeScript SDK** (`claude-sdk-typescript/`):
+- Node.js 20 LTS with npm, yarn, pnpm
+- TypeScript compiler and language server
+- Development tools (prettier, eslint)
+- ts-node for direct TypeScript execution
+
+Both shells include:
+- Pre-configured environment for Claude API development
+- Links to official SDK repositories and documentation
+- Quick start examples and usage guides
+- See individual README.md files in each directory for details

@@ -38,6 +38,20 @@
       flake = false;  # Not a flake, just fetch the repo
     };
 
+    # Official Anthropic plugin directory
+    # Curated collection of internal and external plugins
+    claude-plugins-official = {
+      url = "github:anthropics/claude-plugins-official";
+      flake = false;  # Not a flake, just fetch the repo
+    };
+
+    # Anthropic public skills repository
+    # Document generation, analysis, and other reusable skills
+    anthropic-skills = {
+      url = "github:anthropics/skills";
+      flake = false;  # Not a flake, just fetch the repo
+    };
+
     # Agent OS - spec-driven development system for AI coding agents
     # Provides standards, workflows, agents, and commands
     # https://buildermethods.com/agent-os
@@ -56,14 +70,14 @@
     };
   };
 
-  outputs = { self, nixpkgs, darwin, home-manager, mac-app-util, claude-code-plugins, claude-cookbooks, agent-os, ai-assistant-instructions, ... }:
+  outputs = { self, nixpkgs, darwin, home-manager, mac-app-util, claude-code-plugins, claude-cookbooks, claude-plugins-official, anthropic-skills, agent-os, ai-assistant-instructions, ... }:
     let
       userConfig = import ./lib/user-config.nix;
       hmDefaults = import ./lib/home-manager-defaults.nix;
 
       # Pass external sources to home-manager modules
       extraSpecialArgs = {
-        inherit claude-code-plugins claude-cookbooks agent-os ai-assistant-instructions;
+        inherit claude-code-plugins claude-cookbooks claude-plugins-official anthropic-skills agent-os ai-assistant-instructions;
       };
     in
     {

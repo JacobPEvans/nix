@@ -351,3 +351,38 @@ exists for reference to maintain sync with Claude/Gemini structures.
 6. Update CHANGELOG.md for significant changes
 
 **Note**: Use `nix flake check` for testing (auto-approved). The `#` character in flake paths breaks permission matching, so `nix build .#...` will prompt for permission.
+
+## Anthropic Ecosystem Integration
+
+**Comprehensive integration** of official Anthropic Claude Code repositories.
+
+**Documentation**: See [docs/ANTHROPIC-ECOSYSTEM.md](docs/ANTHROPIC-ECOSYSTEM.md) for complete reference.
+
+**Quick Overview**:
+- **12 official plugins** enabled (git, review, security, UI/UX, output styles, migration)
+- **2 plugin marketplaces** configured (claude-code + claude-plugins-official)
+- **7 cookbook commands** + **1 agent** installed from claude-cookbooks
+- **Skills system** integrated from anthropics/skills
+- **Pattern references** for agent workflows documented
+- **SDK dev shells** for Python and TypeScript development
+- **GitHub Actions templates** for CI/CD integration
+
+**Configuration files**:
+- `modules/home-manager/ai-cli/claude-plugins.nix` - Plugin marketplace & enabled plugins
+- `modules/home-manager/ai-cli/claude-skills.nix` - Skills configuration
+- `modules/home-manager/ai-cli/claude-patterns.nix` - Cookbook pattern references
+- `shells/claude-sdk-python/` - Python SDK development shell
+- `shells/claude-sdk-typescript/` - TypeScript SDK development shell
+- `.github/workflows/*.yml.template` - GitHub Actions templates
+
+**Flake inputs**:
+- `claude-code-plugins` - Main CLI tool with plugins
+- `claude-cookbooks` - Patterns, agents, skills, examples
+- `claude-plugins-official` - Curated plugin directory
+- `anthropic-skills` - Public skills repository
+
+**To use**:
+- All slash commands auto-discovered: `/help` to list
+- SDK shells: `nix develop ~/.config/nix/shells/claude-sdk-python`
+- Update repos: `nix flake update` then rebuild
+
