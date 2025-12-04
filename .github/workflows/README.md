@@ -16,7 +16,7 @@ Automated PR review using [anthropics/claude-code-action](https://github.com/ant
 - Runs the `/review-code` command
 - Posts review comments on PRs
 
-**Setup**: Add `ANTHROPIC_API_KEY` to repository secrets.
+**Setup**: Add `CLAUDE_CODE_OAUTH_TOKEN` to repository secrets.
 
 ### Nix CI (`nix-ci.yml`)
 
@@ -49,7 +49,7 @@ Validates markdown file formatting.
 
 | Secret | Description | Required By |
 |--------|-------------|-------------|
-| `ANTHROPIC_API_KEY` | Anthropic API key for Claude | `claude.yml` |
+| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token for Claude Code GitHub App | `claude.yml` |
 
 ### Permissions
 
