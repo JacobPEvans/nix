@@ -91,7 +91,8 @@ See [shells/README.md](shells/README.md) for all available shells.
 
 ## Contributing
 
-Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for details, though the short version is: open a PR, follow existing patterns, and I'll probably merge it.
+Contributions welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+The short version: open a PR, follow existing patterns, and I'll probably merge it.
 
 ## License
 

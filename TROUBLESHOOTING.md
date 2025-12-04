@@ -129,7 +129,8 @@ nix search nixpkgs <partial-name>
 
 ## Why Packages "Disappear"
 
-Packages installed outside of nix (manual `brew install`, `npm -g`, etc.) are NOT tracked by nix-darwin. After system updates or profile switches, these packages may vanish because:
+Packages installed outside of nix (manual `brew install`, `npm -g`, etc.) are NOT tracked by nix-darwin.
+After system updates or profile switches, these packages may vanish because:
 
 1. They weren't in the nix store
 2. PATH changes to prioritize nix-managed paths (`/run/current-system/sw/bin`)
