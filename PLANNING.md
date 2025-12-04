@@ -67,8 +67,7 @@ Current hosts+modules architecture supports this. Next steps:
 
 ## Known Limitations
 
-1. **Nix Settings Warnings**: Harmless forward-compatibility warnings from Determinate Nix
-2. **Homebrew Exception**: claude-code via homebrew for rapid updates
+1. **Nix Settings Warnings**: Harmless forward-compatibility warnings from Determinate Nix (`eval-cores`, `lazy-trees`)
 
 ## Maintenance Plan
 

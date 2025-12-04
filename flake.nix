@@ -64,8 +64,9 @@
     # AI Assistant Instructions - source of truth for AI agent configuration
     # Contains permissions, commands, and instruction files
     # Consumed by claude.nix to generate settings.json
+    # Tracks main branch for cutting-edge updates (user's own repo)
     ai-assistant-instructions = {
-      url = "github:JacobPEvans/ai-assistant-instructions/release/v0.8.0";
+      url = "github:JacobPEvans/ai-assistant-instructions";
       flake = false;  # Not a flake, just fetch the repo
     };
   };
