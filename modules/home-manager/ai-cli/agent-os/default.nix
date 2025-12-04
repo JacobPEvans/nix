@@ -91,11 +91,11 @@ let
   generateSkillsForCategory = category:
     let
       standardsPath = "${agent-os}/profiles/default/standards/${category}";
-      # Try to read directory, return empty set if it doesn't exist
-      filesInCategory = 
-        if builtins.pathExists standardsPath
-        then builtins.attrNames (builtins.readDir standardsPath)
-        else [];
+      # Try to read directory, return empty list if it doesn't exist
+      dirContents = if builtins.pathExists standardsPath
+                    then builtins.readDir standardsPath
+                    else {};
+      filesInCategory = builtins.attrNames dirContents;
       # Filter to only .md files
       mdFiles = builtins.filter (name: lib.hasSuffix ".md" name) filesInCategory;
     in
@@ -105,7 +105,12 @@ let
       }) mdFiles);
 
   # Combine all categories into a single attrset
-  skillFiles = builtins.foldl' (acc: cat: acc // (generateSkillsForCategory cat)) {} standardsCategories;
+  # More efficient than folding with // operator - collect all attrs then merge once
+  skillFiles = 
+    let
+      allSkillAttrs = map generateSkillsForCategory standardsCategories;
+    in
+      builtins.foldl' (acc: attrs: acc // attrs) {} allSkillAttrs;
 
   # Skill template symlink
   skillTemplateFile = {
