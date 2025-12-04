@@ -11,6 +11,12 @@
 let
   # Define username once, derive everything else from it
   username = "jevans";
+
+  # Home directory path (derived from username for macOS)
+  # macOS-specific - this configuration is Darwin-only
+  # Use this for paths in darwin modules where config.home.homeDirectory
+  # is not available
+  homeDir = "/Users/${username}";
 in
 {
   # ==========================================================================
@@ -20,10 +26,8 @@ in
     # System username (matches macOS account)
     name = username;
 
-    # Home directory path (derived from username for macOS)
-    # Use this for paths in darwin modules where config.home.homeDirectory
-    # is not available
-    homeDir = "/Users/${username}";
+    # Expose homeDir for modules that need it
+    inherit homeDir;
 
     # Full name for git commits and other identity purposes
     fullName = "JacobPEvans";
@@ -72,6 +76,6 @@ in
     # Path to ai-assistant-instructions repo (must be cloned here)
     # Used by claude.nix and common.nix for symlinks
     # Single source of truth - DRY principle
-    instructionsRepo = "/Users/${username}/git/ai-assistant-instructions";
+    instructionsRepo = "${homeDir}/git/ai-assistant-instructions";
   };
 }

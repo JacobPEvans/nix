@@ -64,9 +64,8 @@ let
   # Commands from ai-assistant-instructions to symlink globally
   # Using mkOutOfStoreSymlink for live updates without darwin-rebuild
   #
-  # These commands live in .ai-instructions/commands/ with symlinks
-  # in .claude/commands/ for local development. Nix symlinks to the
-  # .claude/commands/ symlinks, which resolve to the source files.
+  # These commands live in .ai-instructions/commands/ and are symlinked
+  # directly to ~/.claude/commands/ for global availability.
   aiInstructionsCommands = [
     "commit"
     "generate-code"
