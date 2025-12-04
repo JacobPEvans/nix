@@ -73,7 +73,7 @@ inputs = {
 
 ### Module Structure
 
-```
+```text
 modules/home-manager/ai-cli/
 ├── claude.nix                    # Main Claude Code settings
 ├── claude-plugins.nix            # Plugin marketplace & enabled plugins
@@ -84,7 +84,7 @@ modules/home-manager/ai-cli/
 
 ### Configuration Flow
 
-```
+```text
 flake.nix (inputs)
     ↓
 extraSpecialArgs (pass to home-manager)
@@ -105,36 +105,46 @@ settings.json (merged configuration)
 All plugins are from the `anthropics/claude-code` marketplace:
 
 #### Git Workflow
+
 - **commit-commands** - `/commit`, `/commit-push-pr`, `/clean_gone`
 
 #### Code Review & Quality
+
 - **code-review** - Multi-agent PR review with confidence scoring
 - **pr-review-toolkit** - Specialized review agents
 
 #### Feature Development
+
 - **feature-dev** - 7-phase feature development workflow
 
 #### Security
+
 - **security-guidance** - Security monitoring hook
 
 #### Plugin/Hook Development
+
 - **plugin-dev** - Toolkit for creating Claude Code plugins
 - **hookify** - Custom hook creation
 
 #### SDK Development
+
 - **agent-sdk-dev** - Agent SDK development kit
 
 #### UI/UX Design
+
 - **frontend-design** - UI/UX design guidance
 
 #### Output Styles
+
 - **explanatory-output-style** - Educational insights hook
 - **learning-output-style** - Interactive learning mode
 
 #### Migration Tools
+
 - **claude-opus-4-5-migration** - Model migration skill
 
 #### Experimental
+
 - **ralph-wiggum** - Autonomous iteration loops (commented out by default)
 
 ### Plugin Marketplaces
@@ -279,31 +289,34 @@ Patterns are demonstrated in Jupyter notebooks in the `claude-cookbooks` reposit
 - `patterns/agents/basic_workflows.ipynb` - Basic patterns
 - `patterns/agents/orchestrator_workers.ipynb` - Advanced patterns
 
-### Usage
+### Pattern Usage
 
 Refer to `modules/home-manager/ai-cli/claude-patterns.nix` for pattern documentation.
 
 ---
 
-## SDK Development
+## SDK Development Shells
 
 ### Python SDK Shell
 
 Location: `shells/claude-sdk-python/`
 
 **Features**:
+
 - Python 3.11+ with pip and virtualenv
 - Anthropic Python SDK
 - Development tools: pytest, black, mypy, ruff
 - IPython interactive shell
 
 **Usage**:
+
 ```bash
 cd /path/to/claude-agent-project
 nix develop ~/.config/nix/shells/claude-sdk-python
 ```
 
 **Quick Start**:
+
 ```python
 from anthropic import Anthropic
 
@@ -323,18 +336,21 @@ See `shells/claude-sdk-python/README.md` for full documentation.
 Location: `shells/claude-sdk-typescript/`
 
 **Features**:
+
 - Node.js 20 LTS with npm, yarn, pnpm
 - TypeScript compiler and language server
 - Development tools: prettier, eslint
 - ts-node for direct execution
 
 **Usage**:
+
 ```bash
 cd /path/to/claude-agent-project
 nix develop ~/.config/nix/shells/claude-sdk-typescript
 ```
 
 **Quick Start**:
+
 ```typescript
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -379,6 +395,7 @@ Automated PR review using [anthropics/claude-code-action](https://github.com/ant
 **Triggers**: Pull requests (opened, synchronize)
 
 **Features**:
+
 - AI-powered code review using Claude
 - Runs the `/review-code` command
 - Posts review comments on PRs
@@ -392,6 +409,7 @@ Validates Nix flake configuration using Determinate Systems actions.
 **Triggers**: Push/PR on `*.nix` or `flake.lock` changes
 
 **Features**:
+
 - Installs Nix via [DeterminateSystems/nix-installer-action](https://github.com/DeterminateSystems/nix-installer-action)
 - Free caching via [DeterminateSystems/magic-nix-cache-action](https://github.com/DeterminateSystems/magic-nix-cache-action)
 - Checks flake.lock health via [DeterminateSystems/flake-checker-action](https://github.com/DeterminateSystems/flake-checker-action)
@@ -404,6 +422,7 @@ Validates markdown file formatting.
 **Triggers**: Push/PR on `*.md` or `.markdownlint.*` changes
 
 **Features**:
+
 - Uses [DavidAnson/markdownlint-cli2-action](https://github.com/DavidAnson/markdownlint-cli2-action)
 - Enforces consistent markdown style
 - Configuration in `.markdownlint.json`
@@ -411,6 +430,7 @@ Validates markdown file formatting.
 ### Customization
 
 Workflows can be customized for your needs:
+
 - Adjust triggers (PR events, schedules)
 - Configure severity thresholds
 - Modify comment formatting
@@ -433,7 +453,7 @@ Workflows can be customized for your needs:
 - [anthropics/claude-agent-sdk-typescript](https://github.com/anthropics/claude-agent-sdk-typescript) - TypeScript SDK
 - [anthropics/claude-agent-sdk-demos](https://github.com/anthropics/claude-agent-sdk-demos) - SDK demos
 
-### GitHub Actions
+### GitHub Actions Repositories
 
 - [anthropics/claude-code-action](https://github.com/anthropics/claude-code-action) - PR review action
 - [anthropics/claude-code-security-review](https://github.com/anthropics/claude-code-security-review) - Security review action
@@ -496,16 +516,19 @@ cat ~/.claude/settings.json | jq '.enabledPlugins'
 ### Troubleshooting
 
 **Plugin not loading**:
+
 1. Verify plugin name in `claude-plugins.nix`
 2. Check marketplace configuration
 3. Rebuild and restart Claude Code
 
 **Command not found**:
+
 1. Verify command in `claude-plugins.nix` or `claude-community-commands.nix`
 2. Check file copied to `~/.claude/commands/`
 3. Restart Claude Code to refresh command list
 
 **Skills not working**:
+
 1. Verify skills enabled in `claude-skills.nix`
 2. Check files copied to `~/.claude/skills/`
 3. Verify skill file format (should be Markdown)

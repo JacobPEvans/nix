@@ -65,7 +65,7 @@
     # Contains permissions, commands, and instruction files
     # Consumed by claude.nix to generate settings.json
     ai-assistant-instructions = {
-      url = "github:JacobPEvans/ai-assistant-instructions";
+      url = "github:JacobPEvans/ai-assistant-instructions/release/v0.8.0";
       flake = false;  # Not a flake, just fetch the repo
     };
   };

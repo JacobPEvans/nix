@@ -33,22 +33,26 @@ Then run `direnv allow` to auto-load the environment.
 ## Quick Start
 
 1. **Activate the shell**:
+
    ```bash
    nix develop ~/.config/nix/shells/claude-sdk-typescript
    ```
 
 2. **Initialize your project**:
+
    ```bash
    npm init -y
    npm install @anthropic-ai/sdk typescript @types/node
    ```
 
 3. **Set your API key**:
+
    ```bash
    export ANTHROPIC_API_KEY=sk-ant-...
    ```
 
 4. **Create a simple agent** (`agent.ts`):
+
    ```typescript
    import Anthropic from '@anthropic-ai/sdk';
 
@@ -71,16 +75,17 @@ Then run `direnv allow` to auto-load the environment.
    ```
 
 5. **Run your agent**:
+
    ```bash
    npx ts-node agent.ts
    ```
 
 ## Resources
 
-- **SDK Repository**: https://github.com/anthropics/claude-agent-sdk-typescript
-- **API Documentation**: https://docs.anthropic.com/
-- **SDK Demos**: https://github.com/anthropics/claude-agent-sdk-demos
-- **Cookbook Examples**: https://github.com/anthropics/claude-cookbooks
+- **SDK Repository**: <https://github.com/anthropics/claude-agent-sdk-typescript>
+- **API Documentation**: <https://docs.anthropic.com/>
+- **SDK Demos**: <https://github.com/anthropics/claude-agent-sdk-demos>
+- **Cookbook Examples**: <https://github.com/anthropics/claude-cookbooks>
 
 ## Development Tools
 

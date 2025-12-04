@@ -1,0 +1,7 @@
+{
+  // Ignore Nix build output (symlink to /nix/store)
+  "ignores": ["result/**"],
+  // Per-file rule overrides (use inline comments in files for file-specific disables)
+  "customRules": [],
+  "fix": false
+}

@@ -31,16 +31,19 @@ Then run `direnv allow` to auto-load the environment.
 ## Quick Start
 
 1. **Activate the shell**:
+
    ```bash
    nix develop ~/.config/nix/shells/claude-sdk-python
    ```
 
 2. **Set your API key**:
+
    ```bash
    export ANTHROPIC_API_KEY=sk-ant-...
    ```
 
 3. **Create a simple agent**:
+
    ```python
    from anthropic import Anthropic
    
@@ -57,10 +60,10 @@ Then run `direnv allow` to auto-load the environment.
 
 ## Resources
 
-- **SDK Repository**: https://github.com/anthropics/claude-agent-sdk-python
-- **API Documentation**: https://docs.anthropic.com/
-- **SDK Demos**: https://github.com/anthropics/claude-agent-sdk-demos
-- **Cookbook Examples**: https://github.com/anthropics/claude-cookbooks
+- **SDK Repository**: <https://github.com/anthropics/claude-agent-sdk-python>
+- **API Documentation**: <https://docs.anthropic.com/>
+- **SDK Demos**: <https://github.com/anthropics/claude-agent-sdk-demos>
+- **Cookbook Examples**: <https://github.com/anthropics/claude-cookbooks>
 
 ## Development Tools
 

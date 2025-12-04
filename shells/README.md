@@ -5,16 +5,19 @@ Per-project development environments using Nix flakes with direnv integration.
 ## Quick Start
 
 1. Copy desired flake to your project:
+
    ```bash
    cp ~/.config/nix/shells/python/flake.nix ~/myproject/
    ```
 
 2. Create `.envrc` in your project:
+
    ```bash
    echo "use flake" > ~/myproject/.envrc
    ```
 
 3. Allow direnv:
+
    ```bash
    cd ~/myproject && direnv allow
    ```
@@ -86,6 +89,7 @@ via `modules/common/packages.nix` - no need to add them to project shells.
 Development environments for building AI agents with Claude:
 
 **Python SDK** (`claude-sdk-python/`):
+
 - Python 3.11+ with modern package management
 - Anthropic Python SDK pre-installed
 - Testing tools (pytest, pytest-asyncio)
@@ -93,12 +97,14 @@ Development environments for building AI agents with Claude:
 - Interactive IPython shell with rich formatting
 
 **TypeScript SDK** (`claude-sdk-typescript/`):
+
 - Node.js 20 LTS with npm, yarn, pnpm
 - TypeScript compiler and language server
 - Development tools (prettier, eslint)
 - ts-node for direct TypeScript execution
 
 Both shells include:
+
 - Pre-configured environment for Claude API development
 - Links to official SDK repositories and documentation
 - Quick start examples and usage guides

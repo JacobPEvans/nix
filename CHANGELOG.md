@@ -1,5 +1,8 @@
 # Changelog
 
+<!-- markdownlint-disable MD024 -->
+<!-- Duplicate headings (Added/Changed/Fixed) are intentional per Keep a Changelog format -->
+
 All notable changes to this nix-darwin configuration will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -480,17 +483,20 @@ and this project adheres to [Calendar Versioning](https://calver.org/) using YYY
 ### What Changed for Users
 
 **Before**:
+
 - Traditional dotfiles (.zshrc in home directory)
 - Manual system configuration
 - Imperative package management
 
 **After**:
+
 - Declarative configuration via Nix
 - Version-controlled system state
 - Reproducible environment
 - Atomic updates with rollback capability
 
 **User Experience**:
+
 - Shell behaves identically (all aliases and functions preserved)
 - Original .zshrc backed up to .zshrc.backup
 - System updates via `darwin-rebuild switch`
@@ -516,11 +522,13 @@ sudo /nix/store/*/darwin-uninstaller
 ## Dependencies
 
 **Runtime**:
+
 - Nix 2.31.2+ (Determinate Nix installer)
 - macOS on Apple Silicon (aarch64-darwin)
 - Git (for flake operations)
 
 **Build**:
+
 - nix-darwin 25.05 (fetched via flake)
 - home-manager 25.05 (fetched via flake)
 - nixpkgs unstable (fetched via flake)

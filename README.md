@@ -52,7 +52,7 @@ See [RUNBOOK.md](RUNBOOK.md) for detailed procedures.
 
 ## Directory Structure
 
-```
+```text
 ~/.config/nix/
 ├── flake.nix                      # Main entry point
 ├── flake.lock                     # Locked dependency versions

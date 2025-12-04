@@ -26,7 +26,9 @@
 ## Near-Term Goals
 
 ### Profile Variants
+
 Extend current architecture with profile-specific modules:
+
 - **development** - Language runtimes, IDEs, debugging tools
   - Python: ruff, black, mypy
   - JavaScript: prettier, eslint_d
@@ -36,7 +38,9 @@ Extend current architecture with profile-specific modules:
 - **minimal** - Bare essentials for recovery
 
 ### Login Items Management
+
 Evaluate nix-darwin options for managing:
+
 - Raycast (nix-managed, login managed by app)
 - Google Drive (manual, proprietary)
 - Obsidian (nix-managed, login managed by app)
@@ -47,12 +51,15 @@ Evaluate nix-darwin options for managing:
 ## Long-Term Vision
 
 ### Multi-Machine Deployment
+
 Current hosts+modules architecture supports this. Next steps:
+
 - Deploy to ubuntu-server and proxmox hosts
 - Test home-manager standalone on Linux
 - Document deployment workflow
 
 ### Advanced Features
+
 - Time Machine integration
 - LaunchAgents for personal scripts
 
@@ -66,11 +73,15 @@ Current hosts+modules architecture supports this. Next steps:
 ## Maintenance Plan
 
 **Weekly**: Commit config tweaks, test darwin-rebuild
-**Monthly**: 
+
+**Monthly**:
+
 - `nix flake update` to update all inputs including Anthropic repositories
 - Garbage collect old generations
 - Review CHANGELOG for recent changes
-**Quarterly**: 
+
+**Quarterly**:
+
 - Audit packages and plugin configurations
 - Review enabled Claude Code plugins
 - Update documentation
@@ -81,6 +92,7 @@ Current hosts+modules architecture supports this. Next steps:
 The comprehensive Anthropic Claude Code integration requires periodic updates:
 
 **Plugin Updates** (Monthly):
+
 ```bash
 nix flake lock --update-input claude-code-plugins
 nix flake lock --update-input claude-cookbooks
@@ -90,6 +102,7 @@ darwin-rebuild switch --flake ~/.config/nix#default
 ```
 
 **Verify Integration** (After Updates):
+
 - Run `/help` in Claude Code to verify all 12 plugins load
 - Check `~/.claude/settings.json` for marketplace configuration
 - Test cookbook commands: `/review-pr`, `/review-issue`
