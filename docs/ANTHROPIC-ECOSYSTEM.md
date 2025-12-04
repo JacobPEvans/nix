@@ -440,13 +440,14 @@ Workflows can be customized for your needs:
 
 ## Agent OS Integration
 
-### Overview
+### What is Agent OS
 
-[Agent OS](https://buildermethods.com/agent-os) is a spec-driven development system for AI coding agents, providing structured workflows, standards, and specialized agents for software development.
+[Agent OS](https://buildermethods.com/agent-os) is a spec-driven development system for AI coding agents.
+It provides structured workflows, standards, and specialized agents for software development.
 
 **Integration Status**: Complete - All Agent OS components are available globally via `~/.claude/`.
 
-### Architecture
+### Agent OS Configuration
 
 Agent OS is integrated as a flake input (`github:JacobPEvans/agent-os`) and configured via the `programs.agent-os` module in `modules/home-manager/ai-cli/agent-os/default.nix`.
 
@@ -575,7 +576,7 @@ Agent OS coexists with ai-assistant-instructions and Anthropic ecosystem content
 
 **Profile Reference**: `~/agent-os/profiles/default/` (full Agent OS profile for reference)
 
-### Maintenance
+### Agent OS Updates
 
 **Update Agent OS**:
 
