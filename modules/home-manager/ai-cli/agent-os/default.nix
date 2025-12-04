@@ -82,8 +82,12 @@ let
   # Generate skill symlinks from standards directories
   # Standards are in profiles/default/standards/{category}/*.md
   # Each file becomes: ~/.claude/skills/{category}-{filename}.md
-  # NOTE: This uses builtins.readDir which reads at evaluation time
-  # If agent-os changes its standards structure, this logic needs updating
+  # 
+  # Evaluation Strategy:
+  # - builtins.readDir runs at Nix evaluation time (during build)
+  # - If agent-os structure changes, rebuild required to pick up changes
+  # - Missing directories gracefully return empty sets (no build failure)
+  # - This is intentional: ensures skills match the agent-os version in flake.lock
   standardsCategories = ["backend" "frontend" "global" "testing"];
   
   # Helper function to generate skill files for a single category
@@ -91,7 +95,8 @@ let
   generateSkillsForCategory = category:
     let
       standardsPath = "${agent-os}/profiles/default/standards/${category}";
-      # Try to read directory, return empty list if it doesn't exist
+      # Graceful fallback: if directory doesn't exist, return empty attrset
+      # This handles cases where agent-os repo structure changes or categories are removed
       dirContents = if builtins.pathExists standardsPath
                     then builtins.readDir standardsPath
                     else {};
@@ -105,7 +110,8 @@ let
       }) mdFiles);
 
   # Combine all categories into a single attrset
-  # More efficient than folding with // operator - collect all attrs then merge once
+  # Note: For 4 categories, foldl' with // is acceptable. With many more categories,
+  # consider lib.foldlAttrs for better performance.
   skillFiles = 
     let
       allSkillAttrs = map generateSkillsForCategory standardsCategories;
