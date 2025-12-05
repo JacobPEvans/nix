@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 let
   userConfig = import ../../lib/user-config.nix;
@@ -65,7 +65,7 @@ in
     gemini-cli      # Google's Gemini CLI
     gh              # GitHub CLI
     mas             # Mac App Store CLI (search: mas search <app>, install: mas install <id>)
-    nodejs_latest   # Node.js runtime
+    nodejs          # Node.js LTS (nixpkgs default tracks current LTS)
     # NOTE: ollama not included - nixpkgs build fails; using manual Ollama.app install
     # See hosts/macbook-m4/home.nix for models symlink to /Volumes/Ollama
 
@@ -112,7 +112,13 @@ in
   programs.zsh.enable = true;
 
   # Disable nix-darwin's Nix management (using Determinate Nix installer instead)
+  # Determinate Nix manages its own daemon - we just need nix-darwin for system config
   nix.enable = false;
+
+  # Workaround: home-manager's darwin module accesses nix.package even when nix.enable=false
+  # Using mkForce bypasses the throw in nix-darwin's managedDefault
+  # See: https://github.com/nix-community/home-manager/issues/4026
+  nix.package = lib.mkForce pkgs.nix;
 
   # Disable documentation to suppress builtins.toFile warnings
   documentation.enable = false;
