@@ -21,6 +21,7 @@ on:
       - '**.nix'
       - 'flake.lock'
       - 'modules/**'
+      - 'scripts/**'
 
 # Required for FlakeHub Cache OIDC authentication
 permissions:

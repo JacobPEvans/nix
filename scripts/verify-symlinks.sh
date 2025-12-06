@@ -39,7 +39,7 @@ done
 echo ""
 echo "Checking Claude settings..."
 if [ -f "$HM_FILES/.claude/settings.json" ]; then
-  cat "$HM_FILES/.claude/settings.json" | jq . > /dev/null
+  jq . "$HM_FILES/.claude/settings.json" > /dev/null
   echo "  ✓ settings.json valid"
 else
   echo "  ✗ settings.json not found"
