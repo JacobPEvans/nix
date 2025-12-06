@@ -6,7 +6,7 @@
 # - format: Nix code formatting
 # - build: Darwin build + symlink verification (cached)
 #
-# Cache: Uses Magic Nix Cache (free, zero-config) for Nix store paths.
+# Cache: Magic Nix Cache saves on main push, PRs use upstream cache.nixos.org.
 
 name: Nix
 
@@ -77,6 +77,7 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3
 
       - name: Setup Magic Nix Cache
+        if: github.ref == 'refs/heads/main'
         uses: DeterminateSystems/magic-nix-cache-action@main
 
       - name: Build home-manager configuration
