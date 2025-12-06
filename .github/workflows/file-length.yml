@@ -9,7 +9,7 @@
 # Helps maintain manageable file sizes for AI context windows.
 # Documented in CLAUDE.md section 5.
 
-name: File Length Check
+name: File Size Check
 
 on:
   pull_request:
@@ -25,7 +25,7 @@ env:
 
 jobs:
   check:
-    name: Check File Lengths
+    name: Check File Sizes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
