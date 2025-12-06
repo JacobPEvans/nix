@@ -3,6 +3,10 @@
 # Catches broken symlink paths in home-manager configuration.
 # This would have caught the Agent OS command path bug before merge.
 #
+# Uses Determinate Systems actions for fast, reliable Nix CI:
+# - determinate-nix-action: Installs Nix with determinacy (pure eval, etc.)
+# - flakehub-cache-action: Binary cache for fast builds via FlakeHub
+#
 # Verifies:
 # - Agent OS commands (7)
 # - Agent OS agents (8)
@@ -31,6 +35,9 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Enable FlakeHub Cache
+        uses: DeterminateSystems/flakehub-cache-action@v2
 
       - name: Build home-manager configuration
         run: |

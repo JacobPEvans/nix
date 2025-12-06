@@ -1,11 +1,13 @@
 # Nix CI - Validate flake configuration
 #
 # Uses Determinate Systems actions for fast, reliable Nix CI:
-# - determinate-nix-action: Unified Nix install + FlakeHub cache
+# - determinate-nix-action: Installs Nix with determinacy (pure eval, etc.)
+# - flakehub-cache-action: Binary cache for fast builds via FlakeHub
 # - flake-checker-action: Validate flake.lock health (nixpkgs freshness)
 #
 # References:
 # - https://github.com/DeterminateSystems/determinate-nix-action
+# - https://github.com/DeterminateSystems/flakehub-cache-action
 # - https://github.com/DeterminateSystems/flake-checker-action
 
 name: Nix CI
@@ -35,6 +37,9 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
 
+      - name: Enable FlakeHub Cache
+        uses: DeterminateSystems/flakehub-cache-action@v2
+
       - name: Check flake.lock health
         uses: DeterminateSystems/flake-checker-action@main
         with:
@@ -56,6 +61,9 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Enable FlakeHub Cache
+        uses: DeterminateSystems/flakehub-cache-action@v2
 
       - name: Check Nix formatting
         run: |
