@@ -23,11 +23,6 @@ on:
       - 'modules/**'
       - 'scripts/**'
 
-# Required for FlakeHub Cache OIDC authentication
-permissions:
-  contents: read
-  id-token: write
-
 jobs:
   lint:
     name: Lint flake.lock
@@ -44,6 +39,9 @@ jobs:
   validate:
     name: Validate flake
     runs-on: macos-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,6 +58,9 @@ jobs:
   format:
     name: Check formatting
     runs-on: macos-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -77,6 +78,9 @@ jobs:
   build:
     name: Build & Verify
     runs-on: macos-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
