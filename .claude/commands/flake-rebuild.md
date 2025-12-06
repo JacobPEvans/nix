@@ -16,24 +16,28 @@ Run `nix flake update` to update flake.lock.
 
 If flake.lock is unchanged, report "All flake inputs already up to date" and stop.
 
-### 3. Commit the Update
+### 3. Create Feature Branch
 
-Commit flake.lock with message: `chore(deps): update flake.lock`
+Create and switch to branch: `chore/flake-update-YYYY-MM-DD` (use today's date).
 
-### 4. Rebuild nix-darwin
+### 4. Commit the Update
 
-Run `sudo darwin-rebuild switch --flake ~/.config/nix`
+Commit flake.lock with message summarizing what was updated (from nix flake update output).
+
+### 5. Rebuild nix-darwin
+
+Run `sudo darwin-rebuild switch --flake .`
 
 **On failure**: Stop and report the error.
 
-### 5. Create Branch and Push
+### 6. Push and Create PR
 
-Create a feature branch (chore/flake-update-YYYY-MM-DD), push it, and create a PR.
+Push the feature branch and create a PR.
 
-### 6. Wait for Checks and Auto-Merge
+### 7. Wait for Checks and Auto-Merge
 
 Watch PR checks. If all pass and PR is mergeable, squash merge and return to main. If checks fail, report status and do NOT merge.
 
-### 7. Report Summary
+### 8. Report Summary
 
-Summarize what inputs were updated from the flake.lock diff.
+Summarize what inputs were updated.
