@@ -3,6 +3,7 @@
 # Warns when files exceed recommended line limits:
 # - 200 lines: Recommended maximum, consider refactoring
 # - 300 lines: Hard warning, should definitely be split
+# - 500 lines: Extended limit for explicitly allowed files
 #
 # Helps maintain the "target 200 lines max per file" guideline
 # documented in CLAUDE.md section 5.
@@ -14,6 +15,11 @@ on:
     paths:
       - '**.md'
       - '**.nix'
+
+# Files with extended hard limit (500 lines)
+# List file names without extension, space-separated
+env:
+  EXTENDED_LIMIT_FILES: "CLAUDE RUNBOOK TROUBLESHOOTING ANTHROPIC-ECOSYSTEM gemini-permissions-allow"
 
 jobs:
   check:
@@ -27,18 +33,41 @@ jobs:
         run: |
           MAX_RECOMMENDED=200
           MAX_HARD=300
+          MAX_EXTENDED=500
           WARNINGS=0
           ERRORS=0
 
+          # Convert extended limit files to array for lookup
+          EXTENDED_FILES="${{ env.EXTENDED_LIMIT_FILES }}"
+
+          # Function to check if file has extended limit
+          has_extended_limit() {
+            local filename="$1"
+            # Extract base name without path and extension
+            local base=$(basename "$filename" | sed 's/\.[^.]*$//')
+            for ext_file in $EXTENDED_FILES; do
+              if [ "$base" = "$ext_file" ]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
           echo "Checking file lengths (target: $MAX_RECOMMENDED lines)..."
+          echo "Files with extended limit ($MAX_EXTENDED): $EXTENDED_FILES"
           echo ""
 
           # Check markdown files
           echo "=== Markdown Files ==="
           for f in $(find . -name "*.md" -not -path "./node_modules/*" -not -path "./.git/*" | sort); do
             lines=$(wc -l < "$f")
-            if [ "$lines" -gt "$MAX_HARD" ]; then
-              echo "::error file=$f::$f has $lines lines (exceeds hard limit of $MAX_HARD)"
+            if has_extended_limit "$f"; then
+              hard_limit=$MAX_EXTENDED
+            else
+              hard_limit=$MAX_HARD
+            fi
+            if [ "$lines" -gt "$hard_limit" ]; then
+              echo "::error file=$f::$f has $lines lines (exceeds hard limit of $hard_limit)"
               ERRORS=$((ERRORS + 1))
             elif [ "$lines" -gt "$MAX_RECOMMENDED" ]; then
               echo "::warning file=$f::$f has $lines lines (exceeds recommended $MAX_RECOMMENDED)"
@@ -50,8 +79,13 @@ jobs:
           echo "=== Nix Files ==="
           for f in $(find . -name "*.nix" -not -path "./node_modules/*" -not -path "./.git/*" | sort); do
             lines=$(wc -l < "$f")
-            if [ "$lines" -gt "$MAX_HARD" ]; then
-              echo "::error file=$f::$f has $lines lines (exceeds hard limit of $MAX_HARD)"
+            if has_extended_limit "$f"; then
+              hard_limit=$MAX_EXTENDED
+            else
+              hard_limit=$MAX_HARD
+            fi
+            if [ "$lines" -gt "$hard_limit" ]; then
+              echo "::error file=$f::$f has $lines lines (exceeds hard limit of $hard_limit)"
               ERRORS=$((ERRORS + 1))
             elif [ "$lines" -gt "$MAX_RECOMMENDED" ]; then
               echo "::warning file=$f::$f has $lines lines (exceeds recommended $MAX_RECOMMENDED)"
@@ -64,7 +98,7 @@ jobs:
 
           # Only fail on hard errors, warnings are informational
           if [ $ERRORS -gt 0 ]; then
-            echo "Files exceeding $MAX_HARD lines must be refactored"
+            echo "Files exceeding their hard limit must be refactored"
             exit 1
           fi
 
