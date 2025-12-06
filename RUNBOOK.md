@@ -18,7 +18,7 @@ Step-by-step procedures for common configuration tasks.
 
 ```bash
 # Rebuild after config changes (most common)
-sudo darwin-rebuild switch --flake ~/.config/nix#default
+sudo darwin-rebuild switch --flake ~/.config/nix
 
 # Search for a package
 nix search nixpkgs <name>
@@ -57,7 +57,7 @@ sudo darwin-rebuild --list-generations
    cd ~/.config/nix
    git add .
    git commit -m "feat: add <package>"
-   sudo darwin-rebuild switch --flake .#default
+   sudo darwin-rebuild switch --flake .
    ```
 
 ### Adding a Homebrew Package (Fallback Only)
@@ -117,7 +117,7 @@ git add flake.lock
 git commit -m "chore: update flake inputs"
 
 # 3. Rebuild with new versions
-sudo darwin-rebuild switch --flake .#default
+sudo darwin-rebuild switch --flake .
 ```
 
 **Recommended frequency**: Weekly or when you notice outdated packages.
@@ -131,7 +131,7 @@ Homebrew auto-update is disabled for faster rebuilds. To get latest versions:
 brew update
 
 # 2. Rebuild (will upgrade packages based on new index)
-sudo darwin-rebuild switch --flake ~/.config/nix#default
+sudo darwin-rebuild switch --flake ~/.config/nix
 ```
 
 ### If Something Breaks After Update
@@ -143,7 +143,7 @@ cd ~/.config/nix
 git revert HEAD
 
 # Rebuild with old versions
-sudo darwin-rebuild switch --flake .#default
+sudo darwin-rebuild switch --flake .
 ```
 
 ---
@@ -303,11 +303,8 @@ No rebuild required - dev shells are evaluated on-demand.
 ### Switch to a Different Host Profile
 
 ```bash
-# The default profile is macbook-m4
-sudo darwin-rebuild switch --flake ~/.config/nix#default
-
-# Or specify explicitly
-sudo darwin-rebuild switch --flake ~/.config/nix#macbook-m4
+# Uses hostname to auto-detect configuration
+sudo darwin-rebuild switch --flake ~/.config/nix
 ```
 
 ### Creating a New Host Profile

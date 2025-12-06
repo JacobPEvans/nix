@@ -117,14 +117,14 @@ All configuration moved to `home/home.nix`:
 
 ```bash
 cd ~/.config/nix
-nix build .#darwinConfigurations.default.system
-sudo ./result/sw/bin/darwin-rebuild switch --flake ~/.config/nix#default
+nix flake check
+sudo darwin-rebuild switch --flake ~/.config/nix
 ```
 
 ### Or use darwin-rebuild directly (after first activation)
 
 ```bash
-sudo darwin-rebuild switch --flake ~/.config/nix#default
+sudo darwin-rebuild switch --flake ~/.config/nix
 ```
 
 ### Check Current Configuration
