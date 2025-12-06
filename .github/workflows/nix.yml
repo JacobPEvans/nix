@@ -1,0 +1,103 @@
+# Nix CI - All Nix validation in one macOS workflow
+#
+# Validates:
+# - Flake syntax and evaluation
+# - Nix formatting
+# - Darwin/home-manager symlinks
+#
+# Uses determinate-nix-action for fast, reliable Nix installation.
+# Binary cache: cache.nixos.org (public, no auth required)
+
+name: Nix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+  pull_request:
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+      - 'modules/**'
+
+jobs:
+  validate:
+    name: Validate & Build
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Check flake.lock health
+        uses: DeterminateSystems/flake-checker-action@main
+        with:
+          nixpkgs-keys: nixpkgs
+
+      - name: Validate flake
+        run: nix flake check --no-build
+
+      - name: Check Nix formatting
+        run: |
+          nix-shell -p nixfmt-classic --run 'find . -name "*.nix" -exec nixfmt --check {} +'
+        continue-on-error: true
+
+      - name: Build home-manager configuration
+        run: |
+          nix build .#darwinConfigurations.default.config.home-manager.users.jevans.home.activationPackage -o result-hm
+
+      - name: Verify symlinks
+        run: |
+          HM_FILES="result-hm/home-files"
+          ERRORS=0
+
+          echo "Checking Agent OS commands..."
+          for cmd in plan-product shape-spec write-spec create-tasks implement-tasks orchestrate-tasks improve-skills; do
+            if [ -L "$HM_FILES/.claude/commands/$cmd.md" ]; then
+              if [ -e "$HM_FILES/.claude/commands/$cmd.md" ]; then
+                echo "  ✓ $cmd.md"
+              else
+                echo "  ✗ $cmd.md symlink broken"
+                ERRORS=$((ERRORS + 1))
+              fi
+            else
+              echo "  - $cmd.md not found (Agent OS may be disabled)"
+            fi
+          done
+
+          echo ""
+          echo "Checking Agent OS agents..."
+          for agent in product-planner spec-initializer spec-shaper spec-verifier spec-writer tasks-list-creator implementer implementation-verifier; do
+            if [ -L "$HM_FILES/.claude/agents/$agent.md" ]; then
+              if [ -e "$HM_FILES/.claude/agents/$agent.md" ]; then
+                echo "  ✓ $agent.md"
+              else
+                echo "  ✗ $agent.md symlink broken"
+                ERRORS=$((ERRORS + 1))
+              fi
+            else
+              echo "  - $agent.md not found (Agent OS may be disabled)"
+            fi
+          done
+
+          echo ""
+          echo "Checking Claude settings..."
+          if [ -f "$HM_FILES/.claude/settings.json" ]; then
+            cat "$HM_FILES/.claude/settings.json" | jq . > /dev/null
+            echo "  ✓ settings.json valid"
+          else
+            echo "  ✗ settings.json not found"
+            ERRORS=$((ERRORS + 1))
+          fi
+
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "Found $ERRORS errors"
+            exit 1
+          fi
+          echo ""
+          echo "All checks passed"
