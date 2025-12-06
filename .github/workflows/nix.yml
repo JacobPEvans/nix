@@ -87,8 +87,8 @@ jobs:
       - name: Verify symlinks
         run: ./scripts/verify-symlinks.sh result-hm/home-files
 
-      # Step 1: Always save to seed the cache (will change to main-only after testing)
       - name: Save Nix cache
+        if: github.ref == 'refs/heads/main'
         uses: actions/cache/save@v4
         with:
           path: ~/.cache/nix
