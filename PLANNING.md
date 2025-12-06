@@ -97,7 +97,7 @@ nix flake lock --update-input claude-code-plugins
 nix flake lock --update-input claude-cookbooks
 nix flake lock --update-input claude-plugins-official
 nix flake lock --update-input anthropic-skills
-darwin-rebuild switch --flake ~/.config/nix#default
+darwin-rebuild switch --flake ~/.config/nix
 ```
 
 **Verify Integration** (After Updates):

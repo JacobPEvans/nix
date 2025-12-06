@@ -54,7 +54,7 @@ All changes must be committed before rebuild (flakes requirement).
 
 ```bash
 cd $NIX_CONFIG_DIR
-nix build .#darwinConfigurations.$FLAKE_TARGET.system --dry-run
+nix flake check
 ```
 
 Shows what would be built without actually building.
@@ -62,7 +62,7 @@ Shows what would be built without actually building.
 ### 5. Full Rebuild
 
 ```bash
-sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR#$FLAKE_TARGET
+sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
 ```
 
 Applies the configuration to the system.
@@ -110,7 +110,7 @@ ls ~/.claude/agents/
 sudo darwin-rebuild --list-generations
 sudo darwin-rebuild --rollback
 # Then switch back
-sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR#$FLAKE_TARGET
+sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
 ```
 
 ---

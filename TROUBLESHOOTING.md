@@ -29,7 +29,7 @@ Understanding when `sudo` is needed prevents permission issues.
 **Correct usage**:
 
 ```bash
-sudo darwin-rebuild switch --flake ~/.config/nix#default
+sudo darwin-rebuild switch --flake ~/.config/nix
 ```
 
 ### Commands That Should NOT Use sudo
@@ -122,7 +122,7 @@ nix search nixpkgs <partial-name>
 ### Changes not applying
 
 1. Commit your changes to git (flakes require this)
-2. Run: `sudo darwin-rebuild switch --flake ~/.config/nix#default`
+2. Run: `sudo darwin-rebuild switch --flake ~/.config/nix`
 3. Open a new terminal
 
 ---

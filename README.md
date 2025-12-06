@@ -17,7 +17,7 @@ Think of it as infrastructure-as-code, but for your laptop.
 
 ```bash
 # Rebuild after config changes
-sudo darwin-rebuild switch --flake ~/.config/nix#default
+sudo darwin-rebuild switch --flake ~/.config/nix
 
 # Search for a package
 nix search nixpkgs <name>
