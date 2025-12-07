@@ -128,6 +128,7 @@
       # Used by GitHub Actions for cross-platform validation
       ci = {
         claudeSettingsJson = darwinConfig.config.home-manager.users.${userConfig.user.name}.home.file.".claude/settings.json".text;
+        hmActivationPackage = darwinConfig.config.home-manager.users.${userConfig.user.name}.home.activationPackage;
       };
     };
 }
