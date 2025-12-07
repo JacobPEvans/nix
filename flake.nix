@@ -124,8 +124,9 @@
         ${userConfig.host.name} = darwinConfig;
       };
 
-      # CI-friendly outputs that don't require knowing the username
-      # Used by GitHub Actions for cross-platform validation
+      # CI-friendly outputs for GitHub Actions validation
+      # Provides stable references like .#ci.claudeSettingsJson so workflows
+      # don't need hardcoded usernames - the username is resolved internally
       ci = {
         # Read the pretty-printed JSON from the derivation output
         claudeSettingsJson = builtins.readFile darwinConfig.config.home-manager.users.${userConfig.user.name}.home.file.".claude/settings.json".source;
