@@ -37,10 +37,9 @@ jobs:
 
       - name: Extract settings via nix eval
         run: |
-          # Use nix eval to extract the settings.json content without building
-          # This avoids cross-platform build issues (darwin config on Linux runner)
-          nix eval --raw '.#darwinConfigurations.default.config.home-manager.users.jevans.home.file.".claude/settings.json".text' \
-            > settings-generated.json
+          # Use CI-friendly flake output to extract settings.json content
+          # Avoids hardcoded usernames and cross-platform build issues
+          nix eval --raw '.#ci.claudeSettingsJson' > settings-generated.json
 
       - name: Validate settings files
         run: |
