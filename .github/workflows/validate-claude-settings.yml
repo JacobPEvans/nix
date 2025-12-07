@@ -35,12 +35,12 @@ jobs:
           curl -sL https://raw.githubusercontent.com/spences10/claude-code-settings-schema/main/claude-code-settings.schema.json \
             -o claude-code-settings.schema.json
 
-      - name: Build and extract settings
+      - name: Extract settings via nix eval
         run: |
-          # Build the home-manager configuration to generate settings.json
-          nix build .#darwinConfigurations.default.config.home-manager.users.jevans.home.activationPackage -o result-hm
-          # Extract settings.json for validation
-          cp result-hm/home-files/.claude/settings.json ./settings-generated.json
+          # Use nix eval to extract the settings.json content without building
+          # This avoids cross-platform build issues (darwin config on Linux runner)
+          nix eval --raw '.#darwinConfigurations.default.config.home-manager.users.jevans.home.file.".claude/settings.json".text' \
+            > settings-generated.json
 
       - name: Validate settings files
         run: |
