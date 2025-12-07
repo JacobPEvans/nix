@@ -95,8 +95,8 @@ let
   # This is the complete settings configuration that will be written to settings.json
   claudeSettings = {
     # JSON Schema for IDE IntelliSense and validation
-    # Uses relative path since both files are in ~/.claude/
-    "$schema" = "./claude-code-settings.schema.json";
+    # Uses official schema store URL per claude doctor requirements
+    "$schema" = "https://json.schemastore.org/claude-code-settings.json";
 
     # Enable extended thinking mode
     alwaysThinkingEnabled = true;
