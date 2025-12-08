@@ -1,7 +1,10 @@
-# Raycast Configuration
+# Raycast Configuration Module
 #
-# Raycast preferences managed via macOS defaults.
+# Declarative Raycast preferences managed via macOS defaults.
 # These settings persist across reinstalls and database resets.
+#
+# Usage:
+#   programs.raycast.enable = true;
 #
 # Note: Only preference-type settings belong here.
 # Dynamic data (quicklinks, snippets, history) lives in Raycast's
@@ -11,66 +14,75 @@
 # To see all available keys: defaults read com.raycast.macos
 # Reference: https://raycast.com
 
-{ ... }:
+{ lib, config, ... }:
 
+let
+  cfg = config.programs.raycast;
+in
 {
-  system.defaults.CustomUserPreferences = {
-    "com.raycast.macos" = {
-      # ========================================================================
-      # Appearance
-      # ========================================================================
+  options.programs.raycast = {
+    enable = lib.mkEnableOption "declarative Raycast preferences";
+  };
 
-      # Follow system dark/light mode
-      # Default: true
-      raycastShouldFollowSystemAppearance = true;
+  config = lib.mkIf cfg.enable {
+    system.defaults.CustomUserPreferences = {
+      "com.raycast.macos" = {
+        # ========================================================================
+        # Appearance
+        # ========================================================================
 
-      # Window mode: "default" or "compact"
-      # Default: "default"
-      raycastPreferredWindowMode = "default";
+        # Follow system dark/light mode
+        # Default: true
+        raycastShouldFollowSystemAppearance = true;
 
-      # ========================================================================
-      # Menu Bar
-      # ========================================================================
+        # Window mode: "default" or "compact"
+        # Default: "default"
+        raycastPreferredWindowMode = "default";
 
-      # Show hyper key icon in menu bar
-      # Default: false
-      useHyperKeyIcon = false;
+        # ========================================================================
+        # Menu Bar
+        # ========================================================================
 
-      # ========================================================================
-      # Window Behavior
-      # ========================================================================
+        # Show hyper key icon in menu bar
+        # Default: false
+        useHyperKeyIcon = false;
 
-      # Keep window open when clicking away
-      # Default: false
-      keepWindowVisibleOnResignKey = false;
+        # ========================================================================
+        # Window Behavior
+        # ========================================================================
 
-      # ========================================================================
-      # Quicklinks
-      # ========================================================================
+        # Keep window open when clicking away
+        # Default: false
+        keepWindowVisibleOnResignKey = false;
 
-      # Auto-fill links in quicklinks
-      # Default: true
-      quicklinks_enableAutoFillLink = true;
+        # ========================================================================
+        # Quicklinks
+        # ========================================================================
 
-      # Enable quick search for quicklinks
-      # Default: true
-      quicklinks_enableQuickSearch = true;
+        # Auto-fill links in quicklinks
+        # Default: true
+        quicklinks_enableAutoFillLink = true;
 
-      # ========================================================================
-      # Screenshots
-      # ========================================================================
+        # Enable quick search for quicklinks
+        # Default: true
+        quicklinks_enableQuickSearch = true;
 
-      # Copy screenshot to clipboard
-      # Default: true
-      mainWindowCaptureCopyToClipboard = true;
+        # ========================================================================
+        # Screenshots
+        # ========================================================================
 
-      # Open Finder after screenshot
-      # Default: false
-      mainWindowCaptureShowInFinder = false;
+        # Copy screenshot to clipboard
+        # Default: true
+        mainWindowCaptureCopyToClipboard = true;
 
-      # Show overlay after screenshot
-      # Default: false
-      mainWindowCaptureOpenQuickAccessOverlay = false;
+        # Open Finder after screenshot
+        # Default: false
+        mainWindowCaptureShowInFinder = false;
+
+        # Show overlay after screenshot
+        # Default: false
+        mainWindowCaptureOpenQuickAccessOverlay = false;
+      };
     };
   };
 }
