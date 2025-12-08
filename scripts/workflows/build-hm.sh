@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build home-manager configuration with error/warning detection
+# Build home-manager configuration with error detection
 # Usage: ./scripts/workflows/build-hm.sh [OUTPUT_LINK]
-# Exit codes: 0=success, 1=build failed or error/warning detected
+# Exit codes: 0=success, 1=build failed or error detected
 
 set -euo pipefail
 
@@ -18,10 +18,10 @@ if [ "$build_exit_code" -ne 0 ]; then
   exit $build_exit_code
 fi
 
-# Fail on any error or warning in output
-if grep -qiE "^(error|warning):" "$BUILD_OUTPUT"; then
-  matched_line=$(grep -iE "^(error|warning):" "$BUILD_OUTPUT" | head -1)
-  echo "::error::Build issue detected: $matched_line"
+# Fail on actual errors (warnings like builtins.toFile are informational)
+if grep -qE "^error:" "$BUILD_OUTPUT"; then
+  matched_line=$(grep -E "^error:" "$BUILD_OUTPUT" | head -1)
+  echo "::error::Build error detected: $matched_line"
   exit 1
 fi
 

@@ -17,14 +17,14 @@
 # Or with direnv (create .envrc):
 #   use flake ~/.config/nix/shells/claude-sdk-typescript
 
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> { } }:
 
 pkgs.mkShell {
   name = "claude-sdk-typescript";
 
   buildInputs = with pkgs; [
     # Node.js runtime and package managers
-    nodejs  # Node.js LTS (nixpkgs default)
+    nodejs # Node.js LTS (nixpkgs default)
     nodePackages.npm
     nodePackages.yarn
     nodePackages.pnpm
@@ -32,14 +32,14 @@ pkgs.mkShell {
     # TypeScript tooling
     nodePackages.typescript
     nodePackages.typescript-language-server
-    nodePackages.ts-node  # Execute TypeScript directly
+    nodePackages.ts-node # Execute TypeScript directly
 
     # Development tools
-    nodePackages.prettier  # Code formatter
-    nodePackages.eslint    # Linter
+    nodePackages.prettier # Code formatter
+    nodePackages.eslint # Linter
 
     # Useful utilities
-    jq  # JSON processing
+    jq # JSON processing
 
     # Version control
     git

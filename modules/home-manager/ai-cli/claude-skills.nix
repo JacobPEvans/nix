@@ -43,13 +43,10 @@ let
   mkSkillFileEntries = skills:
     builtins.listToAttrs (map (skill: {
       name = ".claude/skills/${skill}.md";
-      value = {
-        source = "${anthropic-skills}/skills/${skill}.md";
-      };
+      value = { source = "${anthropic-skills}/skills/${skill}.md"; };
     }) skills);
 
-in
-{
+in {
   # Home-manager file entries for skills
   # These copy skill files from the anthropics/skills repo to ~/.claude/skills/
   #

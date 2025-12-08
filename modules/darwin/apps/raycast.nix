@@ -16,10 +16,8 @@
 
 { lib, config, ... }:
 
-let
-  cfg = config.programs.raycast;
-in
-{
+let cfg = config.programs.raycast;
+in {
   options.programs.raycast = {
     enable = lib.mkEnableOption "declarative Raycast preferences";
   };

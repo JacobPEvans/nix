@@ -8,7 +8,5 @@
 { ... }:
 
 {
-  imports = [
-    ./raycast.nix
-  ];
+  imports = [ ./raycast.nix ];
 }
