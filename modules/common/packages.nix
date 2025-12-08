@@ -55,4 +55,12 @@ with pkgs; [
 
   awscli2                         # AWS CLI v2 - unified tool to manage AWS services
   aws-vault                       # Secure AWS credential storage (uses OS keychain)
+
+  # ==========================================================================
+  # Python Tools (python3Packages.*)
+  # ==========================================================================
+  # Python packages from nixpkgs. Use python3Packages (not python312Packages)
+  # to avoid hardcoding versions - nixpkgs manages the default Python version.
+
+  python3Packages.grip            # Preview GitHub Markdown files locally
 ]
