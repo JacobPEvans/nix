@@ -57,9 +57,10 @@ with pkgs; [
   aws-vault                       # Secure AWS credential storage (uses OS keychain)
 
   # ==========================================================================
-  # Documentation Tools
+  # Python Tools (python3Packages.*)
   # ==========================================================================
-  # Tools for previewing and rendering documentation locally.
+  # Python packages from nixpkgs. Use python3Packages (not python312Packages)
+  # to avoid hardcoding versions - nixpkgs manages the default Python version.
 
-  python312Packages.grip          # Preview GitHub Markdown files locally
+  python3Packages.grip            # Preview GitHub Markdown files locally
 ]
