@@ -1,14 +1,8 @@
-# Nix CI - Parallel validation workflow
+# Nix CI - Validation and build workflow
 #
-# Jobs run in parallel where possible:
-# - lint: flake.lock health (no Nix needed)
-# - validate: flake structure check
-# - format: Nix code formatting
-# - build: Darwin build + symlink verification (cached)
-#
-# Cache: Magic Nix Cache enabled for build job:
-# - main: reads + writes to cache
-# - PRs: reads from cache (seeded by main)
+# Jobs:
+# - validate: Sequential lint/format/check (single Nix install)
+# - build: Darwin build with caching
 
 name: Nix
 
@@ -18,6 +12,8 @@ on:
     paths:
       - '**.nix'
       - 'flake.lock'
+      - 'modules/**'
+      - 'scripts/**'
   pull_request:
     paths:
       - '**.nix'
@@ -26,52 +22,34 @@ on:
       - 'scripts/**'
 
 jobs:
-  lint:
-    name: Lint flake.lock
+  validate:
+    name: Validate
     runs-on: macos-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Check flake.lock health
+      - name: Lint flake.lock
         uses: DeterminateSystems/flake-checker-action@main
         with:
           nixpkgs-keys: nixpkgs
 
-  validate:
-    name: Validate flake
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
 
-      - name: Check flake structure
+      - name: Check flake
         run: nix flake check --no-build
 
-  format:
-    name: Check formatting
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3
-
-      - name: Check Nix formatting
+      - name: Check formatting
         run: nix-shell -p nixfmt-classic --run 'find . -name "*.nix" -exec nixfmt --check {} +'
-        continue-on-error: true
 
   build:
-    name: Build & Verify
+    name: Build
     runs-on: macos-latest
     permissions:
       contents: read
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v6
 
       - name: Install Nix
@@ -82,36 +60,8 @@ jobs:
         with:
           use-flakehub: false
 
-      - name: Build home-manager configuration
-        run: |
-          set -o pipefail
-          BUILD_OUTPUT=$(mktemp)
-          trap 'rm -f "$BUILD_OUTPUT"' EXIT
-
-          # Build and capture output for warning analysis
-          nix build .#ci.hmActivationPackage -o result-hm 2>&1 | tee "$BUILD_OUTPUT"
-          build_exit_code=${PIPESTATUS[0]}
-          if [ "$build_exit_code" -ne 0 ]; then
-            echo "::error::nix build failed with exit code $build_exit_code"
-            exit $build_exit_code
-          fi
-
-          # Fail on dangerous patterns (blocklist)
-          # Anchored to common error/warning prefixes to reduce false positives
-          FAIL_PATTERNS=(
-            "error:.*unable to download"
-            "error:.*HTTP error"
-            "error:.*permission denied"
-            "warning:.*unable to download"
-            "warning:.*HTTP error"
-          )
-          for pattern in "${FAIL_PATTERNS[@]}"; do
-            if grep -qiE "$pattern" "$BUILD_OUTPUT"; then
-              matched_line=$(grep -iE "$pattern" "$BUILD_OUTPUT" | head -1)
-              echo "::error::Build issue detected matching '$pattern': $matched_line"
-              exit 1
-            fi
-          done
+      - name: Build home-manager
+        run: ./scripts/workflows/build-hm.sh result-hm
 
       - name: Verify symlinks
-        run: ./scripts/verify-symlinks.sh result-hm/home-files
+        run: ./scripts/workflows/verify-symlinks.sh result-hm/home-files

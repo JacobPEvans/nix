@@ -21,4 +21,4 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Check file sizes
-        run: ./scripts/check-file-sizes.sh "${{ env.EXTENDED }}" "${{ env.EXEMPT }}"
+        run: ./scripts/workflows/check-file-sizes.sh "${{ env.EXTENDED }}" "${{ env.EXEMPT }}"
