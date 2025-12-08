@@ -16,6 +16,7 @@ updates:
       prefix: "ci(deps)"
       include: "scope"
     # Group minor/patch updates to reduce PR noise
+    # Major updates are NOT grouped - they may contain breaking changes and need individual review
     groups:
       actions:
         patterns:

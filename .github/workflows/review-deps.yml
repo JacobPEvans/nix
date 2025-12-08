@@ -4,7 +4,7 @@ name: Review Flake Update
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, labeled]
     paths:
       - "flake.lock"
 
@@ -21,26 +21,19 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Full history for diff analysis
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/determinate-nix-action@v3
+        with:
+          flakehub: false
 
-      - name: Generate flake.lock diff summary
-        id: diff-summary
+      - name: Generate flake.lock diff
         run: |
-          # Get the diff between base and head
-          git diff origin/${{ github.base_ref }}...HEAD -- flake.lock > /tmp/flake-diff.txt
-
-          # Count changed lines
-          LINES_CHANGED=$(wc -l < /tmp/flake-diff.txt)
-          echo "lines_changed=$LINES_CHANGED" >> $GITHUB_OUTPUT
-
-          # Try to extract input names that changed (grep for "locked" changes)
-          CHANGED_INPUTS=$(grep -E '"[^"]+":' /tmp/flake-diff.txt | grep -oE '"[^"]+"' | sort -u | tr -d '"' | head -20 | tr '\n' ', ' || echo "unknown")
-          echo "changed_inputs=$CHANGED_INPUTS" >> $GITHUB_OUTPUT
+          # Get the diff between base and head using PR base sha for reliability
+          git diff ${{ github.event.pull_request.base.sha }}...HEAD -- flake.lock > /tmp/flake-diff.txt
 
       - name: Run Claude Code Review
         id: claude-review
@@ -110,4 +103,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Enabling auto-merge for PR #${{ github.event.pull_request.number }}"
-          gh pr merge --auto --squash --delete-branch "${{ github.event.pull_request.number }}"
+          gh pr merge --auto --squash --delete-branch "${{ github.event.pull_request.number }}" || {
+            echo "::warning::Failed to enable auto-merge. Ensure auto-merge is enabled in repository settings."
+            exit 0
+          }
