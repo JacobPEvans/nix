@@ -127,4 +127,3 @@ in
   # macOS system version (required for nix-darwin)
   system.stateVersion = 5;
 }
-

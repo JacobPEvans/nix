@@ -37,10 +37,10 @@ pkgs.mkShell {
     # Development tools
     nodePackages.prettier  # Code formatter
     nodePackages.eslint    # Linter
-    
+
     # Useful utilities
     jq  # JSON processing
-    
+
     # Version control
     git
   ];
@@ -70,11 +70,11 @@ pkgs.mkShell {
     echo "  - API Docs: https://docs.anthropic.com/"
     echo "  - Examples: https://github.com/anthropics/claude-agent-sdk-demos"
     echo ""
-    
+
     # Set npm prefix to local directory
     export npm_config_prefix="$PWD/.npm-packages"
     export PATH="$PWD/node_modules/.bin:$npm_config_prefix/bin:$PATH"
-    
+
     # Create package.json if it doesn't exist
     if [ ! -f "package.json" ]; then
       echo "💡 Tip: Run 'npm init -y' to create a package.json"

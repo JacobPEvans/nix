@@ -30,10 +30,10 @@ let
   selectedSkills = [
     # Document generation skills
     # "document-generator"
-    
+
     # Analysis skills
     # "code-analyzer"
-    
+
     # Automation skills
     # "workflow-automator"
   ];
@@ -56,7 +56,7 @@ in
   # Note: Currently no skills are enabled by default.
   # Uncomment skills in selectedSkills list above to enable them.
   files = mkSkillFileEntries selectedSkills;
-  
+
   # Expose the skills configuration for potential use by other modules
   skillsConfig = {
     inherit selectedSkills;

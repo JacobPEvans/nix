@@ -94,24 +94,24 @@ in
   # This is metadata only - actual notebooks live in claude-cookbooks input
   patterns = {
     inherit agentPatterns skillsPatterns commandAgentPatterns;
-    
+
     # Helper to get full path to a pattern notebook
     getNotebookPath = pattern: "${claude-cookbooks}/${pattern}";
-    
+
     # Documentation string for easy reference
     documentation = ''
       Claude Cookbook Patterns Available:
-      
+
       Agent Patterns:
-      ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: pattern: 
+      ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: pattern:
         "  - ${name}: ${pattern.description}"
       ) agentPatterns)}
-      
+
       Skills Patterns:
       ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: pattern:
         "  - ${name}: ${pattern.description}"
       ) skillsPatterns)}
-      
+
       Command/Agent Patterns:
       ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: pattern:
         "  - ${name}: ${pattern.description}"
