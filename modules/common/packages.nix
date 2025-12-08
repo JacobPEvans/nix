@@ -55,4 +55,11 @@ with pkgs; [
 
   awscli2                         # AWS CLI v2 - unified tool to manage AWS services
   aws-vault                       # Secure AWS credential storage (uses OS keychain)
+
+  # ==========================================================================
+  # Documentation Tools
+  # ==========================================================================
+  # Tools for previewing and rendering documentation locally.
+
+  python312Packages.grip          # Preview GitHub Markdown files locally
 ]
