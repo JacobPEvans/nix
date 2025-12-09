@@ -39,9 +39,18 @@ let
   mcpServerModule = types.submodule {
     options = {
       command = mkOption { type = types.str; };
-      args = mkOption { type = types.listOf types.str; default = [ ]; };
-      env = mkOption { type = types.attrsOf types.str; default = { }; };
-      disabled = mkOption { type = types.bool; default = false; };
+      args = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+      };
+      env = mkOption {
+        type = types.attrsOf types.str;
+        default = { };
+      };
+      disabled = mkOption {
+        type = types.bool;
+        default = false;
+      };
     };
   };
 
@@ -53,56 +62,128 @@ in {
 
     # Plugins
     plugins = {
-      marketplaces = mkOption { type = types.attrsOf marketplaceModule; default = { }; };
-      enabled = mkOption { type = types.attrsOf types.bool; default = { }; };
-      allowRuntimeInstall = mkOption { type = types.bool; default = true; };
+      marketplaces = mkOption {
+        type = types.attrsOf marketplaceModule;
+        default = { };
+      };
+      enabled = mkOption {
+        type = types.attrsOf types.bool;
+        default = { };
+      };
+      allowRuntimeInstall = mkOption {
+        type = types.bool;
+        default = true;
+      };
     };
 
     # Commands
     commands = {
-      fromFlakeInputs = mkOption { type = types.listOf componentModule; default = [ ]; };
-      local = mkOption { type = types.attrsOf types.path; default = { }; };
-      fromLiveRepo = mkOption { type = types.nullOr types.path; default = null; };
-      liveRepoCommands = mkOption { type = types.listOf types.str; default = [ ]; };
+      fromFlakeInputs = mkOption {
+        type = types.listOf componentModule;
+        default = [ ];
+      };
+      local = mkOption {
+        type = types.attrsOf types.path;
+        default = { };
+      };
+      fromLiveRepo = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+      };
+      liveRepoCommands = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+      };
     };
 
     # Agents
     agents = {
-      fromFlakeInputs = mkOption { type = types.listOf componentModule; default = [ ]; };
-      local = mkOption { type = types.attrsOf types.path; default = { }; };
+      fromFlakeInputs = mkOption {
+        type = types.listOf componentModule;
+        default = [ ];
+      };
+      local = mkOption {
+        type = types.attrsOf types.path;
+        default = { };
+      };
     };
 
     # Skills
     skills = {
-      fromFlakeInputs = mkOption { type = types.listOf componentModule; default = [ ]; };
-      local = mkOption { type = types.attrsOf types.path; default = { }; };
+      fromFlakeInputs = mkOption {
+        type = types.listOf componentModule;
+        default = [ ];
+      };
+      local = mkOption {
+        type = types.attrsOf types.path;
+        default = { };
+      };
     };
 
     # Hooks (Phase 2 - not yet implemented)
     # These options are declared for future hook support.
     # Implementation will generate ~/.claude/hooks/ scripts.
     hooks = {
-      preToolUse = mkOption { type = hookType; default = null; };
-      postToolUse = mkOption { type = hookType; default = null; };
-      userPromptSubmit = mkOption { type = hookType; default = null; };
-      stop = mkOption { type = hookType; default = null; };
-      subagentStop = mkOption { type = hookType; default = null; };
-      sessionStart = mkOption { type = hookType; default = null; };
-      sessionEnd = mkOption { type = hookType; default = null; };
+      preToolUse = mkOption {
+        type = hookType;
+        default = null;
+      };
+      postToolUse = mkOption {
+        type = hookType;
+        default = null;
+      };
+      userPromptSubmit = mkOption {
+        type = hookType;
+        default = null;
+      };
+      stop = mkOption {
+        type = hookType;
+        default = null;
+      };
+      subagentStop = mkOption {
+        type = hookType;
+        default = null;
+      };
+      sessionStart = mkOption {
+        type = hookType;
+        default = null;
+      };
+      sessionEnd = mkOption {
+        type = hookType;
+        default = null;
+      };
     };
 
     # MCP Servers
-    mcpServers = mkOption { type = types.attrsOf mcpServerModule; default = { }; };
+    mcpServers = mkOption {
+      type = types.attrsOf mcpServerModule;
+      default = { };
+    };
 
     # Settings
     settings = {
-      alwaysThinkingEnabled = mkOption { type = types.bool; default = true; };
-      permissions = {
-        allow = mkOption { type = types.listOf types.str; default = [ ]; };
-        deny = mkOption { type = types.listOf types.str; default = [ ]; };
-        ask = mkOption { type = types.listOf types.str; default = [ ]; };
+      alwaysThinkingEnabled = mkOption {
+        type = types.bool;
+        default = true;
       };
-      additionalDirectories = mkOption { type = types.listOf types.str; default = [ ]; };
+      permissions = {
+        allow = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+        };
+        deny = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+        };
+        ask = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+        };
+      };
+      additionalDirectories = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+      };
       schemaUrl = mkOption {
         type = types.str;
         default = "https://json.schemastore.org/claude-code-settings.json";
@@ -111,10 +192,19 @@ in {
 
     # Status Line (supports claude-code-statusline)
     statusLine = {
-      enable = mkOption { type = types.bool; default = false; };
-      script = mkOption { type = types.nullOr types.lines; default = null; };
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+      };
+      script = mkOption {
+        type = types.nullOr types.lines;
+        default = null;
+      };
       enhanced = {
-        enable = mkOption { type = types.bool; default = false; };
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+        };
         source = mkOption {
           type = types.nullOr types.path;
           default = null;
@@ -123,7 +213,8 @@ in {
         configFile = mkOption {
           type = types.nullOr types.path;
           default = null;
-          description = "Path to Config.toml (defaults to examples/Config.toml from source)";
+          description =
+            "Path to Config.toml (defaults to examples/Config.toml from source)";
         };
         # Internal: package built by statusline.nix, used by settings.nix
         package = mkOption {
@@ -137,8 +228,14 @@ in {
 
     # Feature Flags
     features = {
-      pluginSchemaVersion = mkOption { type = types.int; default = 1; };
-      experimental = mkOption { type = types.attrsOf types.bool; default = { }; };
+      pluginSchemaVersion = mkOption {
+        type = types.int;
+        default = 1;
+      };
+      experimental = mkOption {
+        type = types.attrsOf types.bool;
+        default = { };
+      };
     };
   };
 }

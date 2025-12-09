@@ -2,8 +2,9 @@
 #
 # Centralized configuration for the programs.claude module.
 # Imported by common.nix to keep it clean and high-level.
-{ config, pkgs, lib, claude-code-plugins, claude-cookbooks, claude-plugins-official
-, anthropic-skills, ai-assistant-instructions, claude-code-statusline, ... }:
+{ config, pkgs, lib, claude-code-plugins, claude-cookbooks
+, claude-plugins-official, anthropic-skills, ai-assistant-instructions
+, claude-code-statusline, ... }:
 
 let
   userConfig = import ../../../lib/user-config.nix;
@@ -92,11 +93,17 @@ in {
   plugins = {
     marketplaces = {
       "anthropics/claude-code" = {
-        source = { type = "git"; url = "https://github.com/anthropics/claude-code.git"; };
+        source = {
+          type = "git";
+          url = "https://github.com/anthropics/claude-code.git";
+        };
         flakeInput = claude-code-plugins;
       };
       "anthropics/claude-plugins-official" = {
-        source = { type = "git"; url = "https://github.com/anthropics/claude-plugins-official.git"; };
+        source = {
+          type = "git";
+          url = "https://github.com/anthropics/claude-plugins-official.git";
+        };
         flakeInput = claude-plugins-official;
       };
     };
@@ -127,16 +134,13 @@ in {
       ask = claudeAskJson.permissions;
     };
 
-    additionalDirectories = [
-      "~/"
-      "~/.claude/"
-      "~/.config/"
-    ];
+    additionalDirectories = [ "~/" "~/.claude/" "~/.config/" ];
   };
 
   mcpServers = {
     bitwarden = {
-      command = "${config.home.homeDirectory}/.npm-packages/bin/mcp-server-bitwarden";
+      command =
+        "${config.home.homeDirectory}/.npm-packages/bin/mcp-server-bitwarden";
       args = [ ];
     };
   };

@@ -9,7 +9,8 @@ let
   cfg = config.programs.claude;
 
   # Import pure registry functions from lib
-  claudeRegistryLib = import ../../../../lib/claude-registry.nix { inherit lib; };
+  claudeRegistryLib =
+    import ../../../../lib/claude-registry.nix { inherit lib; };
 
   # Build the full registry using lib function
   knownMarketplaces = claudeRegistryLib.mkKnownMarketplaces {

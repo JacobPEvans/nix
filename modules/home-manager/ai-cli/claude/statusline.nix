@@ -29,7 +29,9 @@ let
       # Create wrapper - add bash/jq/git/bun (for ccusage via bunx)
       # The statusline script uses 'bunx ccusage' for cost tracking
       makeWrapper $out/share/claude-code-statusline/statusline.sh $out/bin/claude-code-statusline \
-        --prefix PATH : ${lib.makeBinPath [ pkgs.bash pkgs.jq pkgs.git pkgs.bun ]} \
+        --prefix PATH : ${
+          lib.makeBinPath [ pkgs.bash pkgs.jq pkgs.git pkgs.bun ]
+        } \
         --set STATUSLINE_HOME $out/share/claude-code-statusline
 
       chmod +x $out/bin/claude-code-statusline
@@ -46,19 +48,21 @@ let
   };
 
   # Config file (custom or default from source examples/)
-  configSource = if cfg.statusLine.enhanced.configFile != null
-    then cfg.statusLine.enhanced.configFile
-    else "${cfg.statusLine.enhanced.source}/examples/Config.toml";
+  configSource = if cfg.statusLine.enhanced.configFile != null then
+    cfg.statusLine.enhanced.configFile
+  else
+    "${cfg.statusLine.enhanced.source}/examples/Config.toml";
 
 in {
-  config = lib.mkIf (cfg.enable && cfg.statusLine.enable && cfg.statusLine.enhanced.enable) {
-    # Export the package for settings.nix to reference
-    programs.claude.statusLine.enhanced.package = statuslinePackage;
+  config = lib.mkIf
+    (cfg.enable && cfg.statusLine.enable && cfg.statusLine.enhanced.enable) {
+      # Export the package for settings.nix to reference
+      programs.claude.statusLine.enhanced.package = statuslinePackage;
 
-    # Install the statusline package
-    home.packages = [ statuslinePackage ];
+      # Install the statusline package
+      home.packages = [ statuslinePackage ];
 
-    # Symlink Config.toml to ~/.claude/statusline/
-    home.file.".claude/statusline/Config.toml".source = configSource;
-  };
+      # Symlink Config.toml to ~/.claude/statusline/
+      home.file.".claude/statusline/Config.toml".source = configSource;
+    };
 }

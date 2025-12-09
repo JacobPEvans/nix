@@ -18,20 +18,22 @@ let
 
   # Helper for live repo symlinks
   mkLiveRepoSymlinks = type: repo: names:
-    if repo == null then { }
-    else builtins.listToAttrs (map (name: {
-      name = ".claude/${type}s/${name}.md";
-      value = {
-        source = config.lib.file.mkOutOfStoreSymlink
-          "${repo}/.ai-instructions/${type}s/${name}.md";
-      };
-    }) names);
+    if repo == null then
+      { }
+    else
+      builtins.listToAttrs (map (name: {
+        name = ".claude/${type}s/${name}.md";
+        value = {
+          source = config.lib.file.mkOutOfStoreSymlink
+            "${repo}/.ai-instructions/${type}s/${name}.md";
+        };
+      }) names);
 
   # Helper for local file symlinks
   mkLocalSymlinks = type: locals:
     lib.mapAttrs' (name: path:
-      lib.nameValuePair ".claude/${type}s/${name}.md" { source = path; }
-    ) locals;
+      lib.nameValuePair ".claude/${type}s/${name}.md" { source = path; })
+    locals;
 
 in {
   config = lib.mkIf cfg.enable {
@@ -39,7 +41,8 @@ in {
       # Commands
       mkComponentFiles "command" cfg.commands.fromFlakeInputs
       // mkLocalSymlinks "command" cfg.commands.local
-      // mkLiveRepoSymlinks "command" cfg.commands.fromLiveRepo cfg.commands.liveRepoCommands
+      // mkLiveRepoSymlinks "command" cfg.commands.fromLiveRepo
+      cfg.commands.liveRepoCommands
       # Agents
       // mkComponentFiles "agent" cfg.agents.fromFlakeInputs
       // mkLocalSymlinks "agent" cfg.agents.local

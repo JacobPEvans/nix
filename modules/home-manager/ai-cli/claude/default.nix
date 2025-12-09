@@ -16,8 +16,7 @@
 #   };
 { config, lib, pkgs, ... }:
 
-let
-  cfg = config.programs.claude;
+let cfg = config.programs.claude;
 in {
   imports = [
     ./options.nix
@@ -33,8 +32,12 @@ in {
     # Ensure ~/.claude directory structure exists
     # Individual sub-modules populate these directories
     home.file = {
-      ".claude/.keep".text = "# Managed by Nix - programs.claude module\n";
-      ".claude/plugins/.keep".text = "# Plugin registry managed by Nix\n";
+      ".claude/.keep".text = ''
+        # Managed by Nix - programs.claude module
+      '';
+      ".claude/plugins/.keep".text = ''
+        # Plugin registry managed by Nix
+      '';
     };
 
     # Activation script for directory setup

@@ -23,28 +23,34 @@ let
 
     # Plugin configuration
     extraKnownMarketplaces = lib.mapAttrs (_: m: {
-      source = { source = m.source.type; url = m.source.url; };
+      source = {
+        source = m.source.type;
+        url = m.source.url;
+      };
     }) cfg.plugins.marketplaces;
 
     enabledPlugins = cfg.plugins.enabled;
 
     # MCP servers (filtered out disabled ones)
-    mcpServers = lib.mapAttrs (_: s: {
-      command = s.command;
-      args = s.args;
-    } // lib.optionalAttrs (s.env != {}) { env = s.env; })
+    mcpServers = lib.mapAttrs (_: s:
+      {
+        command = s.command;
+        args = s.args;
+      } // lib.optionalAttrs (s.env != { }) { env = s.env; })
       (lib.filterAttrs (_: s: !(s.disabled or false)) cfg.mcpServers);
 
     # Status line (if enabled)
   } // lib.optionalAttrs cfg.statusLine.enable {
-    statusLine = if cfg.statusLine.enhanced.enable && cfg.statusLine.enhanced.package != null then {
+    statusLine = if cfg.statusLine.enhanced.enable
+    && cfg.statusLine.enhanced.package != null then {
       type = "command";
       # Reference package built by statusline.nix (single source of truth)
       command = "${cfg.statusLine.enhanced.package}/bin/claude-code-statusline";
     } else if cfg.statusLine.script != null then {
       type = "command";
       command = "${homeDir}/.claude/statusline-command.sh";
-    } else { };
+    } else
+      { };
   };
 
   # Pretty-print JSON
@@ -57,9 +63,8 @@ let
   '';
 
   # Status line script (if using simple script mode)
-  statusLineScript = lib.optionalAttrs
-    (cfg.statusLine.enable && cfg.statusLine.script != null && !cfg.statusLine.enhanced.enable)
-    {
+  statusLineScript = lib.optionalAttrs (cfg.statusLine.enable
+    && cfg.statusLine.script != null && !cfg.statusLine.enhanced.enable) {
       ".claude/statusline-command.sh" = {
         text = cfg.statusLine.script;
         executable = true;
