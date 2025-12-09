@@ -73,8 +73,12 @@ let
   #
   # These commands live in .ai-instructions/commands/ and are symlinked
   # directly to ~/.claude/commands/ for global availability.
+  #
+  # Note: Commands removed in favor of official plugins:
+  # - "commit" -> commit-commands plugin provides /commit, /commit-push-pr
+  #   See docs/PLUGIN-MIGRATION-PLAN.md for full comparison
   aiInstructionsCommands = [
-    "commit"
+    # "commit" - REMOVED: Use official commit-commands plugin instead
     "generate-code"
     "git-refresh"
     "infrastructure-review"

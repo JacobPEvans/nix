@@ -9,6 +9,10 @@
 # 2. Enable specific plugins from the marketplace
 # 3. Copy useful commands/agents from claude-cookbooks to ~/.claude/
 #
+# Migration Status: See docs/PLUGIN-MIGRATION-PLAN.md for full comparison
+# of official plugins vs custom commands. Commands that overlap with
+# official plugins have been documented and some have been removed.
+#
 # Schema validation: Assertions below ensure the settings.json structure
 # matches what Claude Code expects. Build fails if format is wrong.
 
