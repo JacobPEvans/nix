@@ -7,7 +7,7 @@
   # Configuration profiles
   profiles = {
     enabled = true;
-    default_profile = "default";
+    default_profile = "personal";
     auto_switch = true;
 
     # Work profile - focused, cost-aware

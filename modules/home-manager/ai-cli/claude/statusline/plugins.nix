@@ -7,7 +7,7 @@
     # Plugin system
     enabled = true;
     auto_discovery = true;
-    plugin_dirs = [ "~/.config/claude-code-statusline/plugins" "./plugins" ];
+    plugin_dirs = [ "~/.config/claude-code-statusline/plugins" ];
     timeout_per_plugin = "10s";
 
     # Git Extended Plugin - shows additional git info
