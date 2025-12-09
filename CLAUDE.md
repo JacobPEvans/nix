@@ -85,8 +85,9 @@ run `/compact` on the main conversation before spawning subagents.
    Repeat until checks pass or issue requires user input.
 
 2. **PR Review Monitor Subagent** - Watch for completed PR reviews (`gh pr view` or `gh api`).
-   Check `requested_reviewers` field - non-empty means reviews still pending.
-   Wait until all reviewers complete (requested_reviewers is empty) before finishing.
+   Compare each reviewer's latest `commit_id` with PR head SHA - mismatch means review pending.
+   Use: `gh api repos/OWNER/REPO/pulls/NUM/reviews` to get reviews with commit_id.
+   Wait until all reviewers have reviewed the current head commit before finishing.
    When a reviewer completes their review (comments, changes requested, or approved),
    automatically invoke `/rok-respond-to-reviews` to address feedback.
    Continue monitoring until PR is merged or closed.
