@@ -15,7 +15,8 @@ let
     src = cfg.statusLine.enhanced.source;
 
     nativeBuildInputs = [ pkgs.makeWrapper ];
-    buildInputs = [ pkgs.bash pkgs.jq pkgs.git pkgs.coreutils ];
+    # Note: NOT including coreutils - script expects macOS stat, not GNU stat
+    buildInputs = [ pkgs.bash pkgs.jq pkgs.git ];
 
     installPhase = ''
       runHook preInstall
@@ -24,9 +25,9 @@ let
       # Copy all source files (statusline.sh, lib/, examples/)
       cp -r . $out/share/claude-code-statusline/
 
-      # Create wrapper that executes from source directory
+      # Create wrapper - only add bash/jq/git, rely on system for stat/coreutils
       makeWrapper $out/share/claude-code-statusline/statusline.sh $out/bin/claude-code-statusline \
-        --prefix PATH : ${lib.makeBinPath [ pkgs.bash pkgs.jq pkgs.git pkgs.coreutils ]} \
+        --prefix PATH : ${lib.makeBinPath [ pkgs.bash pkgs.jq pkgs.git ]} \
         --set STATUSLINE_HOME $out/share/claude-code-statusline
 
       chmod +x $out/bin/claude-code-statusline
@@ -49,6 +50,9 @@ let
 
 in {
   config = lib.mkIf (cfg.enable && cfg.statusLine.enable && cfg.statusLine.enhanced.enable) {
+    # Export the package for settings.nix to reference
+    programs.claude.statusLine.enhanced.package = statuslinePackage;
+
     # Install the statusline package
     home.packages = [ statuslinePackage ];
 

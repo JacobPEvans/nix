@@ -125,6 +125,13 @@ in {
           default = null;
           description = "Path to Config.toml (defaults to examples/Config.toml from source)";
         };
+        # Internal: package built by statusline.nix, used by settings.nix
+        package = mkOption {
+          type = types.nullOr types.package;
+          default = null;
+          internal = true;
+          description = "Internal: built statusline package";
+        };
       };
     };
 
