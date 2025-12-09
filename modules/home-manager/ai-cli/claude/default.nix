@@ -37,24 +37,11 @@ in {
       ".claude/plugins/.keep".text = "# Plugin registry managed by Nix\n";
     };
 
-    # Activation script for dynamic values (timestamps, validation)
+    # Activation script for directory setup
     home.activation.claudeSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      # Update timestamps in registry files if needed
-      REGISTRY="${config.home.homeDirectory}/.claude/plugins/known_marketplaces.json"
-      if [ -f "$REGISTRY" ] && grep -q "@ACTIVATION_TIME@" "$REGISTRY" 2>/dev/null; then
-        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S.000Z")
-        ${pkgs.gnused}/bin/sed -i "s/@ACTIVATION_TIME@/$TIMESTAMP/g" "$REGISTRY"
-      fi
-
       # Create local marketplace directory for hybrid mode
       ${lib.optionalString cfg.plugins.allowRuntimeInstall ''
         mkdir -p "${config.home.homeDirectory}/.claude/plugins/marketplaces/local"
-      ''}
-
-      # Optional: Validate plugin structure
-      ${lib.optionalString (cfg.features.experimental.pluginValidation or false) ''
-        echo "Validating Claude plugin configuration..."
-        # Add validation logic here
       ''}
     '';
   };

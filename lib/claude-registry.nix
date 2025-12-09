@@ -14,12 +14,13 @@
         if m.flakeInput or null != null
         then toString m.flakeInput
         else "${homeDir}/.claude/plugins/marketplaces/${lib.replaceStrings ["/"] ["-"] name}";
-      lastUpdated = "@ACTIVATION_TIME@";
+      lastUpdated = "2025-12-08T00:00:00.000Z";  # Static - file is in nix store
     }) marketplaces
     // lib.optionalAttrs allowRuntimeInstall {
       "local/experimental" = {
-        source = { type = "local"; url = "~/.claude/plugins/local"; };
+        source = { type = "directory"; url = "~/.claude/plugins/local"; };
         installLocation = "${homeDir}/.claude/plugins/marketplaces/local";
+        lastUpdated = "2025-12-08T00:00:00.000Z";
         managedBy = "runtime";
       };
     };
