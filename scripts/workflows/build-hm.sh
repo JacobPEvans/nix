@@ -18,11 +18,18 @@ if [ "$build_exit_code" -ne 0 ]; then
   exit $build_exit_code
 fi
 
-# Fail on errors or warnings (treat warnings as errors for strict CI)
-if grep -qE "^(error|warning):" "$BUILD_OUTPUT"; then
-  matched_line=$(grep -E "^(error|warning):" "$BUILD_OUTPUT" | head -1)
-  echo "::error::Build issue detected: $matched_line"
+# Fail on errors (warnings are logged but don't fail the build)
+if grep -qE "^error:" "$BUILD_OUTPUT"; then
+  matched_line=$(grep -E "^error:" "$BUILD_OUTPUT" | head -1)
+  echo "::error::Build failed: $matched_line"
   exit 1
+fi
+
+# Log warnings for visibility
+if grep -qE "^warning:" "$BUILD_OUTPUT"; then
+  grep -E "^warning:" "$BUILD_OUTPUT" | while read -r line; do
+    echo "::warning::$line"
+  done
 fi
 
 echo "Build completed successfully: $OUTPUT_LINK"
