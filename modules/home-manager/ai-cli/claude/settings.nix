@@ -29,12 +29,11 @@ let
     enabledPlugins = cfg.plugins.enabled;
 
     # MCP servers (filtered out disabled ones)
-    mcpServers = lib.filterAttrs
-      (_: s: !s.disabled)
-      (lib.mapAttrs (_: s: {
-        command = s.command;
-        args = s.args;
-      } // lib.optionalAttrs (s.env != {}) { env = s.env; }) cfg.mcpServers);
+    mcpServers = lib.mapAttrs (_: s: {
+      command = s.command;
+      args = s.args;
+    } // lib.optionalAttrs (s.env != {}) { env = s.env; })
+      (lib.filterAttrs (_: s: !(s.disabled or false)) cfg.mcpServers);
 
     # Status line (if enabled)
   } // lib.optionalAttrs cfg.statusLine.enable {
