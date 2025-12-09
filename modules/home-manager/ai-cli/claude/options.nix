@@ -78,7 +78,9 @@ in {
       local = mkOption { type = types.attrsOf types.path; default = { }; };
     };
 
-    # Hooks
+    # Hooks (Phase 2 - not yet implemented)
+    # These options are declared for future hook support.
+    # Implementation will generate ~/.claude/hooks/ scripts.
     hooks = {
       preToolUse = mkOption { type = hookType; default = null; };
       postToolUse = mkOption { type = hookType; default = null; };
