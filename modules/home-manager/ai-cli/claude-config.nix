@@ -10,6 +10,9 @@ let
   userConfig = import ../../../lib/user-config.nix;
   aiInstructionsRepo = userConfig.ai.instructionsRepo;
 
+  # Statusline configuration - split into modular files
+  statuslineConfigToml = import ./claude/statusline { inherit pkgs lib; };
+
   # Read permissions from ai-assistant-instructions
   # Helper to reduce repetition (DRY)
   readPermissionsJson = path: builtins.fromJSON (builtins.readFile path);
@@ -151,8 +154,8 @@ in {
       enable = true;
       # Pulls from flake input - auto-updated via Dependabot
       source = claude-code-statusline;
-      # Uses default examples/Config.toml from source
-      # Override with: configFile = /path/to/custom/Config.toml;
+      # Custom config from modular Nix files - see claude/statusline/
+      configFile = statuslineConfigToml;
     };
   };
 }
