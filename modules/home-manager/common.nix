@@ -65,9 +65,15 @@ in {
   # WARNING: Will overwrite local VS Code settings
   programs.vscode = {
     enable = true;
-    profiles.default.userSettings = {
-      "editor.formatOnSave" = true;
-    } // vscodeGeneralSettings // vscodeGithubCopilotSettings;
+    profiles.default = {
+      # Disable VS Code's built-in update mechanism (Nix manages updates)
+      enableUpdateCheck = false; # Sets update.mode = "none"
+      enableExtensionUpdateCheck =
+        false; # Sets extensions.autoCheckUpdates = false
+      userSettings = {
+        "editor.formatOnSave" = true;
+      } // vscodeGeneralSettings // vscodeGithubCopilotSettings;
+    };
   };
 
   # ==========================================================================
