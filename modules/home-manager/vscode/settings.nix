@@ -4,6 +4,7 @@
 # Copilot settings are in vscode-copilot-settings.nix
 #
 # SETTINGS CATEGORIES:
+# - Update management (Nix controls VS Code updates)
 # - Git integration
 # - Terminal configuration
 # - Python development
@@ -17,6 +18,17 @@
 
 let homeDir = config.home.homeDirectory;
 in {
+  # === UPDATE MANAGEMENT ===
+  # Disable all auto-update functionality (Nix manages VS Code updates via nixpkgs)
+  # This prevents the "An update is ready to install" popup and helper tool prompts
+  #
+  # NOTE: update.mode and extensions.autoCheckUpdates are set by home-manager module
+  # options (enableUpdateCheck/enableExtensionUpdateCheck) in common.nix
+  "update.showReleaseNotes" =
+    false; # Don't show release notes after Nix updates
+  "extensions.autoUpdate" =
+    false; # Don't auto-update extensions (not covered by HM)
+
   # === GIT INTEGRATION ===
 
   "git.enableSmartCommit" = true;
@@ -71,10 +83,8 @@ in {
   "gitlens.ai.model" = "vscode";
   "gitlens.ai.vscode.model" = "copilot:gpt-4.1";
 
-  # Continue extension (disabled to avoid conflict with Copilot)
-  "continue.enableConsole" = true;
-  "continue.enableNextEdit" = false;
-  "continue.enableTabAutocomplete" = false;
+  # NOTE: Continue extension removed - redundant with Copilot and caused dirty settings.json issue
+  # (Continue auto-added yaml.schemas entries that Nix couldn't pre-declare)
 
   # Code Spell Checker
   "cSpell.userWords" = [ "sourcetype" ];
