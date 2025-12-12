@@ -6,7 +6,7 @@ This tasks list covers the migration from custom Claude commands to official Ant
 managed declaratively via Nix. The migration removes redundant commands that now have official
 equivalents while preserving unique custom functionality.
 
-**Specification**: `/Users/jevans/.config/nix/agent-os/specs/claude-plugin-migration/spec.md`
+**Specification**: `agent-os/specs/claude-plugin-migration/spec.md`
 
 **Key Changes**:
 
@@ -106,7 +106,7 @@ equivalents while preserving unique custom functionality.
 
 ### 3.3 Validate Configuration
 
-- [x] **3.3.1** Run `nix flake check` in `/Users/jevans/.config/nix`
+- [x] **3.3.1** Run `nix flake check` in repository root
 - [x] **3.3.2** Fix any Nix syntax errors if check fails
 - [x] **3.3.3** Commit configuration changes with descriptive message
 
@@ -120,7 +120,7 @@ equivalents while preserving unique custom functionality.
 
 ### 4.1 Apply Changes
 
-- [ ] **4.1.1** Run `sudo darwin-rebuild switch --flake /Users/jevans/.config/nix`
+- [ ] **4.1.1** Run `sudo darwin-rebuild switch --flake .`
 - [ ] **4.1.2** Verify rebuild completes without errors
 - [ ] **4.1.3** If rebuild fails, analyze error and fix (return to Phase 3 if config issue)
 
@@ -166,7 +166,7 @@ equivalents while preserving unique custom functionality.
 
 ### 5.1 Update ANTHROPIC-ECOSYSTEM.md
 
-- [ ] **5.1.1** Read current `/Users/jevans/.config/nix/docs/ANTHROPIC-ECOSYSTEM.md`
+- [ ] **5.1.1** Read current `docs/ANTHROPIC-ECOSYSTEM.md`
 - [ ] **5.1.2** Update "Cookbook Commands" section to remove `review-pr-ci`
 - [ ] **5.1.3** Update command count (from 6 to 5, or 4 if review-pr also removed)
 - [ ] **5.1.4** Add migration notes section explaining command changes
@@ -175,7 +175,7 @@ equivalents while preserving unique custom functionality.
 
 ### 5.2 Update CLAUDE.md
 
-- [ ] **5.2.1** Read current `/Users/jevans/.config/nix/CLAUDE.md`
+- [ ] **5.2.1** Read current `CLAUDE.md`
 - [ ] **5.2.2** Update "Anthropic Ecosystem Integration" section if it references removed commands
 - [ ] **5.2.3** Verify cookbook command count reference is updated
 - [ ] **5.2.4** Save changes to `CLAUDE.md`
@@ -212,7 +212,7 @@ equivalents while preserving unique custom functionality.
 - [ ] **6.1.2** Verify no regressions in daily usage patterns
 - [ ] **6.1.3** Test rollback procedure: `darwin-rebuild switch --rollback`
 - [ ] **6.1.4** Verify rollback restores previous configuration
-- [ ] **6.1.5** Re-apply changes: `darwin-rebuild switch --flake /Users/jevans/.config/nix`
+- [ ] **6.1.5** Re-apply changes: `darwin-rebuild switch --flake .`
 
 ### 6.2 Create Pull Request
 
@@ -244,7 +244,7 @@ darwin-rebuild switch --rollback
 ```bash
 # Revert the migration commit
 git revert HEAD --no-edit
-darwin-rebuild switch --flake /Users/jevans/.config/nix
+darwin-rebuild switch --flake .
 ```
 
 ### Full Recovery (if above methods fail)
@@ -252,12 +252,12 @@ darwin-rebuild switch --flake /Users/jevans/.config/nix
 ```bash
 # Restore from backup
 cp ~/backups/claude-plugin-migration-*/claude.nix.backup \
-   /Users/jevans/.config/nix/modules/home-manager/ai-cli/claude.nix
+   modules/home-manager/ai-cli/claude.nix
 cp ~/backups/claude-plugin-migration-*/claude-plugins.nix.backup \
-   /Users/jevans/.config/nix/modules/home-manager/ai-cli/claude-plugins.nix
-git add -A
+   modules/home-manager/ai-cli/claude-plugins.nix
+git add modules/home-manager/ai-cli/claude.nix modules/home-manager/ai-cli/claude-plugins.nix
 git commit -m "chore: rollback plugin migration"
-darwin-rebuild switch --flake /Users/jevans/.config/nix
+darwin-rebuild switch --flake .
 ```
 
 ---
