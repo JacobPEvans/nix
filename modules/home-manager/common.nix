@@ -68,7 +68,8 @@ in {
     profiles.default = {
       # Disable VS Code's built-in update mechanism (Nix manages updates)
       enableUpdateCheck = false; # Sets update.mode = "none"
-      enableExtensionUpdateCheck = false; # Sets extensions.autoCheckUpdates = false
+      enableExtensionUpdateCheck =
+        false; # Sets extensions.autoCheckUpdates = false
       userSettings = {
         "editor.formatOnSave" = true;
       } // vscodeGeneralSettings // vscodeGithubCopilotSettings;

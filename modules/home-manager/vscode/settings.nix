@@ -24,8 +24,10 @@ in {
   #
   # NOTE: update.mode and extensions.autoCheckUpdates are set by home-manager module
   # options (enableUpdateCheck/enableExtensionUpdateCheck) in common.nix
-  "update.showReleaseNotes" = false; # Don't show release notes after Nix updates
-  "extensions.autoUpdate" = false; # Don't auto-update extensions (not covered by HM)
+  "update.showReleaseNotes" =
+    false; # Don't show release notes after Nix updates
+  "extensions.autoUpdate" =
+    false; # Don't auto-update extensions (not covered by HM)
 
   # === GIT INTEGRATION ===
 
