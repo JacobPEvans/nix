@@ -67,7 +67,8 @@ in {
     enable = true;
     profiles.default = {
       # Disable VS Code's built-in update mechanism (Nix manages updates)
-      enableUpdateCheck = false; # Sets update.mode = "manual" (we override to "none" in userSettings)
+      enableUpdateCheck =
+        false; # Sets update.mode = "manual" (we override to "none" in userSettings)
       enableExtensionUpdateCheck = false; # Don't check for extension updates
       userSettings = {
         "editor.formatOnSave" = true;
