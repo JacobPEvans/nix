@@ -112,10 +112,10 @@ let
   # Additional repo-level commands (dedupe, oncall-triage) may exist in
   # anthropics/claude-code/.claude/commands/ but need verification.
   #
-  # Note: "review-pr-ci" removed - use /code-review from code-review plugin instead
-  # Kept: "review-pr" provides unique interactive safeguards not in /code-review
+  # Migration Notes:
+  # - Removed: "review-pr-ci" - replaced by code-review plugin (/code-review)
+  # - Removed: "review-pr" - replaced by code-review plugin (/code-review)
   cookbookCommands = [
-    "review-pr" # Interactive PR review (unique interactive safeguards)
     "review-issue" # GitHub issue review
     "notebook-review" # Jupyter notebook review
     "model-check" # Model validation
