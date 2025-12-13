@@ -13,14 +13,7 @@
     ./raycast.nix
   ];
 
-  # OrbStack: Docker & Linux VM manager
+  # OrbStack module is imported but host-specific config (apfsContainer)
+  # must be set in hosts/<host>/default.nix
   # Data symlink configured in hosts/<host>/home.nix
-  programs.orbstack = {
-    enable = true;
-    dataVolume = {
-      enable = true;
-      name = "ContainerData";
-      apfsContainer = "disk3";
-    };
-  };
 }

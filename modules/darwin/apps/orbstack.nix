@@ -64,7 +64,7 @@ in {
           Used in documentation; the actual symlink is configured in home-manager.
           This value is consistent across OrbStack installations.
         '';
-        readOnly = true;
+        internal = true;
       };
     };
   };
@@ -75,6 +75,7 @@ in {
       serviceConfig = {
         Label = "com.nix-darwin.orbstack-volume";
         ProgramArguments = [
+          "/bin/bash"
           "${volumeScript}"
           cfg.dataVolume.name
           cfg.dataVolume.apfsContainer

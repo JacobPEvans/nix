@@ -16,15 +16,22 @@ set -euo pipefail
 
 VOLUME_NAME="${1:?Volume name required}"
 CONTAINER="${2:?APFS container required}"
+
+# Validate volume name: allow only safe characters
+if [[ ! "$VOLUME_NAME" =~ ^[A-Za-z0-9._\ -]+$ ]]; then
+    echo "Error: Volume name contains invalid characters" >&2
+    exit 1
+fi
+
 MOUNT_POINT="/Volumes/${VOLUME_NAME}"
 
 # Already mounted - done
-if mount | grep -q "on ${MOUNT_POINT} "; then
+if mount | grep -q " on ${MOUNT_POINT} "; then
     exit 0
 fi
 
 # Exists but not mounted - mount it
-if diskutil info "${MOUNT_POINT}" &>/dev/null; then
+if diskutil info "${VOLUME_NAME}" &>/dev/null; then
     diskutil mount "${VOLUME_NAME}"
     exit 0
 fi
