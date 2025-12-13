@@ -90,6 +90,34 @@ let
 in {
   enable = true;
 
+  # API Key Helper for headless authentication (cron jobs, CI/CD)
+  # Uses Bitwarden Secrets Manager to securely fetch OAuth token
+  apiKeyHelper = {
+    enable = true;
+    # scriptPath default: .local/bin/claude-api-key-helper
+    # keychainService default: bws-claude-automation
+    secretId = "55ebeb62-1327-4967-8f08-b3a5015f5b7b";
+  };
+
+  # Auto-Claude: Scheduled autonomous maintenance
+  autoClaude = {
+    enable = true;
+    repositories = {
+      # ai-assistant-instructions: runs daily at 4am
+      ai-assistant-instructions = {
+        path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
+        schedule.hour = 4;
+        maxBudget = 25.0;
+      };
+      # nix config: runs daily at 1pm (13:00)
+      nix = {
+        path = "${config.home.homeDirectory}/.config/nix";
+        schedule.hour = 13;
+        maxBudget = 25.0;
+      };
+    };
+  };
+
   plugins = {
     marketplaces = {
       "anthropics/claude-code" = {

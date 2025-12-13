@@ -39,19 +39,27 @@ let
       } // lib.optionalAttrs (s.env != { }) { env = s.env; })
       (lib.filterAttrs (_: s: !(s.disabled or false)) cfg.mcpServers);
 
-    # Status line (if enabled)
-  } // lib.optionalAttrs cfg.statusLine.enable {
-    statusLine = if cfg.statusLine.enhanced.enable
-    && cfg.statusLine.enhanced.package != null then {
-      type = "command";
-      # Reference package built by statusline.nix (single source of truth)
-      command = "${cfg.statusLine.enhanced.package}/bin/claude-code-statusline";
-    } else if cfg.statusLine.script != null then {
-      type = "command";
-      command = "${homeDir}/.claude/statusline-command.sh";
-    } else
-      { };
-  };
+    # API Key Helper (for headless authentication)
+    # Note: env is only set when apiKeyHelper is enabled; no conflict possible
+    # since this is the sole source of the env attribute in settings.json
+  } // lib.optionalAttrs cfg.apiKeyHelper.enable {
+    env = { apiKeyHelper = "${homeDir}/${cfg.apiKeyHelper.scriptPath}"; };
+  }
+
+  # Status line (if enabled)
+    // lib.optionalAttrs cfg.statusLine.enable {
+      statusLine = if cfg.statusLine.enhanced.enable
+      && cfg.statusLine.enhanced.package != null then {
+        type = "command";
+        # Reference package built by statusline.nix (single source of truth)
+        command =
+          "${cfg.statusLine.enhanced.package}/bin/claude-code-statusline";
+      } else if cfg.statusLine.script != null then {
+        type = "command";
+        command = "${homeDir}/.claude/statusline-command.sh";
+      } else
+        { };
+    };
 
   # Pretty-print JSON
   settingsJson = pkgs.runCommand "claude-settings.json" {
