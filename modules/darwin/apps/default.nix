@@ -13,6 +13,14 @@
     ./raycast.nix
   ];
 
-  # Enable OrbStack Docker socket symlink management
-  programs.orbstack.enable = true;
+  # OrbStack: Docker & Linux VM manager
+  # Data symlink configured in hosts/<host>/home.nix
+  programs.orbstack = {
+    enable = true;
+    dataVolume = {
+      enable = true;
+      name = "ContainerData";
+      apfsContainer = "disk3";
+    };
+  };
 }

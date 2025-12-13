@@ -1,48 +1,91 @@
-# OrbStack Configuration Module
+# OrbStack Configuration Module (Darwin)
 #
-# Manages OrbStack Docker socket symlink configuration.
-# OrbStack is a lightweight Docker & Linux VM manager for macOS.
+# Manages macOS-specific OrbStack configuration:
+# - Dedicated APFS data volume (created at boot via launchd)
 #
-# The Docker socket symlink allows tools expecting the default Docker
-# socket location (/var/run/docker.sock) to work with OrbStack.
+# The data volume symlink is managed by home-manager in hosts/<host>/home.nix
+# using mkOutOfStoreSymlink (see Ollama pattern for example).
 #
 # Usage:
-#   programs.orbstack.enable = true;
-#   programs.orbstack.dockerSocketSymlink = true;  # default
+#   programs.orbstack = {
+#     enable = true;
+#     dataVolume = {
+#       enable = true;
+#       name = "ContainerData";
+#       apfsContainer = "disk3";  # Find with: diskutil apfs list
+#     };
+#   };
 #
-# Note: OrbStack's helper tool can also create this symlink via its GUI.
-# This module ensures the symlink exists declaratively after rebuilds.
+# Then in home.nix, add the symlink:
+#   home.file."Library/Group Containers/HUAQ24HBR6.dev.orbstack".source =
+#     config.lib.file.mkOutOfStoreSymlink "/Volumes/ContainerData";
+#
+# Why a separate volume?
+# - OrbStack stores data in ~/Library/Group Containers/... by default
+# - A dedicated APFS volume provides better disk space visibility
+# - APFS volumes share container space dynamically (no wasted pre-allocation)
+#
+# Note: OrbStack doesn't natively support custom data directories.
+# If it did, we would use: programs.orbstack.dataDir = "/Volumes/ContainerData";
 
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 
 let
   cfg = config.programs.orbstack;
-
-  # TODO: Refactor to receive userConfig via specialArgs instead of import
-  # See: https://github.com/JacobPEvans/nix/issues/XX
-  userConfig = import ../../../lib/user-config.nix;
-
-  # Script path for Docker socket setup
-  setupScript = ./scripts/setup-docker-socket.sh;
+  volumeScript = ./scripts/ensure-apfs-volume.sh;
 in {
   options.programs.orbstack = {
     enable = lib.mkEnableOption "OrbStack configuration";
 
-    dockerSocketSymlink = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = ''
-        Create /var/run/docker.sock symlink pointing to OrbStack's socket.
-        This allows tools expecting the default Docker socket to work.
-      '';
+    dataVolume = {
+      enable = lib.mkEnableOption "dedicated APFS volume for OrbStack data";
+
+      name = lib.mkOption {
+        type = lib.types.str;
+        default = "ContainerData";
+        description = "Name of the APFS volume for OrbStack data.";
+      };
+
+      apfsContainer = lib.mkOption {
+        type = lib.types.str;
+        description = ''
+          APFS container identifier where the volume will be created.
+          Find yours with: diskutil apfs list
+          Usually "disk3" on Apple Silicon Macs with single internal storage.
+        '';
+        example = "disk3";
+      };
+
+      groupContainerId = lib.mkOption {
+        type = lib.types.str;
+        default = "HUAQ24HBR6.dev.orbstack";
+        description = ''
+          OrbStack's App Group Container identifier.
+          Used in documentation; the actual symlink is configured in home-manager.
+          This value is consistent across OrbStack installations.
+        '';
+        readOnly = true;
+      };
     };
   };
 
   config = lib.mkIf cfg.enable {
-    # Create Docker socket symlink on system activation
-    # This runs with root privileges during darwin-rebuild switch
-    system.activationScripts.postActivation.text = lib.mkIf cfg.dockerSocketSymlink ''
-      ${setupScript} "${userConfig.user.homeDir}"
-    '';
+    # Launchd daemon to ensure APFS volume exists at boot
+    launchd.daemons.orbstack-volume = lib.mkIf cfg.dataVolume.enable {
+      serviceConfig = {
+        Label = "com.nix-darwin.orbstack-volume";
+        ProgramArguments = [
+          "${volumeScript}"
+          cfg.dataVolume.name
+          cfg.dataVolume.apfsContainer
+        ];
+        RunAtLoad = true;
+        LaunchOnlyOnce = true;
+        UserName = "root";
+        GroupName = "wheel";
+        StandardOutPath = "/var/log/orbstack-volume.log";
+        StandardErrorPath = "/var/log/orbstack-volume.log";
+      };
+    };
   };
 }
