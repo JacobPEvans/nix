@@ -8,5 +8,12 @@
 { ... }:
 
 {
-  imports = [ ./raycast.nix ];
+  imports = [
+    ./orbstack.nix
+    ./raycast.nix
+  ];
+
+  # OrbStack module is imported but host-specific config (apfsContainer)
+  # must be set in hosts/<host>/default.nix
+  # Data symlink configured in hosts/<host>/home.nix
 }

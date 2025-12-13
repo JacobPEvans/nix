@@ -75,6 +75,11 @@ in {
     # ========================================================================
     bitwarden-desktop # Password manager desktop app
     obsidian # Knowledge base / note-taking (Markdown)
+    # OrbStack: Docker & Linux VM manager (lightweight alternative to Docker Desktop)
+    # Provides: docker, docker-compose, docker-buildx, kubectl, orb, orbctl
+    # CLIs installed to /usr/local/bin via OrbStack's helper tool
+    # Docker socket: /var/run/docker.sock (managed by programs.orbstack module)
+    orbstack
     raycast # Productivity launcher (replaces Spotlight)
     vscode # Visual Studio Code editor
     zoom-us # Video conferencing

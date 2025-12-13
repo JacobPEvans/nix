@@ -33,6 +33,21 @@ in {
   # Allows SSH access to this development machine
   services.openssh.enable = true;
 
+  # ==========================================================================
+  # OrbStack Configuration
+  # ==========================================================================
+  # Container runtime with dedicated APFS volume for data storage
+  # Data symlink configured in home.nix using mkOutOfStoreSymlink
+
+  programs.orbstack = {
+    enable = true;
+    dataVolume = {
+      enable = true;
+      name = "ContainerData";
+      apfsContainer = "disk3"; # Find with: diskutil apfs list
+    };
+  };
+
   # Machine-specific packages (if any beyond common)
   # environment.systemPackages = with pkgs; [ ];
 }

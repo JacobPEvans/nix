@@ -27,11 +27,13 @@ let
 in {
   config = lib.mkIf cfg.enable {
     home.file = {
+      # Marketplace sources - Nix-managed (rarely changes)
       ".claude/plugins/known_marketplaces.json".text =
         builtins.toJSON knownMarketplaces;
 
-      ".claude/plugins/installed_plugins.json".text =
-        builtins.toJSON installedPlugins;
+      # NOTE: installed_plugins.json is NOT managed by Nix
+      # It's runtime state that Claude Code updates when plugins are installed/updated.
+      # Managing it with Nix causes rebuild conflicts since Claude overwrites it.
     };
   };
 }
