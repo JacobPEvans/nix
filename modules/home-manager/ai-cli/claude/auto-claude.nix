@@ -10,8 +10,7 @@ let
 
   # Build a script for each repository
   mkAutoClaudeScript = name: repoCfg:
-    pkgs.substituteAll {
-      src = ./auto-claude.sh;
+    pkgs.replaceVars ./auto-claude.sh {
       targetDir = repoCfg.path;
       maxBudget = toString repoCfg.maxBudget;
       logDir = "${homeDir}/.claude/logs";
