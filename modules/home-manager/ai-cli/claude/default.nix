@@ -26,9 +26,21 @@ in {
     ./settings.nix
     ./statusline.nix
     ./mcp.nix
+    ./auto-claude.nix
   ];
 
   config = lib.mkIf cfg.enable {
+    # Validate secretId is provided when apiKeyHelper is enabled
+    assertions = [{
+      assertion = !cfg.apiKeyHelper.enable || (cfg.apiKeyHelper.secretId or "")
+        != "";
+      message = ''
+        programs.claude.apiKeyHelper.enable is true but secretId is not set.
+        Please provide the Bitwarden secret ID:
+          programs.claude.apiKeyHelper.secretId = "your-secret-id";
+      '';
+    }];
+
     # Ensure ~/.claude directory structure exists
     # Individual sub-modules populate these directories
     home.file = {
@@ -38,6 +50,15 @@ in {
       ".claude/plugins/.keep".text = ''
         # Plugin registry managed by Nix
       '';
+    } // lib.optionalAttrs cfg.apiKeyHelper.enable {
+      # API Key Helper script for headless authentication
+      "${cfg.apiKeyHelper.scriptPath}" = {
+        source = pkgs.replaceVars ./get-api-key.sh {
+          keychainService = cfg.apiKeyHelper.keychainService;
+          bwsSecretId = cfg.apiKeyHelper.secretId;
+        };
+        executable = true;
+      };
     };
 
     # Activation script for directory setup
