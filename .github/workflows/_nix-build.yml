@@ -24,8 +24,13 @@ jobs:
           use-flakehub: false
           use-gha-cache: true
 
-      - name: Check Nix formatting
-        run: nix-shell -p nixfmt-classic --run 'find . -name "*.nix" -exec nixfmt --check {} +'
+      - name: Nix quality checks (DRY via flake.nix)
+        # Single source of truth with pre-commit hooks
+        # Runs: formatting (nixfmt-rfc-style), linting (statix), dead code (deadnix)
+        run: nix flake check --print-build-logs
+
+      - name: Check flake health
+        uses: DeterminateSystems/flake-checker-action@main
 
       - name: Build Home Manager
         run: ./scripts/workflows/build-hm.sh result-hm
