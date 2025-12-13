@@ -8,5 +8,11 @@
 { ... }:
 
 {
-  imports = [ ./raycast.nix ];
+  imports = [
+    ./orbstack.nix
+    ./raycast.nix
+  ];
+
+  # Enable OrbStack Docker socket symlink management
+  programs.orbstack.enable = true;
 }
