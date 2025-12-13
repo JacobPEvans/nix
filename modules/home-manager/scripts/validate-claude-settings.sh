@@ -7,8 +7,9 @@
 #   $2 - Schema URL
 #
 # Exit codes:
-#   0 - Validation passed or skipped (file/tool not found)
-#   Non-zero - Validation failed (warning only, does not block activation)
+#   0 - Always. Validation failures are only reported as warnings to stderr
+#       and do not block activation.
+#   1 - Only on argument/usage error.
 
 set -euo pipefail
 
@@ -16,8 +17,8 @@ SETTINGS="${1:-}"
 SCHEMA_URL="${2:-}"
 
 if [ -z "$SETTINGS" ] || [ -z "$SCHEMA_URL" ]; then
-  echo "Usage: validate-claude-settings.sh <settings-path> <schema-url>" >&2
-  exit 0
+  echo "Usage: $0 <settings-path> <schema-url>" >&2
+  exit 1
 fi
 
 if [ ! -f "$SETTINGS" ]; then
