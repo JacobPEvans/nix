@@ -31,7 +31,8 @@ in
       ".claude/plugins/known_marketplaces.json".text = builtins.toJSON knownMarketplaces;
 
       # NOTE: installed_plugins.json is NOT managed by Nix
-      # It's runtime state that Claude Code updates when plugins are installed/updated.
+      # Claude Code auto-creates this file on first plugin installation.
+      # It's runtime state that Claude updates when plugins are installed/enabled.
       # Managing it with Nix causes rebuild conflicts since Claude overwrites it.
     };
   };

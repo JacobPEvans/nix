@@ -46,4 +46,7 @@ if diskutil info "${VOLUME_NAME}" &>/dev/null; then
 fi
 
 # Create volume
-diskutil apfs addVolume "${CONTAINER}" APFS "${VOLUME_NAME}"
+if ! diskutil apfs addVolume "${CONTAINER}" APFS "${VOLUME_NAME}"; then
+    echo "Error: Failed to create volume '${VOLUME_NAME}' on container '${CONTAINER}'" >&2
+    exit 1
+fi
