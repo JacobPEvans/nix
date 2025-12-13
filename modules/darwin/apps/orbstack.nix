@@ -28,12 +28,18 @@
 # Note: OrbStack doesn't natively support custom data directories.
 # If it did, we would use: programs.orbstack.dataDir = "/Volumes/ContainerData";
 
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.programs.orbstack;
   volumeScript = ./scripts/ensure-apfs-volume.sh;
-in {
+in
+{
   options.programs.orbstack = {
     enable = lib.mkEnableOption "OrbStack configuration";
 
@@ -71,11 +77,12 @@ in {
 
   config = lib.mkIf cfg.enable {
     # Validate apfsContainer is set when dataVolume is enabled
-    assertions = lib.mkIf cfg.dataVolume.enable [{
-      assertion = cfg.dataVolume.apfsContainer != "";
-      message =
-        "programs.orbstack.dataVolume.apfsContainer must be set. Find yours with: diskutil apfs list";
-    }];
+    assertions = lib.mkIf cfg.dataVolume.enable [
+      {
+        assertion = cfg.dataVolume.apfsContainer != "";
+        message = "programs.orbstack.dataVolume.apfsContainer must be set. Find yours with: diskutil apfs list";
+      }
+    ];
 
     # Launchd daemon to ensure APFS volume exists at boot
     launchd.daemons.orbstack-volume = lib.mkIf cfg.dataVolume.enable {

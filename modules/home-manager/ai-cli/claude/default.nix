@@ -14,10 +14,17 @@
 #     enable = true;
 #     plugins.enabled = { "commit-commands@anthropics/claude-code" = true; };
 #   };
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
-let cfg = config.programs.claude;
-in {
+let
+  cfg = config.programs.claude;
+in
+{
   imports = [
     ./options.nix
     ./registry.nix

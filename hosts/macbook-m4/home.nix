@@ -25,8 +25,7 @@
   home.file = {
     # Ollama models on dedicated APFS volume
     # CRITICAL: 692GB+ of models - NEVER delete /Volumes/Ollama
-    ".ollama/models".source =
-      config.lib.file.mkOutOfStoreSymlink "/Volumes/Ollama/models";
+    ".ollama/models".source = config.lib.file.mkOutOfStoreSymlink "/Volumes/Ollama/models";
 
     # OrbStack data on dedicated APFS volume
     # Symlinks entire Group Container so ALL OrbStack data lives on volume

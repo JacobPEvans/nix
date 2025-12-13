@@ -45,7 +45,16 @@ jobs:
           use-gha-cache: true
 
       - name: Check Nix formatting
-        run: nix-shell -p nixfmt --run 'find . -name "*.nix" -exec nixfmt --check {} +'
+        run: nix fmt -- --check .
+
+      - name: Lint Nix files (statix)
+        run: nix develop --command statix check .
+
+      - name: Check for unused Nix code (deadnix)
+        run: nix develop --command deadnix --fail .
+
+      - name: Check flake health
+        uses: DeterminateSystems/flake-checker-action@main
 
       - name: Build Home Manager
         run: ./scripts/workflows/build-hm.sh result-hm

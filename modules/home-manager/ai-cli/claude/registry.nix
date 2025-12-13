@@ -9,8 +9,7 @@ let
   cfg = config.programs.claude;
 
   # Import pure registry functions from lib
-  claudeRegistryLib =
-    import ../../../../lib/claude-registry.nix { inherit lib; };
+  claudeRegistryLib = import ../../../../lib/claude-registry.nix { inherit lib; };
 
   # Build the full registry using lib function
   knownMarketplaces = claudeRegistryLib.mkKnownMarketplaces {
@@ -24,12 +23,12 @@ let
     schemaVersion = cfg.features.pluginSchemaVersion;
   };
 
-in {
+in
+{
   config = lib.mkIf cfg.enable {
     home.file = {
       # Marketplace sources - managed by Nix configuration
-      ".claude/plugins/known_marketplaces.json".text =
-        builtins.toJSON knownMarketplaces;
+      ".claude/plugins/known_marketplaces.json".text = builtins.toJSON knownMarketplaces;
 
       # NOTE: installed_plugins.json is NOT managed by Nix
       # It's runtime state that Claude Code updates when plugins are installed/updated.

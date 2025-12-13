@@ -10,7 +10,8 @@
 let
   # User-specific configuration (hostname, identity, etc.)
   userConfig = import ../../lib/user-config.nix;
-in {
+in
+{
   imports = [
     # Darwin system modules
     ../../modules/darwin/common.nix
