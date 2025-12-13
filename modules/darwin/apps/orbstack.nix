@@ -70,6 +70,13 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    # Validate apfsContainer is set when dataVolume is enabled
+    assertions = lib.mkIf cfg.dataVolume.enable [{
+      assertion = cfg.dataVolume.apfsContainer != "";
+      message =
+        "programs.orbstack.dataVolume.apfsContainer must be set. Find yours with: diskutil apfs list";
+    }];
+
     # Launchd daemon to ensure APFS volume exists at boot
     launchd.daemons.orbstack-volume = lib.mkIf cfg.dataVolume.enable {
       serviceConfig = {

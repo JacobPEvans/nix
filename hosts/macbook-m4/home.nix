@@ -32,6 +32,7 @@
     # Symlinks entire Group Container so ALL OrbStack data lives on volume
     # Volume created by launchd daemon (see modules/darwin/apps/orbstack.nix)
     # Contains: Docker images, containers, volumes, Linux VMs, logs
+    # MIGRATION: Stop OrbStack and move existing data before enabling
     "Library/Group Containers/HUAQ24HBR6.dev.orbstack".source =
       config.lib.file.mkOutOfStoreSymlink "/Volumes/ContainerData";
   };

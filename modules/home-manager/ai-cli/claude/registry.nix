@@ -27,7 +27,7 @@ let
 in {
   config = lib.mkIf cfg.enable {
     home.file = {
-      # Marketplace sources - Nix-managed (rarely changes)
+      # Marketplace sources - managed by Nix configuration
       ".claude/plugins/known_marketplaces.json".text =
         builtins.toJSON knownMarketplaces;
 

@@ -17,9 +17,15 @@ set -euo pipefail
 VOLUME_NAME="${1:?Volume name required}"
 CONTAINER="${2:?APFS container required}"
 
-# Validate volume name: allow only safe characters
-if [[ ! "$VOLUME_NAME" =~ ^[A-Za-z0-9._\ -]+$ ]]; then
+# Validate volume name: allow only safe characters (letters, digits, dot, underscore, space, hyphen)
+if [[ ! "$VOLUME_NAME" =~ ^[A-Za-z0-9._ -]+$ ]]; then
     echo "Error: Volume name contains invalid characters" >&2
+    exit 1
+fi
+
+# Validate container: disk identifiers (disk3, disk3s1) or UUIDs
+if [[ ! "$CONTAINER" =~ ^(disk[0-9]+([s][0-9]+)?|[A-Fa-f0-9-]{36})$ ]]; then
+    echo "Error: Invalid container identifier" >&2
     exit 1
 fi
 
@@ -32,7 +38,10 @@ fi
 
 # Exists but not mounted - mount it
 if diskutil info "${VOLUME_NAME}" &>/dev/null; then
-    diskutil mount "${VOLUME_NAME}"
+    if ! diskutil mount "${VOLUME_NAME}"; then
+        echo "Error: Failed to mount volume '${VOLUME_NAME}'" >&2
+        exit 1
+    fi
     exit 0
 fi
 
