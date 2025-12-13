@@ -55,6 +55,7 @@ jobs:
               - '**.nix'
               - 'flake.lock'
               - 'modules/**'
+              - 'scripts/**'
             markdown:
               - '**.md'
               - '.markdownlint.json'

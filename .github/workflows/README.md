@@ -141,8 +141,8 @@ jobs:
 
 | Check | Triggers On |
 |-------|-------------|
-| Nix Build | `**.nix`, `flake.lock`, `modules/**` |
-| Nix Validate | `**.nix`, `flake.lock`, `modules/**` |
+| Nix Build | `**.nix`, `flake.lock`, `modules/**`, `scripts/**` |
+| Nix Validate | `**.nix`, `flake.lock`, `modules/**`, `scripts/**` |
 | Markdown Lint | `**.md`, `.markdownlint.*` |
 | Claude Settings | `.claude/**`, `modules/home-manager/ai-cli/**` |
 | File Size | `**.nix`, `**.md` |

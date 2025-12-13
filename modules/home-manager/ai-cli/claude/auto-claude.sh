@@ -32,6 +32,12 @@ if [[ ! -d "$TARGET_DIR" ]]; then
   exit 1
 fi
 
+# Validate MAX_BUDGET_USD is a positive number
+if ! [[ "$MAX_BUDGET_USD" =~ ^[0-9]+\.?[0-9]*$ ]] || [[ $(echo "$MAX_BUDGET_USD <= 0" | bc -l) -eq 1 ]]; then
+  echo "Error: MAX_BUDGET_USD must be a positive number, got: $MAX_BUDGET_USD" >&2
+  exit 1
+fi
+
 # --- ENVIRONMENT ---
 # Source shell configs for full environment (API keys, PATH, git credentials)
 # Required because launchd runs in a minimal shell
