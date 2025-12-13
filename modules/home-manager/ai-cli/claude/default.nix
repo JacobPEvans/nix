@@ -26,6 +26,7 @@ in {
     ./settings.nix
     ./statusline.nix
     ./mcp.nix
+    ./auto-claude.nix
   ];
 
   config = lib.mkIf cfg.enable {

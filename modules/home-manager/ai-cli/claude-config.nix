@@ -99,6 +99,25 @@ in {
     secretId = "55ebeb62-1327-4967-8f08-b3a5015f5b7b";
   };
 
+  # Auto-Claude: Scheduled autonomous maintenance
+  autoClaude = {
+    enable = true;
+    repositories = {
+      # ai-assistant-instructions: runs daily at 4am
+      ai-assistant-instructions = {
+        path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
+        schedule.hour = 4;
+        maxBudget = 2.00;
+      };
+      # nix config: runs daily at 1pm (13:00)
+      nix = {
+        path = "${config.home.homeDirectory}/.config/nix";
+        schedule.hour = 13;
+        maxBudget = 2.00;
+      };
+    };
+  };
+
   plugins = {
     marketplaces = {
       "anthropics/claude-code" = {
