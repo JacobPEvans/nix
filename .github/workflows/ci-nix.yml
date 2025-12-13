@@ -45,7 +45,7 @@ jobs:
           use-gha-cache: true
 
       - name: Check Nix formatting
-        run: nix-shell -p nixfmt-classic --run 'find . -name "*.nix" -exec nixfmt --check {} +'
+        run: nix-shell -p nixfmt --run 'find . -name "*.nix" -exec nixfmt --check {} +'
 
       - name: Build Home Manager
         run: ./scripts/workflows/build-hm.sh result-hm

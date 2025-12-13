@@ -35,7 +35,7 @@ with pkgs; [
   actionlint # GitHub Actions workflow linter
 
   # Nix
-  nixfmt-classic # Nix code formatter (this repo uses Nix)
+  nixfmt # Nix code formatter (this repo uses Nix)
 
   # JSON
   check-jsonschema # JSON Schema validator CLI (for settings validation)
