@@ -83,12 +83,8 @@ in {
         config = {
           Label = "com.claude.auto-claude-${name}";
           # Pass arguments at runtime instead of baking them into the script
-          ProgramArguments = [
-            scriptPath
-            repoCfg.path
-            (toString repoCfg.maxBudget)
-            logDir
-          ];
+          ProgramArguments =
+            [ scriptPath repoCfg.path (toString repoCfg.maxBudget) logDir ];
           StartCalendarInterval =
             [ (mkCalendarInterval repoCfg.schedule.hour) ];
           StandardOutPath = "${logDir}/launchd-${name}.log";
