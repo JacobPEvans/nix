@@ -90,10 +90,6 @@ in {
             PATH =
               "/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin:/usr/sbin:/sbin";
           };
-          # Don't run if missed (e.g., laptop was asleep)
-          # Set to true if you want catch-up runs
-          StartCalendarInterval =
-            [ (mkCalendarInterval repoCfg.schedule.hour) ];
         };
       }) (lib.filterAttrs (_: r: r.enabled) cfg.autoClaude.repositories);
   };
