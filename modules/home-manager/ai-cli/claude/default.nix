@@ -30,6 +30,17 @@ in {
   ];
 
   config = lib.mkIf cfg.enable {
+    # Validate secretId is provided when apiKeyHelper is enabled
+    assertions = [{
+      assertion = !cfg.apiKeyHelper.enable || (cfg.apiKeyHelper.secretId or "")
+        != "";
+      message = ''
+        programs.claude.apiKeyHelper.enable is true but secretId is not set.
+        Please provide the Bitwarden secret ID:
+          programs.claude.apiKeyHelper.secretId = "your-secret-id";
+      '';
+    }];
+
     # Ensure ~/.claude directory structure exists
     # Individual sub-modules populate these directories
     home.file = {

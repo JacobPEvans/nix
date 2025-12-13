@@ -38,7 +38,7 @@ in {
             type = lib.types.submodule {
               options = {
                 hour = lib.mkOption {
-                  type = lib.types.int;
+                  type = lib.types.ints.between 0 23;
                   description = "Hour of day to run (0-23)";
                 };
               };
@@ -65,6 +65,13 @@ in {
   };
 
   config = lib.mkIf (cfg.enable && cfg.autoClaude.enable) {
+    # Warn if apiKeyHelper is not enabled (required for headless auth)
+    warnings = lib.optional (!cfg.apiKeyHelper.enable) ''
+      programs.claude.autoClaude is enabled but programs.claude.apiKeyHelper is not.
+      Auto-Claude requires apiKeyHelper for headless authentication.
+      Enable it with: programs.claude.apiKeyHelper.enable = true;
+    '';
+
     # Deploy scripts for each repository
     home.file = lib.mapAttrs' (name: repoCfg:
       lib.nameValuePair ".claude/scripts/auto-claude-${name}.sh" {

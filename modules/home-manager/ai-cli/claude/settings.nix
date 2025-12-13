@@ -40,6 +40,8 @@ let
       (lib.filterAttrs (_: s: !(s.disabled or false)) cfg.mcpServers);
 
     # API Key Helper (for headless authentication)
+    # Note: env is only set when apiKeyHelper is enabled; no conflict possible
+    # since this is the sole source of the env attribute in settings.json
   } // lib.optionalAttrs cfg.apiKeyHelper.enable {
     env = { apiKeyHelper = "${homeDir}/${cfg.apiKeyHelper.scriptPath}"; };
   }

@@ -12,7 +12,7 @@
 # - @logDir@      : Directory for log files
 # =============================================================================
 
-set -o pipefail
+set -euo pipefail
 
 # --- CONFIGURATION (from Nix) ---
 TARGET_DIR="@targetDir@"
@@ -26,15 +26,20 @@ if [[ ! -d "$TARGET_DIR" ]]; then
 fi
 
 # --- ENVIRONMENT ---
-# Source zsh config for full environment (API keys, PATH, git credentials)
+# Source shell configs for full environment (API keys, PATH, git credentials)
 # Required because launchd runs in a minimal shell
-source "$HOME/.zshrc" 2>/dev/null
-source "$HOME/.profile" 2>/dev/null
+# Only source if files exist and are readable; use || true to prevent set -e exit
+[[ -r "$HOME/.zshrc" ]] && source "$HOME/.zshrc" 2>/dev/null || true
+[[ -r "$HOME/.profile" ]] && source "$HOME/.profile" 2>/dev/null || true
 
 # --- LOGGING SETUP ---
-mkdir -p "$LOG_DIR"
+if ! mkdir -p "$LOG_DIR"; then
+  echo "Error: Cannot create log directory $LOG_DIR" >&2
+  exit 1
+fi
 RUN_ID=$(date "+%Y%m%d_%H%M%S")
-REPO_NAME=$(basename "$TARGET_DIR")
+# Normalize path (remove trailing slashes) before extracting basename
+REPO_NAME=$(basename "${TARGET_DIR%/}")
 LOG_FILE="$LOG_DIR/${REPO_NAME}_${RUN_ID}.jsonl"
 SUMMARY_LOG="$LOG_DIR/summary.log"
 FAILURES_LOG="$LOG_DIR/failures.log"
