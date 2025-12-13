@@ -45,7 +45,8 @@ jobs:
           use-gha-cache: true
 
       - name: Check Nix formatting
-        run: nix fmt -- --check .
+        # treefmt uses --ci flag (not --check) for CI mode
+        run: nix fmt -- --ci .
 
       - name: Lint Nix files (statix)
         run: nix develop --command statix check .
