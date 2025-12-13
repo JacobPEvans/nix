@@ -33,7 +33,7 @@ if [[ ! -d "$TARGET_DIR" ]]; then
 fi
 
 # Validate MAX_BUDGET_USD is a positive number
-if ! [[ "$MAX_BUDGET_USD" =~ ^[0-9]+\.?[0-9]*$ ]] || [[ $(echo "$MAX_BUDGET_USD <= 0" | bc -l) -eq 1 ]]; then
+if ! [[ "$MAX_BUDGET_USD" =~ ^[0-9]+\.?[0-9]*$ ]] || ! awk -v val="$MAX_BUDGET_USD" 'BEGIN { exit !(val > 0) }'; then
   echo "Error: MAX_BUDGET_USD must be a positive number, got: $MAX_BUDGET_USD" >&2
   exit 1
 fi
