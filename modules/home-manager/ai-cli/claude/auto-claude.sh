@@ -148,7 +148,12 @@ EXIT_CODE=${pipestatus[1]}
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
 
 # Extract final summary from log if present (using jq for proper JSON parsing)
-FINAL_SUMMARY=$(jq -c 'select(.outcome)' "$LOG_FILE" 2>/dev/null | tail -1)
+if command -v jq &>/dev/null; then
+  FINAL_SUMMARY=$(jq -c 'select(.outcome)' "$LOG_FILE" 2>/dev/null | tail -1)
+else
+  echo "[$RUN_ID] WARNING: jq not found, cannot extract structured summary" >> "$SUMMARY_LOG"
+  FINAL_SUMMARY=""
+fi
 
 if [[ $EXIT_CODE -eq 0 ]]; then
   echo "=== [$TIMESTAMP] Completed: $REPO_NAME (exit 0) ===" >> "$SUMMARY_LOG"
