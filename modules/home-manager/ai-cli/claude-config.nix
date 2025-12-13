@@ -101,6 +101,34 @@ in
 {
   enable = true;
 
+  # API Key Helper for headless authentication (cron jobs, CI/CD)
+  # Uses Bitwarden Secrets Manager to securely fetch OAuth token
+  apiKeyHelper = {
+    enable = true;
+    # scriptPath default: .local/bin/claude-api-key-helper
+    # keychainService default: bws-claude-automation
+    secretId = "55ebeb62-1327-4967-8f08-b3a5015f5b7b";
+  };
+
+  # Auto-Claude: Scheduled autonomous maintenance
+  autoClaude = {
+    enable = true;
+    repositories = {
+      # ai-assistant-instructions: runs daily at 4am
+      ai-assistant-instructions = {
+        path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
+        schedule.hour = 4;
+        maxBudget = 25.0;
+      };
+      # nix config: runs daily at 1pm (13:00)
+      nix = {
+        path = "${config.home.homeDirectory}/.config/nix";
+        schedule.hour = 13;
+        maxBudget = 25.0;
+      };
+    };
+  };
+
   plugins = {
     marketplaces = {
       "anthropics/claude-code" = {
@@ -139,12 +167,43 @@ in
   }) cookbookAgents;
 
   settings = {
+    # Extended thinking enabled with token budget controlled via env vars
+    alwaysThinkingEnabled = true;
+
+    # Session cleanup (upstream default is 30)
+    cleanupPeriodDays = 14;
+
+    # Environment variables for model config and token optimization
+    # See: https://code.claude.com/docs/en/settings
+    # See: https://code.claude.com/docs/en/model-config
+    env = {
+      # Model selection (defaults to Sonnet for cost efficiency)
+      ANTHROPIC_MODEL = "sonnet";
+      CLAUDE_CODE_SUBAGENT_MODEL = "opus";
+      # ANTHROPIC_DEFAULT_OPUS_MODEL = "";
+      # ANTHROPIC_DEFAULT_SONNET_MODEL = "";
+      # ANTHROPIC_DEFAULT_HAIKU_MODEL = "";
+
+      # Token budgets
+      MAX_THINKING_TOKENS = "16384";
+      CLAUDE_CODE_MAX_OUTPUT_TOKENS = "16384";
+      BASH_MAX_OUTPUT_LENGTH = "65536";
+      MAX_MCP_OUTPUT_TOKENS = "25000";
+      SLASH_COMMAND_TOOL_CHAR_BUDGET = "16000";
+
+      # Timeouts
+      BASH_DEFAULT_TIMEOUT_MS = "300000";
+      BASH_MAX_TIMEOUT_MS = "600000";
+    };
+
+    # Permissions from ai-assistant-instructions repo
     permissions = {
       allow = claudeAllowJson.permissions;
       deny = claudeDenyJson.permissions;
       ask = claudeAskJson.permissions;
     };
 
+    # Additional directories accessible to Claude Code without prompts
     additionalDirectories = [
       "~/"
       "~/.claude/"

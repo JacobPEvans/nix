@@ -13,10 +13,18 @@ let
   cfg = config.programs.claude;
   homeDir = config.home.homeDirectory;
 
+  # Build the env attribute (merge user env vars with apiKeyHelper if enabled)
+  envAttrs =
+    cfg.settings.env
+    // lib.optionalAttrs cfg.apiKeyHelper.enable {
+      apiKeyHelper = "${homeDir}/${cfg.apiKeyHelper.scriptPath}";
+    };
+
   # Build the settings object
   settings = {
     "$schema" = cfg.settings.schemaUrl;
     alwaysThinkingEnabled = cfg.settings.alwaysThinkingEnabled;
+    cleanupPeriodDays = cfg.settings.cleanupPeriodDays;
 
     # Permissions
     permissions = {
@@ -46,8 +54,11 @@ let
       // lib.optionalAttrs (s.env != { }) { env = s.env; }
     ) (lib.filterAttrs (_: s: !(s.disabled or false)) cfg.mcpServers);
 
-    # Status line (if enabled)
+    # Environment variables (user-defined + apiKeyHelper if enabled)
   }
+  // lib.optionalAttrs (envAttrs != { }) { env = envAttrs; }
+
+  # Status line (if enabled)
   // lib.optionalAttrs cfg.statusLine.enable {
     statusLine =
       if cfg.statusLine.enhanced.enable && cfg.statusLine.enhanced.package != null then
