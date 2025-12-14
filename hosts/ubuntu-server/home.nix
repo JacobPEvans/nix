@@ -31,7 +31,7 @@ in
   home = {
     username = userConfig.user.name;
     homeDirectory = "/home/${userConfig.user.name}";
-    stateVersion = "24.05";
+    stateVersion = userConfig.nix.homeManagerStateVersion;
 
     # Ubuntu-specific packages (beyond common)
     packages = with pkgs; [

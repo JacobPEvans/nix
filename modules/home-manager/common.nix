@@ -76,7 +76,7 @@ in
   # Home Configuration
   # ==========================================================================
   home = {
-    stateVersion = "24.05";
+    stateVersion = userConfig.nix.homeManagerStateVersion;
 
     # AI CLI Configurations
     # Each AI CLI has its own file in ai-cli/ directory:
