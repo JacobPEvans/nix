@@ -164,8 +164,8 @@ in
         };
         RunAtLoad = true;
         KeepAlive = true;
-        StandardOutPath = "/tmp/ollama.log";
-        StandardErrorPath = "/tmp/ollama.error.log";
+        StandardOutPath = "${config.home.homeDirectory}/Library/Logs/Ollama/ollama.log";
+        StandardErrorPath = "${config.home.homeDirectory}/Library/Logs/Ollama/ollama.error.log";
       };
     };
   };

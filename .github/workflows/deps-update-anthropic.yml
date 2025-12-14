@@ -74,10 +74,10 @@ jobs:
             chore(deps): update Anthropic repositories
 
             Daily fast-track update for Anthropic flake inputs:
-            - claude-code-plugins (anthropics/claude-code)
-            - claude-cookbooks (anthropics/claude-cookbooks)
-            - claude-plugins-official (anthropics/claude-plugins-official)
-            - anthropic-skills (anthropics/skills)
+            - claude-code-plugins (anthropic/claude-code)
+            - claude-cookbooks (anthropic/claude-cookbooks)
+            - claude-plugins-official (anthropic/claude-plugins-official)
+            - anthropic-skills (anthropic/skills)
 
             This is an automated daily update to keep Anthropic tooling current.
 
