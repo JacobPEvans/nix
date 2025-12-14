@@ -9,6 +9,9 @@
   imports = [
     # Common home-manager configuration
     ../../modules/home-manager/common.nix
+
+    # Ollama configuration (models on /Volumes/Ollama)
+    ../../modules/home-manager/ollama.nix
   ];
 
   # ==========================================================================

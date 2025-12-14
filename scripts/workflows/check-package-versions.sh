@@ -15,6 +15,7 @@ PACKAGES=(
   "claude-code:AI Tool"
   "claude-monitor:AI Tool"
   "gemini-cli:AI Tool"
+  "ollama:AI Tool"
 )
 
 # Color codes for output (not used in GitHub issue, but useful for local testing)
