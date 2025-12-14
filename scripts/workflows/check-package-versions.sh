@@ -18,12 +18,6 @@ PACKAGES=(
   "ollama:AI Tool"
 )
 
-# Color codes for output (not used in GitHub issue, but useful for local testing)
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-NC='\033[0m' # No Color
-
 # Global counters for exit status
 MAJOR_UPDATES=0
 MINOR_UPDATES=0

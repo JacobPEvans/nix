@@ -64,7 +64,7 @@ jobs:
           ISSUE_NUMBER="${{ steps.find-issue.outputs.issue_number }}"
 
           # Determine if any packages need security label
-          if grep -q "Security.*🔴\|Security.*⚠️" version-report.md; then
+          if grep -qE "Security.*(🔴|⚠️)" version-report.md; then
             LABELS="package-updates,security"
           else
             LABELS="package-updates"

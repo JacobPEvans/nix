@@ -12,7 +12,7 @@ flake inputs and packages current while minimizing noise and maximizing safety:
 | **Instant** | ai-assistant-instructions | On push to main | repository_dispatch | deps-update-ai-instructions.yml | `ai-instructions` |
 | **Daily** | Anthropic repos (4 inputs) | 6 AM UTC daily | Scheduled | deps-update-anthropic.yml | `anthropic` |
 | **Bi-weekly** | All flake inputs (11 total) | Mon/Thu 6 AM UTC | Scheduled | deps-update-flake.yml | `dependencies` |
-| **Tri-weekly** | Package versions (7 packages) | Mon 7am, Thu 7pm, Sat 7am | Scheduled | deps-monitor-packages.yml | `package-updates` |
+| **Tri-weekly** | Package versions (8 packages) | Mon 7am, Thu 7pm, Sat 7am | Scheduled | deps-monitor-packages.yml | `package-updates` |
 
 ## Workflows
 
@@ -78,7 +78,7 @@ Monitors version changes for critical packages and creates a **single digest iss
 **Monitored packages:**
 
 - **Security-critical**: git, gnupg, gh, nodejs
-- **AI Tools**: claude-code, claude-monitor, gemini-cli
+- **AI Tools**: claude-code, claude-monitor, gemini-cli, ollama
 
 **Schedule**:
 

@@ -99,9 +99,11 @@ in
     # Default: system temp directory
     # OLLAMA_TMPDIR = "/tmp/ollama";
 
-    # Flash attention
-    # Default: auto-detected
-    # Set to "1" to force enable, "0" to disable
+    # Flash attention - memory-efficient attention mechanism
+    # Reduces VRAM usage significantly for long contexts (useful for 8k+ tokens)
+    # Default: auto-detected based on GPU capability
+    # Set to "1" to force enable (recommended for Apple Silicon)
+    # Set to "0" to disable (if experiencing issues with specific models)
     # OLLAMA_FLASH_ATTENTION = "1";
 
     # KV cache type

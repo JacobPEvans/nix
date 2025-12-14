@@ -46,9 +46,15 @@ jobs:
         if: steps.check-changes.outputs.has_changes == 'true'
         id: commit-info
         run: |
-          # Extract the new revision from flake.lock
-          NEW_REV=$(jq -r '.nodes."ai-assistant-instructions".locked.rev' flake.lock)
-          SHORT_REV="${NEW_REV:0:7}"
+          # Extract the new revision from flake.lock (with error handling)
+          NEW_REV=$(jq -r '.nodes."ai-assistant-instructions".locked.rev // "unknown"' flake.lock 2>/dev/null || echo "unknown")
+          if [[ "$NEW_REV" == "unknown" ]] || [[ -z "$NEW_REV" ]]; then
+            echo "::warning::Could not extract revision from flake.lock"
+            NEW_REV="unknown"
+            SHORT_REV="unknown"
+          else
+            SHORT_REV="${NEW_REV:0:7}"
+          fi
 
           echo "new_rev=$NEW_REV" >> $GITHUB_OUTPUT
           echo "short_rev=$SHORT_REV" >> $GITHUB_OUTPUT
