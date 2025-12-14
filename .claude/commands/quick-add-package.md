@@ -62,7 +62,9 @@ cd worktrees/add-<pkg-name>
 - **CLI tools**: `modules/darwin/common.nix` in `homebrew.brews` list
 - **GUI apps**: `modules/darwin/common.nix` in `homebrew.casks` list
 - Always add a comment explaining why Homebrew is needed (e.g., "not in nixpkgs")
-- Keep package lists sorted alphabetically for maintainability
+
+> [!IMPORTANT]
+> Keep all package lists (nixpkgs and Homebrew) sorted alphabetically for maintainability.
 
 ### 5. Make Changes
 
