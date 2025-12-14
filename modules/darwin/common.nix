@@ -23,6 +23,12 @@ in
   # ==========================================================================
   nixpkgs.config.allowUnfree = true;
 
+  # Overlays for package overrides (e.g., updating outdated packages)
+  # See overlays/ directory for individual overlay files
+  nixpkgs.overlays = [
+    (import ../../overlays/python-packages.nix)
+  ];
+
   # ==========================================================================
   # User Configuration
   # ==========================================================================
