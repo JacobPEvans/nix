@@ -14,8 +14,19 @@
 #
 let
   userConfig = import ../../lib/user-config.nix;
+  cfg = config.programs.ollama;
 in
 {
+  # ============================================================================
+  # Configuration Options
+  # ============================================================================
+  options.programs.ollama = {
+    modelsVolume = lib.mkOption {
+      type = lib.types.str;
+      default = "/Volumes/Ollama";
+      description = "Path to the dedicated APFS volume where Ollama models are stored";
+    };
+  };
   # ============================================================================
   # Ollama Environment Variables
   # ============================================================================
@@ -26,8 +37,8 @@ in
     # ========================================================================
     # Location where Ollama stores downloaded models
     # Default: ~/.ollama/models
-    # Current: /Volumes/Ollama/models (692GB+ on dedicated APFS volume)
-    OLLAMA_MODELS = "/Volumes/Ollama/models";
+    # Current: ${cfg.modelsVolume}/models (692GB+ on dedicated APFS volume)
+    OLLAMA_MODELS = "${cfg.modelsVolume}/models";
 
     # ========================================================================
     # Performance & Memory Settings
@@ -129,8 +140,8 @@ in
   # Symlink Configuration
   # ============================================================================
   # Ollama models on dedicated APFS volume
-  # CRITICAL: 692GB+ of models - NEVER delete /Volumes/Ollama
-  home.file.".ollama/models".source = config.lib.file.mkOutOfStoreSymlink "/Volumes/Ollama/models";
+  # CRITICAL: 692GB+ of models - NEVER delete ${cfg.modelsVolume}
+  home.file.".ollama/models".source = config.lib.file.mkOutOfStoreSymlink "${cfg.modelsVolume}/models";
 
   # ============================================================================
   # Notes
