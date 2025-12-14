@@ -13,6 +13,7 @@ in
     ./finder.nix
     ./keyboard.nix
     ./security.nix
+    ./terminal.nix
     ./trackpad.nix
     ./system-ui.nix
   ];
