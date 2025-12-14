@@ -191,9 +191,10 @@ in
     # See: https://code.claude.com/docs/en/settings
     # See: https://code.claude.com/docs/en/model-config
     env = {
-      # Model selection (defaults to Sonnet for cost efficiency)
-      ANTHROPIC_MODEL = "sonnet";
-      CLAUDE_CODE_SUBAGENT_MODEL = "sonnet";
+      # Model selection - use /model command to switch dynamically
+      # Uncomment to set defaults:
+      # ANTHROPIC_MODEL = "sonnet";
+      # CLAUDE_CODE_SUBAGENT_MODEL = "opus";
       # ANTHROPIC_DEFAULT_OPUS_MODEL = "";
       # ANTHROPIC_DEFAULT_SONNET_MODEL = "";
       # ANTHROPIC_DEFAULT_HAIKU_MODEL = "";
