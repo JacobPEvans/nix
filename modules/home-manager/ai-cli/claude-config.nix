@@ -4,12 +4,9 @@
 # Imported by common.nix to keep it clean and high-level.
 {
   config,
-  pkgs,
-  lib,
   claude-code-plugins,
   claude-cookbooks,
   claude-plugins-official,
-  anthropic-skills,
   ai-assistant-instructions,
   claude-code-statusline,
   superpowers-marketplace,

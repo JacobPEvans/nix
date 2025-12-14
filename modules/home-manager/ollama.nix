@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 #
@@ -13,7 +12,6 @@
 # Environment variables: https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server
 #
 let
-  userConfig = import ../../lib/user-config.nix;
   cfg = config.programs.ollama;
 in
 {

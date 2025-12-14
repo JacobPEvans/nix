@@ -3,7 +3,7 @@
 # User environment for macbook-m4 host.
 # Imports common home-manager modules with host-specific overrides.
 
-{ config, pkgs, ... }:
+{ config, ... }:
 
 {
   imports = [
@@ -20,7 +20,7 @@
   # Settings unique to this machine's user environment
 
   # Additional host-specific packages (beyond common)
-  # home.packages = with pkgs; [ ];
+  # home.packages = with pkgs; [ ];  # Uncomment and add pkgs to args when needed
 
   # Host-specific symlinks for external volumes
   # NOTE: These symlinks point to data on external volumes.
