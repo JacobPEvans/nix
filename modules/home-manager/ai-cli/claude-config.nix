@@ -116,17 +116,15 @@ in
   autoClaude = {
     enable = true;
     repositories = {
-      # ai-assistant-instructions: runs daily at 4am
       ai-assistant-instructions = {
         path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
-        schedule.hour = 4;
-        maxBudget = 25.0;
+        schedule.hours = [ 0 2 4 8 10 12 14 16 18 20 22 ];
+        maxBudget = 50.0;
       };
-      # nix config: runs daily at 1pm (13:00)
       nix = {
         path = "${config.home.homeDirectory}/.config/nix";
-        schedule.hour = 13;
-        maxBudget = 25.0;
+        schedule.hours = [ 1 5 9 13 17 21 ];
+        maxBudget = 50.0;
       };
     };
   };
