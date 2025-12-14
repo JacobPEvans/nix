@@ -26,9 +26,7 @@
   # NOTE: These symlinks point to data on external volumes.
   # Nix does NOT manage the volume contents - only creates symlinks.
   home.file = {
-    # Ollama models on dedicated APFS volume
-    # CRITICAL: 692GB+ of models - NEVER delete /Volumes/Ollama
-    ".ollama/models".source = config.lib.file.mkOutOfStoreSymlink "/Volumes/Ollama/models";
+    # Ollama models symlink managed by modules/home-manager/ollama.nix
 
     # OrbStack data on dedicated APFS volume
     # Symlinks entire Group Container so ALL OrbStack data lives on volume

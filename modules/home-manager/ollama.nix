@@ -128,8 +128,9 @@ in
   # ============================================================================
   # Symlink Configuration
   # ============================================================================
-  # Models directory symlink is managed in hosts/macbook-m4/home.nix
-  # home.file.".ollama/models".source = config.lib.file.mkOutOfStoreSymlink "/Volumes/Ollama/models";
+  # Ollama models on dedicated APFS volume
+  # CRITICAL: 692GB+ of models - NEVER delete /Volumes/Ollama
+  home.file.".ollama/models".source = config.lib.file.mkOutOfStoreSymlink "/Volumes/Ollama/models";
 
   # ============================================================================
   # Notes
