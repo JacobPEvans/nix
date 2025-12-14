@@ -159,6 +159,11 @@ in
       };
     };
 
+    # Deploy orchestrator prompt (kept separate for easier editing)
+    home.file.".claude/scripts/orchestrator-prompt.txt" = {
+      source = ./orchestrator-prompt.txt;
+    };
+
     # Create launchd agents for each repository (Darwin only)
     # Each agent calls the same script with repository-specific arguments
     launchd.agents = lib.mapAttrs' (
