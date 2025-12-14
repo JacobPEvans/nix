@@ -118,12 +118,31 @@ in
     repositories = {
       ai-assistant-instructions = {
         path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
-        schedule.hours = [ 0 2 4 8 10 12 14 16 18 20 22 ];
+        schedule.hours = [
+          0
+          2
+          4
+          8
+          10
+          12
+          14
+          16
+          18
+          20
+          22
+        ];
         maxBudget = 50.0;
       };
       nix = {
         path = "${config.home.homeDirectory}/.config/nix";
-        schedule.hours = [ 1 5 9 13 17 21 ];
+        schedule.hours = [
+          1
+          5
+          9
+          13
+          17
+          21
+        ];
         maxBudget = 50.0;
       };
     };
