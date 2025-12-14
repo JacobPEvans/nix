@@ -30,7 +30,7 @@ def main():
     command = hook_input.get("tool_input", {}).get("command", "")
 
     # Only act on git push commands
-    if not ("git push" in command or command.startswith("git push")):
+    if "git push" not in command:
         return 0
 
     # Run darwin-rebuild
