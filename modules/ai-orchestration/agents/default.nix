@@ -21,8 +21,9 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Researcher agent - delegates to best research model
-    home.file."${agentsDir}/researcher.md".text = ''
+    home.file = {
+      # Researcher agent - delegates to best research model
+      "${agentsDir}/researcher.md".text = ''
       ---
       name: researcher
       description: Research tasks delegated to current best research model
@@ -64,8 +65,8 @@ in
       - No cloud API calls
     '';
 
-    # Coder agent - delegates to best coding model
-    home.file."${agentsDir}/coder.md".text = ''
+      # Coder agent - delegates to best coding model
+      "${agentsDir}/coder.md".text = ''
       ---
       name: coder
       description: Coding tasks using current best coding model
@@ -103,8 +104,8 @@ in
       Explicitly request: "use frontier model for this" to force best available.
     '';
 
-    # Reviewer agent - uses multi-model consensus
-    home.file."${agentsDir}/reviewer.md".text = ''
+      # Reviewer agent - uses multi-model consensus
+      "${agentsDir}/reviewer.md".text = ''
       ---
       name: reviewer
       description: Code review using multi-model consensus
@@ -149,8 +150,8 @@ in
       ```
     '';
 
-    # Planner agent - for architecture and design
-    home.file."${agentsDir}/planner.md".text = ''
+      # Planner agent - for architecture and design
+      "${agentsDir}/planner.md".text = ''
       ---
       name: planner
       description: Planning and architecture tasks
@@ -188,8 +189,8 @@ in
       - Potential risks and mitigations
     '';
 
-    # Task router Python script
-    home.file.".local/bin/ai-route-task" = {
+      # Task router Python script
+      ".local/bin/ai-route-task" = {
       executable = true;
       text = ''
         #!/usr/bin/env python3
@@ -252,6 +253,7 @@ in
         if __name__ == "__main__":
             main()
       '';
+      };
     };
   };
 }

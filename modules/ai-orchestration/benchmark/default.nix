@@ -43,14 +43,62 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [
-      # Open WebUI for arena comparison (already in nixpkgs)
-      pkgs.open-webui
+    home = {
+      packages = [
+        # Open WebUI for arena comparison (already in nixpkgs)
+        pkgs.open-webui
 
-      # Python for llm-benchmark (install via pipx at runtime)
-      pythonWithBenchmark
-      pkgs.pipx
-    ];
+        # Python for llm-benchmark (install via pipx at runtime)
+        pythonWithBenchmark
+        pkgs.pipx
+      ];
+
+      # Helper scripts
+      file = {
+        ".local/bin/ai-benchmark" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            # Run llm-benchmark via pipx
+            set -euo pipefail
+
+            if ! command -v llm_benchmark &> /dev/null; then
+              echo "Installing llm-benchmark via pipx..." >&2
+              pipx install llm-benchmark
+            fi
+
+            llm_benchmark "$@"
+          '';
+        };
+
+        ".local/bin/ai-arena-start" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            # Start Open WebUI arena for model comparison
+            set -euo pipefail
+
+            cd ~/.config/ai-orchestration/open-webui
+            docker-compose up -d
+            echo "Open WebUI started at http://localhost:${toString cfg.openWebUIPort}"
+            echo "Arena mode enabled for blind model comparison"
+          '';
+        };
+
+        ".local/bin/ai-arena-stop" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            # Stop Open WebUI arena
+            set -euo pipefail
+
+            cd ~/.config/ai-orchestration/open-webui
+            docker-compose down
+            echo "Open WebUI stopped"
+          '';
+        };
+      };
+    };
 
     # Open WebUI Docker Compose config for OrbStack
     xdg.configFile."ai-orchestration/open-webui/docker-compose.yml" = lib.mkIf cfg.enableOpenWebUI {
@@ -78,50 +126,6 @@ in
         networks:
           default:
             name: ai-orchestration
-      '';
-    };
-
-    # Helper scripts
-    home.file.".local/bin/ai-benchmark" = {
-      executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        # Run llm-benchmark via pipx
-        set -euo pipefail
-
-        if ! command -v llm_benchmark &> /dev/null; then
-          echo "Installing llm-benchmark via pipx..." >&2
-          pipx install llm-benchmark
-        fi
-
-        llm_benchmark "$@"
-      '';
-    };
-
-    home.file.".local/bin/ai-arena-start" = {
-      executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        # Start Open WebUI arena for model comparison
-        set -euo pipefail
-
-        cd ~/.config/ai-orchestration/open-webui
-        docker-compose up -d
-        echo "Open WebUI started at http://localhost:${toString cfg.openWebUIPort}"
-        echo "Arena mode enabled for blind model comparison"
-      '';
-    };
-
-    home.file.".local/bin/ai-arena-stop" = {
-      executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        # Stop Open WebUI arena
-        set -euo pipefail
-
-        cd ~/.config/ai-orchestration/open-webui
-        docker-compose down
-        echo "Open WebUI stopped"
       '';
     };
   };
