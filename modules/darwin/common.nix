@@ -126,6 +126,9 @@ in
   # Raycast declarative preferences
   programs.raycast.enable = true;
 
+  # Terminal.app window size configuration (180x80 for Basic profile)
+  programs.terminal.enable = true;
+
   # Disable nix-darwin's Nix management (using Determinate Nix installer instead)
   # Determinate Nix manages its own daemon - we just need nix-darwin for system config
   nix.enable = false;
