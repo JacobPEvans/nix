@@ -68,8 +68,8 @@ let
     ".ai-instructions".source =
       config.lib.file.mkOutOfStoreSymlink "${aiInstructionsRepo}/.ai-instructions";
   };
-  geminiFiles = import ./ai-cli/gemini.nix { inherit config; };
-  copilotFiles = import ./ai-cli/copilot.nix { inherit config; };
+  geminiFiles = import ./ai-cli/gemini.nix { inherit config pkgs; };
+  copilotFiles = import ./ai-cli/copilot.nix { inherit config pkgs; };
 in
 {
   # ==========================================================================
