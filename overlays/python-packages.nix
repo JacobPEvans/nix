@@ -17,8 +17,9 @@ final: prev: {
   python3 = prev.python3.override {
     packageOverrides = _python-final: python-prev: {
       # grip: GitHub Markdown previewer
-      # nixpkgs has 4.6.1 (Mar 2022), updating to 4.6.2 (Oct 2023)
-      # 4.6.2 includes the Werkzeug 3 charset fix, so we remove the nixpkgs patch
+      # nixpkgs has 4.6.1 (released 2022-03-13), updating to 4.6.2 (released 2023-10-22)
+      # 4.6.2 includes the Werkzeug 3 charset fix (see https://github.com/joeyespo/grip/pull/349)
+      # so we remove the nixpkgs patch
       # Changelog: https://github.com/joeyespo/grip/blob/master/CHANGES.md
       grip = python-prev.grip.overridePythonAttrs (_old: {
         version = "4.6.2";

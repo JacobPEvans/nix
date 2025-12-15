@@ -131,7 +131,7 @@ in
           20
           22
         ];
-        maxBudget = 50.0;
+        maxBudget = 25.0;
       };
       nix = {
         path = "${config.home.homeDirectory}/.config/nix";
@@ -143,7 +143,7 @@ in
           17
           21
         ];
-        maxBudget = 50.0;
+        maxBudget = 25.0;
       };
     };
   };

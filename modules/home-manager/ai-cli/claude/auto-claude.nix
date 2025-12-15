@@ -92,7 +92,7 @@ in
 
             maxBudget = lib.mkOption {
               type = lib.types.float;
-              default = 20.0;
+              default = 25.0;
               description = "Maximum cost per run in USD";
             };
 
