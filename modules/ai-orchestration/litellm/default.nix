@@ -40,35 +40,37 @@ in
       ];
 
       # Helper scripts
-      file.".local/bin/litellm-start" = {
-        executable = true;
-        text = ''
-          #!/usr/bin/env bash
-          set -euo pipefail
-          cd ~/.config/ai-orchestration/litellm
-          docker-compose up -d
-          echo "LiteLLM proxy started at http://localhost:${toString cfg.port}"
-        '';
-      };
+      file = {
+        ".local/bin/litellm-start" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            set -euo pipefail
+            cd ~/.config/ai-orchestration/litellm
+            docker-compose up -d
+            echo "LiteLLM proxy started at http://localhost:${toString cfg.port}"
+          '';
+        };
 
-      file.".local/bin/litellm-stop" = {
-        executable = true;
-        text = ''
-          #!/usr/bin/env bash
-          set -euo pipefail
-          cd ~/.config/ai-orchestration/litellm
-          docker-compose down
-          echo "LiteLLM proxy stopped"
-        '';
-      };
+        ".local/bin/litellm-stop" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            set -euo pipefail
+            cd ~/.config/ai-orchestration/litellm
+            docker-compose down
+            echo "LiteLLM proxy stopped"
+          '';
+        };
 
-      file.".local/bin/litellm-logs" = {
-        executable = true;
-        text = ''
-          #!/usr/bin/env bash
-          cd ~/.config/ai-orchestration/litellm
-          docker-compose logs -f litellm-proxy
-        '';
+        ".local/bin/litellm-logs" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            cd ~/.config/ai-orchestration/litellm
+            docker-compose logs -f litellm-proxy
+          '';
+        };
       };
     };
 
