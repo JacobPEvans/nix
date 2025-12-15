@@ -307,6 +307,7 @@ def parse_log_file(log_path: str) -> dict:
             end = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
             duration_minutes = int((end - start).total_seconds() / 60)
         except (ValueError, TypeError):
+            # If timestamps are malformed or missing, leave duration as 0.
             pass
 
     return {
