@@ -34,9 +34,43 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [
-      (pkgs.python3.withPackages (ps: [ ps.litellm ]))
-    ];
+    home = {
+      packages = [
+        (pkgs.python3.withPackages (ps: [ ps.litellm ]))
+      ];
+
+      # Helper scripts
+      file.".local/bin/litellm-start" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+          set -euo pipefail
+          cd ~/.config/ai-orchestration/litellm
+          docker-compose up -d
+          echo "LiteLLM proxy started at http://localhost:${toString cfg.port}"
+        '';
+      };
+
+      file.".local/bin/litellm-stop" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+          set -euo pipefail
+          cd ~/.config/ai-orchestration/litellm
+          docker-compose down
+          echo "LiteLLM proxy stopped"
+        '';
+      };
+
+      file.".local/bin/litellm-logs" = {
+        executable = true;
+        text = ''
+          #!/usr/bin/env bash
+          cd ~/.config/ai-orchestration/litellm
+          docker-compose logs -f litellm-proxy
+        '';
+      };
+    };
 
     # LiteLLM config - uses generic model names, not provider-specific
     xdg.configFile."ai-orchestration/litellm/config.yaml".text = ''
@@ -125,37 +159,5 @@ in
         default:
           name: ai-orchestration
     '';
-
-    # Helper scripts
-    home.file.".local/bin/litellm-start" = {
-      executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        set -euo pipefail
-        cd ~/.config/ai-orchestration/litellm
-        docker-compose up -d
-        echo "LiteLLM proxy started at http://localhost:${toString cfg.port}"
-      '';
-    };
-
-    home.file.".local/bin/litellm-stop" = {
-      executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        set -euo pipefail
-        cd ~/.config/ai-orchestration/litellm
-        docker-compose down
-        echo "LiteLLM proxy stopped"
-      '';
-    };
-
-    home.file.".local/bin/litellm-logs" = {
-      executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        cd ~/.config/ai-orchestration/litellm
-        docker-compose logs -f litellm-proxy
-      '';
-    };
   };
 }

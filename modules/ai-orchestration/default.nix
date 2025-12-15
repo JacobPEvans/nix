@@ -85,11 +85,13 @@ in
 
   config = lib.mkIf cfg.enable {
     # Enable submodules by default
-    services.ai-orchestration.benchmark.enable = lib.mkDefault true;
-    services.ai-orchestration.pal-mcp.enable = lib.mkDefault true;
-    services.ai-orchestration.litellm.enable = lib.mkDefault true;
-    services.ai-orchestration.skills.enable = lib.mkDefault true;
-    services.ai-orchestration.agents.enable = lib.mkDefault true;
+    services.ai-orchestration = {
+      benchmark.enable = lib.mkDefault true;
+      pal-mcp.enable = lib.mkDefault true;
+      litellm.enable = lib.mkDefault true;
+      skills.enable = lib.mkDefault true;
+      agents.enable = lib.mkDefault true;
+    };
 
     # Environment variable for local-only mode
     home.sessionVariables = lib.mkIf cfg.localOnlyMode {
