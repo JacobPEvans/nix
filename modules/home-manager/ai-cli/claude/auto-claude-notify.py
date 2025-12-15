@@ -23,8 +23,15 @@ import os
 import subprocess
 import sys
 from datetime import datetime
-from pathlib import Path
 from typing import Optional
+
+
+def escape_slack_markdown(text: str) -> str:
+    """Escape special Slack markdown characters to prevent formatting issues."""
+    # Escape characters that have special meaning in Slack markdown
+    for char in ["*", "_", "`", "~"]:
+        text = text.replace(char, f"\\{char}")
+    return text
 
 
 def get_slack_token() -> str:
@@ -40,8 +47,8 @@ def get_slack_token() -> str:
         )
         secret_data = json.loads(result.stdout)
         return secret_data["value"]
-    except subprocess.CalledProcessError as e:
-        print(f"Error retrieving secret '{secret_id}' from bws: {e.stderr}", file=sys.stderr)
+    except subprocess.CalledProcessError:
+        print(f"Error retrieving secret '{secret_id}' from bws. Please check your Bitwarden setup.", file=sys.stderr)
         sys.exit(1)
     except (json.JSONDecodeError, KeyError) as e:
         print(f"Error parsing bws response: {e}", file=sys.stderr)
@@ -101,7 +108,9 @@ def update_message(token: str, channel: str, ts: str, blocks: list, text: str) -
 def blocks_run_started(repo: str, budget: float, run_id: str) -> tuple[list, str]:
     """Block Kit for run started notification."""
     now = datetime.now().strftime("%b %d, %I:%M %p")
-    text = f"Auto-Claude run started: {repo}"
+    safe_repo = escape_slack_markdown(repo)
+    safe_run_id = escape_slack_markdown(run_id)
+    text = f"Auto-Claude run started: {safe_repo}"
 
     blocks = [
         {
@@ -111,10 +120,10 @@ def blocks_run_started(repo: str, budget: float, run_id: str) -> tuple[list, str
         {
             "type": "section",
             "fields": [
-                {"type": "mrkdwn", "text": f"*Repository*\n{repo}"},
+                {"type": "mrkdwn", "text": f"*Repository*\n{safe_repo}"},
                 {"type": "mrkdwn", "text": f"*Budget*\n${budget:.2f}"},
                 {"type": "mrkdwn", "text": f"*Started*\n{now}"},
-                {"type": "mrkdwn", "text": f"*Run ID*\n`{run_id}`"},
+                {"type": "mrkdwn", "text": f"*Run ID*\n`{safe_run_id}`"},
             ],
         },
         {"type": "divider"},
@@ -129,16 +138,18 @@ def blocks_run_started(repo: str, budget: float, run_id: str) -> tuple[list, str
 
 def blocks_task_started(task: str, agent: str) -> tuple[list, str]:
     """Block Kit for task started notification."""
-    text = f"Task started: {task}"
+    safe_task = escape_slack_markdown(task)
+    safe_agent = escape_slack_markdown(agent)
+    text = f"Task started: {safe_task}"
 
     blocks = [
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"🔧 *Dispatched*: {agent}"},
+            "text": {"type": "mrkdwn", "text": f"🔧 *Dispatched*: {safe_agent}"},
         },
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"```{task}```"},
+            "text": {"type": "mrkdwn", "text": f"```{safe_task}```"},
         },
     ]
 
@@ -147,11 +158,13 @@ def blocks_task_started(task: str, agent: str) -> tuple[list, str]:
 
 def blocks_task_completed(task: str, pr: Optional[str], cost: Optional[float], duration: Optional[int]) -> tuple[list, str]:
     """Block Kit for task completed notification."""
-    text = f"Task completed: {task}"
+    safe_task = escape_slack_markdown(task)
+    text = f"Task completed: {safe_task}"
 
     fields = []
     if pr:
-        fields.append({"type": "mrkdwn", "text": f"*PR Created*\n{pr}"})
+        safe_pr = escape_slack_markdown(pr)
+        fields.append({"type": "mrkdwn", "text": f"*PR Created*\n{safe_pr}"})
     if cost is not None:
         fields.append({"type": "mrkdwn", "text": f"*Cost*\n${cost:.2f}"})
     if duration is not None:
@@ -160,7 +173,7 @@ def blocks_task_completed(task: str, pr: Optional[str], cost: Optional[float], d
     blocks = [
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"✅ *Completed*: {task}"},
+            "text": {"type": "mrkdwn", "text": f"✅ *Completed*: {safe_task}"},
         },
     ]
 
@@ -172,16 +185,18 @@ def blocks_task_completed(task: str, pr: Optional[str], cost: Optional[float], d
 
 def blocks_task_blocked(task: str, reason: str) -> tuple[list, str]:
     """Block Kit for task blocked notification."""
-    text = f"Task blocked: {task}"
+    safe_task = escape_slack_markdown(task)
+    safe_reason = escape_slack_markdown(reason)
+    text = f"Task blocked: {safe_task}"
 
     blocks = [
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"⚠️ *Blocked*: {task}"},
+            "text": {"type": "mrkdwn", "text": f"⚠️ *Blocked*: {safe_task}"},
         },
         {
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"_Reason: {reason}_"},
+            "text": {"type": "mrkdwn", "text": f"_Reason: {safe_reason}_"},
         },
     ]
 
@@ -262,7 +277,7 @@ def parse_log_file(log_path: str) -> dict:
     end_time = None
 
     try:
-        with open(log_path) as f:
+        with open(log_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line:
