@@ -25,11 +25,11 @@ import sys
 from datetime import datetime
 from typing import Optional
 
-# Display limits for Slack messages (prevents overly long messages)
-MAX_DISPLAY_ITEMS = 10
-
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+
+# Display limits for Slack messages (prevents overly long messages)
+MAX_DISPLAY_ITEMS = 10
 
 
 def escape_slack_markdown(text: str) -> str:
