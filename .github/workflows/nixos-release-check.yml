@@ -61,7 +61,7 @@ jobs:
 
           if [[ "$CURRENT" == "$LATEST" ]]; then
             echo "✅ Running on latest stable release: $CURRENT"
-          elif [[ "$CURRENT" > "$LATEST" ]]; then
+          elif [[ "$(printf '%s\n%s\n' "$LATEST" "$CURRENT" | sort -V | tail -1)" == "$CURRENT" && "$CURRENT" != "$LATEST" ]]; then
             echo "⚠️  Ahead of stable (may be on unstable/pre-release): $CURRENT > $LATEST"
           else
             echo "::notice title=New NixOS Release Available::NixOS $LATEST is available (current: $CURRENT). See RUNBOOK.md for update workflow."
@@ -85,7 +85,7 @@ jobs:
             STATUS="⚠️ Unknown"
           elif [[ "$CURRENT" == "$LATEST" ]]; then
             STATUS="✅ Up to date"
-          elif [[ "$CURRENT" > "$LATEST" ]]; then
+          elif [[ "$(printf '%s\n%s\n' "$LATEST" "$CURRENT" | sort -V | tail -1)" == "$CURRENT" && "$CURRENT" != "$LATEST" ]]; then
             STATUS="⚠️ Ahead"
           else
             STATUS="📢 Update available"
@@ -95,13 +95,13 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
 
           # Add update instructions if update available
-          if [[ "$CURRENT" != "unknown" ]] && [[ "$LATEST" != "unknown" ]] && [[ "$CURRENT" < "$LATEST" ]]; then
+          if [[ "$CURRENT" != "unknown" ]] && [[ "$LATEST" != "unknown" ]] && [[ "$(printf '%s\n%s\n' "$CURRENT" "$LATEST" | sort -V | tail -1)" == "$LATEST" && "$CURRENT" != "$LATEST" ]]; then
             cat >> $GITHUB_STEP_SUMMARY << EOF
           ### Update Available
 
           A new stable release of NixOS is available: **$LATEST**
 
-          To update, follow the [Secure Flake Update Workflow](../RUNBOOK.md#secure-flake-update-workflow):
+          To update, follow the [Secure Flake Update Workflow](RUNBOOK.md#secure-flake-update-workflow):
           1. Update \`lib/versions.nix\` to use \`$LATEST\`
           2. Run \`nix flake update\`
           3. Build → Diff → Audit → Switch
