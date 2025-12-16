@@ -17,12 +17,6 @@
 }:
 
 let
-  userConfig = import ../../../lib/user-config.nix;
-
-  # Local repo path - ONLY used for autoClaude (needs writable git for commits)
-  # All other ai-assistant-instructions content comes from Nix store (flake input)
-  autoClaudeLocalRepoPath = userConfig.ai.instructionsRepo;
-
   # Statusline configuration - flat TOML files (required format for statusline tool)
   # Full config for local terminal, mobile config for SSH sessions
   statuslineConfigFull = ./claude/statusline/config.toml;
