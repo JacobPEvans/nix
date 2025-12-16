@@ -184,11 +184,11 @@ in
         source = "${ai-assistant-instructions}/.claude/commands/${name}.md";
       }) agentsMdCommands)
       ++
-      # Commands from claude-cookbooks
-      (map (name: {
-        inherit name;
-        source = "${claude-cookbooks}/.claude/commands/${name}.md";
-      }) cookbookCommands);
+        # Commands from claude-cookbooks
+        (map (name: {
+          inherit name;
+          source = "${claude-cookbooks}/.claude/commands/${name}.md";
+        }) cookbookCommands);
   };
 
   agents.fromFlakeInputs = map (name: {
