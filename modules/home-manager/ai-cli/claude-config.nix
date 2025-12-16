@@ -133,14 +133,24 @@ in
       # Uses local repo (not Nix store) because autoClaude needs writable git
       ai-assistant-instructions = {
         path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
-        schedule.times = [ { hour = 4; minute = 0; } ];
+        schedule.times = [
+          {
+            hour = 4;
+            minute = 0;
+          }
+        ];
         maxBudget = 25.0;
       };
       # nix config: runs daily at 1pm (13:00) from the main worktree
       # ~/.config/nix is a read-only symlink to nix store
       nix = {
         path = "${config.home.homeDirectory}/git/nix-config/main";
-        schedule.times = [ { hour = 13; minute = 0; } ];
+        schedule.times = [
+          {
+            hour = 13;
+            minute = 0;
+          }
+        ];
         maxBudget = 25.0;
       };
     };

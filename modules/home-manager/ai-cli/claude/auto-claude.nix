@@ -27,14 +27,18 @@ let
 
   # Convert time spec to launchd calendar interval
   # Supports both simple hour (int) and {hour, minute} attrset
-  mkCalendarInterval = time:
-    if builtins.isInt time then {
-      Hour = time;
-      Minute = 0;
-    } else {
-      Hour = time.hour;
-      Minute = time.minute or 0;
-    };
+  mkCalendarInterval =
+    time:
+    if builtins.isInt time then
+      {
+        Hour = time;
+        Minute = 0;
+      }
+    else
+      {
+        Hour = time.hour;
+        Minute = time.minute or 0;
+      };
 
   # Normalize schedule settings (supports single hour, list of hours, or list of times)
   getScheduleTimes =
@@ -89,21 +93,26 @@ in
                   };
 
                   times = lib.mkOption {
-                    type = lib.types.listOf (lib.types.submodule {
-                      options = {
-                        hour = lib.mkOption {
-                          type = lib.types.ints.between 0 23;
-                          description = "Hour of day (0-23)";
+                    type = lib.types.listOf (
+                      lib.types.submodule {
+                        options = {
+                          hour = lib.mkOption {
+                            type = lib.types.ints.between 0 23;
+                            description = "Hour of day (0-23)";
+                          };
+                          minute = lib.mkOption {
+                            type = lib.types.ints.between 0 59;
+                            default = 0;
+                            description = "Minute of hour (0-59)";
+                          };
                         };
-                        minute = lib.mkOption {
-                          type = lib.types.ints.between 0 59;
-                          default = 0;
-                          description = "Minute of hour (0-59)";
-                        };
-                      };
-                    });
+                      }
+                    );
                     default = [
-                      { hour = 14; minute = 0; }
+                      {
+                        hour = 14;
+                        minute = 0;
+                      }
                     ];
                     description = ''
                       List of times to run each day. Each time has hour (0-23) and minute (0-59).
