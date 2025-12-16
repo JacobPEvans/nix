@@ -36,9 +36,26 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    # Validate that the statusline source is configured when using robbyrussell theme
-    # This maintains backward compatibility with existing programs.claude.statusLine.enhanced
     assertions = [
+      # Prevent conflicts between old and new statusline modules
+      {
+        assertion = !(config.programs.claude.statusLine.enable or false);
+        message = ''
+          Both programs.claude.statusLine and programs.claudeStatusline are enabled.
+
+          Please use only one statusline module. The programs.claudeStatusline module
+          is the new recommended interface.
+
+          To migrate:
+          1. Disable the old module: programs.claude.statusLine.enable = false;
+          2. Keep using programs.claudeStatusline with your chosen theme
+        '';
+      }
+
+      # Validate source configuration for robbyrussell theme
+      # Note: This assertion allows powerline/advanced themes without source configuration,
+      # since those themes will have their own source requirements in future implementations.
+      # Only robbyrussell currently requires the legacy source configuration.
       {
         assertion =
           cfg.theme != "robbyrussell" || (config.programs.claude.statusLine.enhanced.source or null) != null;

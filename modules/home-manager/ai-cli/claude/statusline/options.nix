@@ -30,26 +30,38 @@ with lib;
 
     # Theme-specific configuration (for future use)
     # These are placeholders for Issues #81 and #82
-    powerline = {
-      style = mkOption {
-        type = types.str;
-        default = "default";
-        description = "Powerline style variant (for future use in Issue #81)";
+    powerline = mkOption {
+      type = types.submodule {
+        options = {
+          style = mkOption {
+            type = types.str;
+            default = "default";
+            description = "Powerline style variant (for future use in Issue #81)";
+          };
+        };
       };
+      default = { };
+      description = "Powerline theme-specific options (for future use in Issue #81)";
     };
 
-    advanced = {
-      theme = mkOption {
-        type = types.str;
-        default = "gruvbox";
-        description = "Color theme for advanced statusline (for future use in Issue #82)";
-      };
+    advanced = mkOption {
+      type = types.submodule {
+        options = {
+          theme = mkOption {
+            type = types.str;
+            default = "gruvbox";
+            description = "Color theme for advanced statusline (for future use in Issue #82)";
+          };
 
-      showSystemInfo = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Show system information in advanced statusline (for future use in Issue #82)";
+          showSystemInfo = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Show system information in advanced statusline (for future use in Issue #82)";
+          };
+        };
       };
+      default = { };
+      description = "Advanced theme-specific options (for future use in Issue #82)";
     };
   };
 }

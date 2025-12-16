@@ -14,7 +14,10 @@
       src = source;
 
       nativeBuildInputs = [ pkgs.makeWrapper ];
-      # Note: NOT including coreutils - script expects macOS stat, not GNU stat
+      # Note: Script uses macOS stat command (BSD stat), not GNU stat from coreutils.
+      # This means the package currently only supports macOS/Darwin platforms.
+      # Linux support would require either adding coreutils or updating the script
+      # to detect and use the appropriate stat variant.
       buildInputs = [
         pkgs.bash
         pkgs.jq
@@ -49,7 +52,8 @@
         description = "Configurable statusline for Claude Code with git and cost tracking";
         homepage = "https://github.com/rz1989s/claude-code-statusline";
         license = licenses.mit;
-        platforms = platforms.all;
+        # Currently Darwin-only due to dependency on BSD stat command
+        platforms = platforms.darwin;
         mainProgram = "claude-code-statusline";
       };
     };
