@@ -75,7 +75,7 @@ in
   #   - Main branch: ~/git/ai-assistant-instructions/main/
   #   - Feature branches: ~/git/ai-assistant-instructions/<branch-name>/
   # Clone with worktree setup:
-  #   git clone --bare https://github.com/JacobPEvans/ai-assistant-instructions.git ~/git/ai-assistant-instructions/.bare
+  #   git clone --bare https://github.com/JacobPEvans/ai-assistant-instructions.git ~/git/ai-assistant-instructions
   #   cd ~/git/ai-assistant-instructions && git worktree add main main
   ai = {
     # Local repo path - ONLY for autoClaude (needs writable git for commits)

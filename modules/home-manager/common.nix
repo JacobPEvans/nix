@@ -83,7 +83,7 @@ in
     # - copilot.nix: GitHub Copilot CLI config
     #
     # Permissions: Now read from JSON in ai-assistant-instructions repo
-    # Symlinks: agentsmd provides CLAUDE.md, GEMINI.md, AGENTS.md, agentsmd/
+    # Symlinks: ai-assistant-instructions flake input provides CLAUDE.md, GEMINI.md, AGENTS.md
     # NOTE: claudeFiles removed - now handled by programs.claude module
     file = npmFiles // awsFiles // geminiFiles // copilotFiles // agentsMdSymlinks // gitHooks;
 

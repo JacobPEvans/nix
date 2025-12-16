@@ -22,7 +22,8 @@ let
     );
 
   # Helper for live repo symlinks (if ever needed for writable repos)
-  # Note: Currently unused - all content comes from Nix store (flake inputs)
+  # Note: Returns empty set when repo is null. Called with cfg.commands.fromLiveRepo
+  # which is null by default - all content comes from Nix store (flake inputs)
   mkLiveRepoSymlinks =
     type: repo: names:
     if repo == null then
