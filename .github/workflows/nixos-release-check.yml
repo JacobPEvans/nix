@@ -34,13 +34,19 @@ jobs:
         id: latest
         run: |
           # Get latest release-* branch from nixpkgs
-          LATEST=$(git ls-remote --heads https://github.com/NixOS/nixpkgs.git 'refs/heads/release-*' 2>/dev/null | \
-                   sed 's|.*refs/heads/release-||' | \
-                   sort -V | \
-                   tail -1 || echo "unknown")
+          # Capture output first, then check for errors
+          GIT_OUTPUT=$(git ls-remote --heads https://github.com/NixOS/nixpkgs.git 'refs/heads/release-*' 2>/dev/null)
 
-          if [[ "$LATEST" == "unknown" ]]; then
+          if [[ $? -ne 0 ]] || [[ -z "$GIT_OUTPUT" ]]; then
             echo "::warning::Cannot fetch latest release from nixpkgs"
+            echo "version=unknown" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          LATEST=$(echo "$GIT_OUTPUT" | sed 's|.*refs/heads/release-||' | sort -V | tail -1)
+
+          if [[ -z "$LATEST" ]]; then
+            echo "::warning::Cannot parse release branches from nixpkgs"
             echo "version=unknown" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -143,9 +149,3 @@ jobs:
           - [Nixpkgs Release Branch](https://github.com/NixOS/nixpkgs/tree/release-$LATEST)
           EOF
           fi
-
-      - name: Always succeed
-        if: always()
-        run: |
-          echo "This check is informational only and never fails"
-          exit 0
