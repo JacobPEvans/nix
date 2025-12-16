@@ -207,10 +207,10 @@ in
     # See: https://code.claude.com/docs/en/settings
     # See: https://code.claude.com/docs/en/model-config
     env = {
-      # Model selection - no hardcoded default; use /model command or
-      # ANTHROPIC_MODEL env var to set model per-session as needed
-      # ANTHROPIC_MODEL = "sonnet";  # Uncomment to set a default
-      # CLAUDE_CODE_SUBAGENT_MODEL = "sonnet";  # Uncomment to set subagent model
+      # Model selection is dynamic (via /model command or shell env).
+      # To set a default in this config, uncomment below.
+      # ANTHROPIC_MODEL = "sonnet";  # Default model for new sessions.
+      # CLAUDE_CODE_SUBAGENT_MODEL = "sonnet";  # For sub-agents; Opus is more capable but costly.
       # ANTHROPIC_DEFAULT_OPUS_MODEL = "";
       # ANTHROPIC_DEFAULT_SONNET_MODEL = "";
       # ANTHROPIC_DEFAULT_HAIKU_MODEL = "";
