@@ -207,12 +207,10 @@ in
     # See: https://code.claude.com/docs/en/settings
     # See: https://code.claude.com/docs/en/model-config
     env = {
-      # Model selection (defaults to Sonnet for cost efficiency)
-      # NOTE: Subagent model was changed from 'opus' to 'sonnet'. While opus is
-      # more capable for complex reasoning, sonnet provides better cost efficiency.
-      # Change back to opus if auto-claude quality degrades for complex tasks.
-      ANTHROPIC_MODEL = "sonnet";
-      CLAUDE_CODE_SUBAGENT_MODEL = "sonnet";
+      # Model selection - no hardcoded default; use /model command or
+      # ANTHROPIC_MODEL env var to set model per-session as needed
+      # ANTHROPIC_MODEL = "sonnet";  # Uncomment to set a default
+      # CLAUDE_CODE_SUBAGENT_MODEL = "sonnet";  # Uncomment to set subagent model
       # ANTHROPIC_DEFAULT_OPUS_MODEL = "";
       # ANTHROPIC_DEFAULT_SONNET_MODEL = "";
       # ANTHROPIC_DEFAULT_HAIKU_MODEL = "";

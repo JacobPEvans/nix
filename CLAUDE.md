@@ -30,8 +30,8 @@ Reminder: Switch to Opus (/model opus) for complex architectural decisions,
 multi-file refactoring, or tasks requiring deep reasoning.
 ```
 
-**Why**: Default model is Sonnet for cost efficiency. User needs visibility to
-consciously choose Opus when the task warrants it.
+**Why**: Model depends on session configuration. User needs visibility to
+consciously choose the appropriate model (Opus for complex tasks).
 
 ## Enforced Git Development Workflow
 
