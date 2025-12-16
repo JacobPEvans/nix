@@ -43,7 +43,7 @@ jobs:
             exit 0
           fi
 
-          LATEST=$(echo "$GIT_OUTPUT" | sed 's|.*refs/heads/release-||' | sort -V | tail -1)
+          LATEST=$(echo "$GIT_OUTPUT" | sed 's|.*refs/heads/release-||' | grep -E '^[0-9]{2}\.[0-9]{2}$' | sort -V | tail -1)
 
           if [[ -z "$LATEST" ]]; then
             echo "::warning::Cannot parse release branches from nixpkgs"
