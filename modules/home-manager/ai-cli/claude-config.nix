@@ -4,9 +4,12 @@
 # Imported by common.nix to keep it clean and high-level.
 {
   config,
+  pkgs,
+  lib,
   claude-code-plugins,
   claude-cookbooks,
   claude-plugins-official,
+  anthropic-skills,
   ai-assistant-instructions,
   claude-code-statusline,
   superpowers-marketplace,
@@ -116,35 +119,16 @@ in
   autoClaude = {
     enable = true;
     repositories = {
+      # ai-assistant-instructions: runs daily at 4am
       ai-assistant-instructions = {
         path = "${config.home.homeDirectory}/git/ai-assistant-instructions";
-        schedule.hours = [
-          0
-          2
-          4
-          8
-          10
-          12
-          14
-          16
-          18
-          20
-          22
-        ];
+        schedule.hour = 4;
         maxBudget = 25.0;
       };
+      # nix config: runs daily at 1pm (13:00)
       nix = {
-        path = "${config.home.homeDirectory}/git/nix-config";
-        schedule.hours = [
-          1
-          5
-          9
-          11
-          13
-          15
-          17
-          21
-        ];
+        path = "${config.home.homeDirectory}/.config/nix";
+        schedule.hour = 13;
         maxBudget = 25.0;
       };
     };
@@ -207,10 +191,12 @@ in
     # See: https://code.claude.com/docs/en/settings
     # See: https://code.claude.com/docs/en/model-config
     env = {
-      # Model selection - use /model command to switch dynamically
-      # Uncomment to set defaults:
-      # ANTHROPIC_MODEL = "sonnet";
-      # CLAUDE_CODE_SUBAGENT_MODEL = "opus";
+      # Model selection (defaults to Sonnet for cost efficiency)
+      # NOTE: Subagent model was changed from 'opus' to 'sonnet'. While opus is
+      # more capable for complex reasoning, sonnet provides better cost efficiency.
+      # Change back to opus if auto-claude quality degrades for complex tasks.
+      ANTHROPIC_MODEL = "sonnet";
+      CLAUDE_CODE_SUBAGENT_MODEL = "sonnet";
       # ANTHROPIC_DEFAULT_OPUS_MODEL = "";
       # ANTHROPIC_DEFAULT_SONNET_MODEL = "";
       # ANTHROPIC_DEFAULT_HAIKU_MODEL = "";
