@@ -52,7 +52,6 @@
         description = "Configurable statusline for Claude Code with git and cost tracking";
         homepage = "https://github.com/rz1989s/claude-code-statusline";
         license = licenses.mit;
-        # BREAKING CHANGE: Platform restriction changed from platforms.all to platforms.darwin.
         # This package only supports macOS/Darwin due to dependency on BSD stat command.
         # The script uses `stat -f "%m"` which is BSD syntax; GNU stat uses `stat -c "%Y"`.
         # Linux support would require updating the script to detect and use the correct variant.
