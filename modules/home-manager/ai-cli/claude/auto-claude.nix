@@ -74,18 +74,13 @@ in
                   hours = lib.mkOption {
                     type = lib.types.listOf (lib.types.ints.between 0 23);
                     default = [
-                      2
-                      7
-                      12
-                      17
-                      22
+                      14
                     ];
                     description = ''
                       List of hours (0-23) to run each day.
 
-                      WARNING: The default runs 5 times/day. Combined with maxBudget ($20),
-                      this could cost up to $100/day per repository. Adjust schedule and
-                      budget based on your needs.
+                      Default runs once daily at 2pm to minimize unexpected costs.
+                      Add more hours if you want more frequent maintenance runs.
                     '';
                   };
                 };
@@ -96,7 +91,14 @@ in
             maxBudget = lib.mkOption {
               type = lib.types.float;
               default = 20.0;
-              description = "Maximum cost per run in USD";
+              description = ''
+                Maximum cost per run in USD.
+
+                NOTE: This default was increased from $2.0 to $20.0 to allow more
+                substantial maintenance work per run. Adjust based on your usage
+                and cost tolerance. With the default once-daily schedule, this
+                means up to $20/day per repository.
+              '';
             };
 
             slackChannel = lib.mkOption {
