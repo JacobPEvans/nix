@@ -42,34 +42,33 @@ consciously choose Opus when the task warrants it.
 This repository uses a **bare git repo with worktrees**:
 
 ```text
-~/git/nix-config/              (bare repo - DO NOT cd here directly)
-├── main/                      (main branch worktree - for pulling updates)
-├── <feature-branch>/          (your feature worktree)
-├── <another-feature>/         (another feature worktree)
+~/git/ai-assistant-instructions/   (bare repo - DO NOT cd here directly)
+├── main/                          (main branch worktree - for pulling updates)
+├── <feature-branch>/              (your feature worktree)
 └── ...
 ```
 
 **Key Points:**
 
-- `~/.config/nix` is a **read-only symlink** to the nix store (production config)
-- All development happens in `~/git/nix-config/<worktree-name>/`
-- Each PR/feature gets its own worktree
+- **Content Source:** Permissions and commands come from the **Nix store** (flake input), not just the local files.
+- **Isolation:** All development happens in `~/git/ai-assistant-instructions/<worktree-name>/`.
+- **Updates:** Changes usually require `nix flake lock --update-input ai-assistant-instructions` + rebuild.
 
 ### MANDATORY: New Worktree for New Work
 
 **NEVER work directly in an existing worktree for unrelated changes.**
-**NEVER work in the bare repo directory (`~/git/nix-config/`)**
+**NEVER work in the bare repo directory (`~/git/ai-assistant-instructions/`)**
 
 Before making ANY changes:
 
-1. Check if changes relate to current worktree's branch/PR
-2. If NOT related → **create a NEW worktree** for the new work
-3. If related → continue in current worktree
+1. Check if changes relate to current worktree's branch/PR.
+2. If NOT related → **create a NEW worktree** for the new work.
+3. If related → continue in current worktree.
 
 **To create a new worktree:**
 
 ```bash
-cd ~/git/nix-config
+cd ~/git/ai-assistant-instructions
 git fetch origin
 git worktree add <branch-name> -b <branch-name> origin/main
 cd <branch-name>
@@ -78,11 +77,10 @@ cd <branch-name>
 
 **Why worktrees?**
 
-- Each PR/feature has isolated working directory
-- No accidental commits to wrong branch
-- Easy parallel development
-- auto-claude manages worktree lifecycle automatically
-- Prevents mixing changes across unrelated features
+- Each PR/feature has an isolated working directory.
+- No accidental commits to the wrong branch.
+- Enables concurrent AI sessions and parallel development.
+- auto-claude manages worktree lifecycle automatically.
 
 ### SSH Agent Pre-Flight Check (Required for Remote Git Operations)
 
@@ -262,6 +260,73 @@ git commit -m "message"
   - File is slightly over 200 lines but logically complete
   - Splitting would create import/dependency complexity
 
+## Version Management
+
+**Single Source of Truth**: All package versions are managed through `flake.lock`.
+
+### AI Agent Responsibilities
+
+**CRITICAL**: AI agents must NOT modify package versions or update flake inputs without explicit user request.
+
+**Never do this automatically:**
+
+- Running `nix flake update` (updates all inputs)
+- Running `nix flake lock --update-input <input>` (updates specific input)
+- Modifying version pins in `flake.nix`
+- Suggesting version updates "while we're at it"
+
+**Why this restriction exists:**
+
+- Version updates can introduce breaking changes
+- Security-sensitive packages require human audit
+- Flake updates affect the entire system
+- Rollback is possible but disruptive
+
+### When Version Updates Are Needed
+
+**If user explicitly requests an update:**
+
+1. Follow the [Secure Flake Update Workflow](RUNBOOK.md#secure-flake-update-workflow) in RUNBOOK.md
+2. Build with dry-run first
+3. Show diff of package changes to user
+4. Wait for explicit approval before applying
+5. Document the update in commit message
+
+**If a package version is outdated but not blocking the current task:**
+
+- Note it in your response
+- Suggest the user run the secure update workflow
+- Do NOT update it yourself
+
+**If a specific package version is required for the current task:**
+
+- Ask user if they want to update that specific input
+- Explain what will change
+- Wait for explicit approval
+- Use `nix flake lock --update-input <specific-input>` (not `nix flake update`)
+
+### Version Lifecycle Reference
+
+For checking package support lifecycles, reference:
+
+- [endoflife.date](https://endoflife.date/) - Lifecycle dates for NixOS and common packages
+- NixOS release calendar for stable channel support windows
+- Package-specific upstream documentation for LTS/stable versions
+
+### Emergency Overrides
+
+In rare cases where a security update is urgent:
+
+1. Explain the security issue to user
+2. Show the specific CVE or advisory
+3. Recommend the minimal update needed
+4. Wait for explicit approval
+5. Apply update following secure workflow
+
+**Remember**: Version stability is a feature, not a bug. Resist the urge to "helpfully" update things.
+
+---
+
 ## Task Management Workflow
 
 **STRICT PATTERN - Follow without exception:**
@@ -362,14 +427,14 @@ git commit -m "message"
 **Verification steps**:
 
 ```bash
-# Count permissions in source (should match after rebuild)
-jq '.permissions | length' ~/git/ai-assistant-instructions/.claude/permissions/allow.json
-
-# Count permissions in deployed settings
+# Count permissions in deployed settings (from Nix store flake input)
 jq '.permissions.allow | length' ~/.claude/settings.json
 
 # Check for project-level overrides in current directory
 cat ./.claude/settings.local.json 2>/dev/null | jq '.allow | length'
+
+# To check source permissions, view the flake input or local dev repo:
+# jq '.permissions | length' ~/git/ai-assistant-instructions/main/.claude/permissions/allow.json
 ```
 
 **Note**: After fixing permissions, restart Claude Code for changes to take effect.
@@ -488,15 +553,15 @@ exists for reference to maintain sync with Claude/Gemini structures.
 
 ## AI CLI Tools Comparison
 
-| Feature | Claude Code | Gemini CLI | Copilot CLI | VS Code Copilot |
-|---------|-------------|------------|-------------|-----------------|
-| **Config file** | `.claude/settings.json` | `.gemini/settings.json` | `.copilot/config.json` | VS Code `settings.json` |
-| **Permission model** | allow/ask/deny lists | coreTools/excludeTools | trusted_folders + flags | settings-based |
-| **Command format** | `Bash(cmd:*)` | `ShellTool(cmd)` | `shell(cmd)` patterns | N/A (editor-based) |
-| **Runtime control** | settings.local.json | settings.json | CLI flags | VS Code UI |
-| **Nix file** | `permissions/claude-*.nix` | `permissions/gemini-*.nix` | `permissions/copilot-*.nix` | `vscode/copilot-settings.nix` |
-| **Categories** | 24 categories, 277+ cmds | Mirrors Claude structure | Directory trust only | 50+ settings |
-| **Security model** | Three-tier (allow/ask/deny) | Two-tier (allow/exclude) | Trust + runtime flags | Per-language enable |
+| Feature              | Claude Code                 | Gemini CLI                 | Copilot CLI                 | VS Code Copilot               |
+| -------------------- | --------------------------- | -------------------------- | --------------------------- | ----------------------------- |
+| **Config file**      | `.claude/settings.json`     | `.gemini/settings.json`    | `.copilot/config.json`      | VS Code `settings.json`       |
+| **Permission model** | allow/ask/deny lists        | coreTools/excludeTools     | trusted_folders + flags     | settings-based                |
+| **Command format**   | `Bash(cmd:*)`               | `ShellTool(cmd)`           | `shell(cmd)` patterns       | N/A (editor-based)            |
+| **Runtime control**  | settings.local.json         | settings.json              | CLI flags                   | VS Code UI                    |
+| **Nix file**         | `permissions/claude-*.nix`  | `permissions/gemini-*.nix` | `permissions/copilot-*.nix` | `vscode/copilot-settings.nix` |
+| **Categories**       | 24 categories, 277+ cmds    | Mirrors Claude structure   | Directory trust only        | 50+ settings                  |
+| **Security model**   | Three-tier (allow/ask/deny) | Two-tier (allow/exclude)   | Trust + runtime flags       | Per-language enable           |
 
 **Consistency philosophy**:
 
