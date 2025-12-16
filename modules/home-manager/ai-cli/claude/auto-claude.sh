@@ -42,6 +42,19 @@ fi
 # --- CONTROL FILE CHECK ---
 CONTROL_FILE="${HOME}/.claude/auto-claude-control.json"
 
+# Convert ISO8601 timestamp to epoch seconds for reliable comparison
+# Supports both macOS (BSD date) and Linux (GNU date)
+iso_to_epoch() {
+  local iso="$1"
+  if date --version >/dev/null 2>&1; then
+    # GNU date (Linux)
+    date -d "$iso" "+%s" 2>/dev/null
+  else
+    # BSD date (macOS)
+    date -j -f "%Y-%m-%dT%H:%M:%S" "${iso%%.*}" "+%s" 2>/dev/null
+  fi
+}
+
 check_control_file() {
   # Skip checks if FORCE_RUN is set
   if [[ "${FORCE_RUN:-}" == "1" ]]; then
@@ -57,10 +70,16 @@ check_control_file() {
 
   # Check pause_until
   local pause_until=$(jq -r '.pause_until // empty' "$CONTROL_FILE" 2>/dev/null)
-  if [[ -n "$pause_until" && "$pause_until" != "null" && "$now" < "$pause_until" ]]; then
-    echo "Auto-claude paused until $pause_until. Skipping this run." >&2
-    echo "Run 'auto-claude-ctl resume' to resume earlier." >&2
-    exit 0
+  if [[ -n "$pause_until" && "$pause_until" != "null" ]]; then
+    local now_epoch=$(iso_to_epoch "$now")
+    local pause_until_epoch=$(iso_to_epoch "$pause_until")
+    if [[ -z "$now_epoch" || -z "$pause_until_epoch" ]]; then
+      echo "Warning: Could not parse pause_until or current time. Skipping pause check." >&2
+    elif [[ "$now_epoch" -lt "$pause_until_epoch" ]]; then
+      echo "Auto-claude paused until $pause_until. Skipping this run." >&2
+      echo "Run 'auto-claude-ctl resume' to resume earlier." >&2
+      exit 0
+    fi
   fi
 
   # Check skip_count

@@ -78,6 +78,19 @@ format_time() {
   fi
 }
 
+# Convert ISO8601 timestamp to epoch seconds for reliable comparison
+# Supports both macOS (BSD date) and Linux (GNU date)
+iso_to_epoch() {
+  local iso="$1"
+  if date --version >/dev/null 2>&1; then
+    # GNU date (Linux)
+    date -d "$iso" "+%s" 2>/dev/null
+  else
+    # BSD date (macOS)
+    date -j -f "%Y-%m-%dT%H:%M:%S" "${iso%%.*}" "+%s" 2>/dev/null
+  fi
+}
+
 # Command: now - set flag for next run
 cmd_now() {
   init_control_file
@@ -229,7 +242,12 @@ cmd_status() {
   # Check pause status
   if [[ -n "$pause_until" && "$pause_until" != "null" ]]; then
     local now=$(date "+%Y-%m-%dT%H:%M:%S")
-    if [[ "$now" < "$pause_until" ]]; then
+    local now_epoch=$(iso_to_epoch "$now")
+    local pause_until_epoch=$(iso_to_epoch "$pause_until")
+    if [[ -z "$now_epoch" || -z "$pause_until_epoch" ]]; then
+      echo "Warning: Could not parse pause_until or current time. Displaying raw values." >&2
+      echo "Status: PAUSED until $(format_time "$pause_until") (parse error)"
+    elif [[ "$now_epoch" -lt "$pause_until_epoch" ]]; then
       echo "Status: PAUSED until $(format_time "$pause_until")"
     else
       echo "Status: Active (pause expired)"

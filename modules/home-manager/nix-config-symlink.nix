@@ -32,8 +32,8 @@
       echo "  2. Remove ~/.config/nix: rm -rf ~/.config/nix"
       echo "  3. Re-run darwin-rebuild switch"
       echo ""
-      echo "Backing up to ~/.config/nix.backup.$(date +%Y%m%d_%H%M%S)"
-      mv "$HOME/.config/nix" "$HOME/.config/nix.backup.$(date +%Y%m%d_%H%M%S)"
+      echo "Backing up to ~/.config/nix.backup.\$(date +%Y%m%d_%H%M%S)"
+      mv "$HOME/.config/nix" "$HOME/.config/nix.backup.\$(date +%Y%m%d_%H%M%S)"
     fi
   '';
 }
