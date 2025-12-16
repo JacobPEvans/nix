@@ -133,7 +133,8 @@ If user indicates workflow was not followed, immediately reread this file into c
 
 Claude has 323+ auto-approved command patterns. Always prefer commands matching these patterns to avoid permission prompts.
 
-**Permission source**: Commands are defined in `ai-assistant-instructions/.claude/permissions/allow.json` (flake input) and compiled into `~/.claude/settings.json` (read-only, Nix-managed).
+**Permission source**: Commands are defined in `ai-assistant-instructions/.claude/permissions/allow.json` (flake input) and
+compiled into `~/.claude/settings.json` (read-only, Nix-managed).
 
 **Pattern format**: `Bash(command:*)` where `*` matches any arguments
 
@@ -146,7 +147,8 @@ Claude has 323+ auto-approved command patterns. Always prefer commands matching 
 - Docker: `docker ps`, `docker logs`, `docker build`
 - Kubernetes: `kubectl get`, `kubectl describe`, `kubectl logs`
 
-**Key principle**: If a command variant is in the allowed list, use it. If you're considering a workaround (like `git -C`), check if the simpler form is already allowed.
+**Key principle**: If a command variant is in the allowed list, use it. If you're considering a workaround (like `git -C`),
+check if the simpler form is already allowed.
 
 **Command chaining**: The `&&` operator works fine with auto-approved commands. For example, `git add -A && git commit -m "message"` will match the allowed patterns.
 
