@@ -38,7 +38,7 @@
 }:
 
 let
-  # User configuration (includes ai.instructionsRepo path)
+  # User configuration
   userConfig = import ../../../lib/user-config.nix;
 
   # Read permissions from JSON files in ai-assistant-instructions
@@ -81,39 +81,38 @@ let
       ;
   };
 
-  # Path to git repo for symlinks (live updates without rebuild)
-  # Defined in lib/user-config.nix for DRY (also used by common.nix)
-  aiInstructionsRepo = userConfig.ai.instructionsRepo;
-
-  # Commands from ai-assistant-instructions to symlink globally
-  # Using mkOutOfStoreSymlink for live updates without darwin-rebuild
+  # Commands from ai-assistant-instructions (Nix store / flake input)
+  # Changes require darwin-rebuild, but ensures reproducibility
   #
-  # These commands live in .ai-instructions/commands/ and are symlinked
-  # directly to ~/.claude/commands/ for global availability.
+  # These commands live in .claude/commands/ (moved from old .ai-instructions/commands/)
+  # and are copied to ~/.claude/commands/ for global availability.
   #
   # Note: "commit" removed - use /commit from commit-commands plugin instead
   aiInstructionsCommands = [
+    "fix-all-pr-ci"
     "generate-code"
     "git-refresh"
     "infrastructure-review"
+    "init-change"
+    "init-worktree"
     "pull-request"
     "pull-request-review-feedback"
+    "quick-add-permission"
     "review-code"
     "review-docs"
     "rok-resolve-issues"
     "rok-respond-to-reviews"
     "rok-review-pr"
     "rok-shape-issues"
+    "sync-permissions"
   ];
 
-  # Create symlink entries for ai-instructions commands
-  # Points directly to .ai-instructions/commands/ source files (not the .claude/commands/ symlinks)
-  # This avoids a chain of symlinks and is more resilient
+  # Create file entries for ai-instructions commands from Nix store
   mkAiInstructionsCommandSymlinks = builtins.listToAttrs (
     map (cmd: {
       name = ".claude/commands/${cmd}.md";
       value = {
-        source = config.lib.file.mkOutOfStoreSymlink "${aiInstructionsRepo}/.ai-instructions/commands/${cmd}.md";
+        source = "${ai-assistant-instructions}/.claude/commands/${cmd}.md";
       };
     }) aiInstructionsCommands
   );

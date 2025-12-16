@@ -21,7 +21,8 @@ let
       }) components
     );
 
-  # Helper for live repo symlinks
+  # Helper for live repo symlinks (if ever needed for writable repos)
+  # Note: Currently unused - all content comes from Nix store (flake inputs)
   mkLiveRepoSymlinks =
     type: repo: names:
     if repo == null then
@@ -31,7 +32,7 @@ let
         map (name: {
           name = ".claude/${type}s/${name}.md";
           value = {
-            source = config.lib.file.mkOutOfStoreSymlink "${repo}/.ai-instructions/${type}s/${name}.md";
+            source = config.lib.file.mkOutOfStoreSymlink "${repo}/.claude/${type}s/${name}.md";
           };
         }) names
       );
