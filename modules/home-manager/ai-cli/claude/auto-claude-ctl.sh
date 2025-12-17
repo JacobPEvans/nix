@@ -63,8 +63,15 @@ read_field() {
 update_field() {
   local field="$1"
   local value="$2"
-  local tmp=$(mktemp)
-  jq ".$field = $value" "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
+  local tmp
+  tmp=$(mktemp) || { echo "Error: could not create temporary file" >&2; return 1; }
+  if jq ".$field = $value" "$CONTROL_FILE" > "$tmp"; then
+    mv "$tmp" "$CONTROL_FILE"
+  else
+    echo "Error: failed to update field '$field' in control file" >&2
+    rm -f "$tmp"
+    return 1
+  fi
 }
 
 # Format timestamp for display
@@ -73,8 +80,14 @@ format_time() {
   if [[ -z "$ts" || "$ts" == "null" ]]; then
     echo "never"
   else
-    # Convert ISO to readable format
-    date -j -f "%Y-%m-%dT%H:%M:%S" "${ts%%.*}" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$ts"
+    # Convert ISO to readable format (supports both GNU and BSD date)
+    if date --version >/dev/null 2>&1; then
+      # GNU date (Linux)
+      date -d "$ts" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$ts"
+    else
+      # BSD date (macOS)
+      date -j -f "%Y-%m-%dT%H:%M:%S" "${ts%%.*}" "+%Y-%m-%d %H:%M:%S" 2>/dev/null || echo "$ts"
+    fi
   fi
 }
 
@@ -113,7 +126,8 @@ cmd_run() {
   local found_plists=()
   local found_names=()
 
-  # Collect all auto-claude plists
+  # Collect all auto-claude plists (setopt nullglob makes glob expand to nothing if no matches)
+  setopt local_options nullglob
   for plist in "$plist_dir"/com.claude.auto-claude-*.plist; do
     if [[ -f "$plist" ]]; then
       local name=$(basename "$plist" | sed 's/com.claude.auto-claude-//; s/.plist//')
@@ -141,11 +155,12 @@ cmd_run() {
   # Find the target plist
   local selected_plist=""
   if [[ -z "$target_repo" ]]; then
-    # Only one repo, use it
+    # Only one repo, use it (zsh arrays are 1-indexed)
     selected_plist="${found_plists[1]}"
   else
-    # Find matching repo
-    for i in {1..${#found_names[@]}}; do
+    # Find matching repo (iterate with zsh-style for loop)
+    local i
+    for (( i = 1; i <= ${#found_names[@]}; i++ )); do
       if [[ "${found_names[$i]}" == "$target_repo" ]]; then
         selected_plist="${found_plists[$i]}"
         break
@@ -193,7 +208,15 @@ cmd_pause() {
   fi
 
   init_control_file
-  local pause_until=$(date -v "+${hours}H" "+%Y-%m-%dT%H:%M:%S")
+  # Calculate pause_until (supports both GNU and BSD date)
+  local pause_until
+  if date --version >/dev/null 2>&1; then
+    # GNU date (Linux)
+    pause_until=$(date -d "+${hours} hours" "+%Y-%m-%dT%H:%M:%S")
+  else
+    # BSD date (macOS)
+    pause_until=$(date -v "+${hours}H" "+%Y-%m-%dT%H:%M:%S")
+  fi
   update_field "pause_until" "\"$pause_until\""
 
   echo "Auto-claude paused until $(format_time "$pause_until")"
@@ -233,7 +256,7 @@ cmd_status() {
   echo ""
 
   local pause_until=$(read_field "pause_until")
-  local skip_count=$(read_field "skip_count")
+  local skip_count=$(jq -r '.skip_count // 0' "$CONTROL_FILE" 2>/dev/null || echo 0)
   local run_now=$(read_field "run_now")
   local override=$(jq -c '.override_schedule // empty' "$CONTROL_FILE" 2>/dev/null)
   local last_run=$(read_field "last_run")
@@ -252,7 +275,7 @@ cmd_status() {
     else
       echo "Status: Active (pause expired)"
     fi
-  elif [[ "$skip_count" -gt 0 ]] 2>/dev/null; then
+  elif [[ "$skip_count" -gt 0 ]]; then
     echo "Status: SKIPPING next $skip_count run(s)"
   else
     echo "Status: Active"
@@ -299,6 +322,8 @@ cmd_schedule() {
         echo "Error: Invalid time format '$time'. Use H:MM or HH:MM (e.g., 9:30 or 14:00)" >&2
         exit 1
       fi
+      # Extract captured groups from regex match
+      # In zsh with =~, use match array which is 0-indexed but starts at 1 for captures
       local hour="${match[1]}"
       local minute="${match[2]}"
 

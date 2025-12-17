@@ -61,8 +61,16 @@ check_control_file() {
   local skip_count=$(jq -r '.skip_count // 0' "$CONTROL_FILE" 2>/dev/null)
   if [[ "$skip_count" -gt 0 ]] 2>/dev/null; then
     # Decrement skip count
-    local tmp=$(mktemp)
-    jq ".skip_count = $((skip_count - 1))" "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
+    local tmp
+    tmp=$(mktemp) || {
+      echo "[$(date +%Y%m%d_%H%M%S)] WARNING: Could not create temp file for skip_count update" >> "${HOME}/.claude/logs/summary.log"
+      exit 0
+    }
+    if jq ".skip_count = $((skip_count - 1))" "$CONTROL_FILE" > "$tmp"; then
+      mv "$tmp" "$CONTROL_FILE"
+    else
+      rm -f "$tmp"
+    fi
     echo "[$(date +%Y%m%d_%H%M%S)] SKIPPED: Skip count was $skip_count, now $((skip_count - 1))" >> "${HOME}/.claude/logs/summary.log"
     exit 0
   fi
@@ -74,9 +82,17 @@ check_control_file() {
 update_last_run() {
   local repo="$1"
   if [[ -f "$CONTROL_FILE" ]] && command -v jq &>/dev/null; then
-    local tmp=$(mktemp)
+    local tmp
+    tmp=$(mktemp) || {
+      echo "[$RUN_ID] WARNING: Could not create temp file for last_run update" >> "$SUMMARY_LOG"
+      return 0
+    }
     local now=$(date "+%Y-%m-%dT%H:%M:%S")
-    jq ".last_run = \"$now\" | .last_run_repo = \"$repo\"" "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
+    if jq ".last_run = \"$now\" | .last_run_repo = \"$repo\"" "$CONTROL_FILE" > "$tmp"; then
+      mv "$tmp" "$CONTROL_FILE"
+    else
+      rm -f "$tmp"
+    fi
   fi
 }
 
