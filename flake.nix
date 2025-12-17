@@ -21,6 +21,9 @@
     mac-app-util = {
       url = "github:hraban/mac-app-util";
       inputs.nixpkgs.follows = "nixpkgs";
+      # Ensure treefmt-nix (transitive dependency) also uses our nixpkgs
+      # Prevents duplicate nixpkgs entry in flake.lock
+      inputs.treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
       # WORKAROUND: gitlab.common-lisp.net has Anubis anti-bot protection
       # blocking automated fetches. Use fork with GitHub mirror URLs.
       # See: https://github.com/hraban/mac-app-util/issues/39
