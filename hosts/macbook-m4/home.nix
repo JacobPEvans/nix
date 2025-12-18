@@ -27,7 +27,9 @@
     #
     # IMPORTANT: Apps in home.packages get REAL trampolines via mac-app-util
     # that persist TCC permissions across darwin-rebuild. Apps in system
-    # packages (environment.systemPackages) do NOT get proper trampolines.
+    # packages (environment.systemPackages) do NOT get stable trampolines
+    # that persist TCC permissions; instead they get hard copies in
+    # /Applications/Nix Apps/.
     #
     # Trampolines location: ~/Applications/Home Manager Trampolines/
     packages = with pkgs; [
