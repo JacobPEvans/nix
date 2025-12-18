@@ -89,9 +89,10 @@ in
       ghostty-bin # GPU-accelerated terminal emulator (prebuilt binary for macOS)
       obsidian # Knowledge base / note-taking (Markdown)
       # NOTE: OrbStack and Zoom moved to home.packages for better handling of TCC
-      # (camera/mic/screen) permissions via real app bundles/trampolines (see
-      # hosts/macbook-m4/home.nix). Apps that frequently need these permissions
-      # (e.g., Zoom for video calls, OrbStack for VM/system access) benefit most.
+      # (camera/mic/screen) permissions via stable trampolines (wrapper apps with
+      # stable paths; see hosts/macbook-m4/home.nix). Apps that frequently need
+      # these permissions (e.g., Zoom for video calls, OrbStack for VM/system
+      # access) benefit most.
       raycast # Productivity launcher (replaces Spotlight)
       vscode # Visual Studio Code editor
     ]);
