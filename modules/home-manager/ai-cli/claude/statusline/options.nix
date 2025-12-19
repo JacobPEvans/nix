@@ -9,7 +9,7 @@ with lib;
 let
   # Import shared theme definitions
   themes = import ./themes.nix { };
-  availableThemes = themes.availableThemes;
+  inherit (themes) availableThemes;
 in
 {
   options.programs.claudeStatusline = {
