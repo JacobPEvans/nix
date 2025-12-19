@@ -84,6 +84,13 @@
       flake = false; # Not a flake, just fetch the repo
     };
 
+    # Claude Powerline - alternative statusline with 6 theme variants
+    # Provides powerline-style statuslines with multiple color schemes
+    # https://github.com/Owloops/claude-powerline
+    claude-powerline = {
+      url = "github:Owloops/claude-powerline";
+      flake = false; # Not a flake, just fetch the repo
+    };
     # Superpowers - comprehensive software development workflow system
     # Provides brainstorming, planning, execution, testing, and review skills
     # https://github.com/obra/superpowers
@@ -115,6 +122,7 @@
       agent-os,
       ai-assistant-instructions,
       claude-code-statusline,
+      claude-powerline,
       superpowers-marketplace,
       nix-config-main,
       ...
@@ -163,6 +171,7 @@
           agent-os
           ai-assistant-instructions
           claude-code-statusline
+          claude-powerline
           superpowers-marketplace
           nix-config-main
           ;
