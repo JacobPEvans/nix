@@ -20,11 +20,16 @@
     # revoked on every rebuild because Nix store paths change.
     mac-app-util = {
       url = "github:hraban/mac-app-util";
-      inputs.nixpkgs.follows = "nixpkgs";
-      # WORKAROUND: gitlab.common-lisp.net has Anubis anti-bot protection
-      # blocking automated fetches. Use fork with GitHub mirror URLs.
-      # See: https://github.com/hraban/mac-app-util/issues/39
-      inputs.cl-nix-lite.url = "github:r4v3n6101/cl-nix-lite/url-fix";
+      # Consolidate all input overrides in a single attrset
+      # - nixpkgs: use our root nixpkgs
+      # - treefmt-nix: transitive dependency, prevent duplicate nixpkgs in flake.lock
+      # - cl-nix-lite: WORKAROUND for gitlab.common-lisp.net Anubis anti-bot protection
+      #   See: https://github.com/hraban/mac-app-util/issues/39
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+        cl-nix-lite.url = "github:r4v3n6101/cl-nix-lite/url-fix";
+      };
     };
 
     # Official Anthropic repositories for Claude Code plugins/commands
@@ -71,14 +76,6 @@
       flake = false; # Not a flake, just fetch the repo
     };
 
-    # Claude Code Statusline - modular multi-line terminal statusline
-    # Provides git status, MCP monitoring, cost tracking, themes
-    # https://github.com/rz1989s/claude-code-statusline
-    claude-code-statusline = {
-      url = "github:rz1989s/claude-code-statusline";
-      flake = false; # Not a flake, just fetch the repo
-    };
-
     # Superpowers - comprehensive software development workflow system
     # Provides brainstorming, planning, execution, testing, and review skills
     # https://github.com/obra/superpowers
@@ -109,7 +106,6 @@
       anthropic-skills,
       agent-os,
       ai-assistant-instructions,
-      claude-code-statusline,
       superpowers-marketplace,
       nix-config-main,
       ...
@@ -157,7 +153,6 @@
           anthropic-skills
           agent-os
           ai-assistant-instructions
-          claude-code-statusline
           superpowers-marketplace
           nix-config-main
           ;
