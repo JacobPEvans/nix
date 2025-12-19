@@ -1,40 +1,44 @@
 # Powerline Theme - Claude Code Statusline
 #
-# Multi-line statusline with powerline-style graphics.
-# This is a placeholder for Issue #81.
+# Multi-line statusline with powerline-style graphics powered by claude-powerline.
+# Uses npx to run the @owloops/claude-powerline Node.js package.
 #
-# Features (planned):
+# Features:
 # - Powerline-style arrow separators
 # - Multi-line layout
 # - Enhanced git status display
-# - Customizable segments
+# - 6 customizable color themes
+#
+# Repository: https://github.com/Owloops/claude-powerline
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 
 let
   cfg = config.programs.claudeStatusline;
+  powerlineStyle = cfg.powerline.style;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.theme == "powerline") {
-    # Placeholder implementation for Issue #81
-    # When this theme is selected, provide a clear error message
-    assertions = [
-      {
-        assertion = false;
-        message = ''
-          The 'powerline' statusline theme is not yet implemented.
-          This theme is planned for Issue #81.
+    # Create statusline-command.sh that uses npx to run claude-powerline
+    home.file.".claude/statusline-command.sh" = {
+      executable = true;
+      text = ''
+        #!/usr/bin/env bash
+        # Claude Powerline statusline wrapper
+        # Uses npx to run @owloops/claude-powerline with the configured theme
 
-          Available themes:
-          - robbyrussell (current default)
-
-          To use the default theme, set:
-            programs.claudeStatusline.theme = "robbyrussell";
-        '';
-      }
-    ];
+        # Pass the theme as an argument if not default
+        ${
+          if powerlineStyle == "default" then
+            ''${pkgs.nodejs}/bin/npx --yes @owloops/claude-powerline "$@"''
+          else
+            ''${pkgs.nodejs}/bin/npx --yes @owloops/claude-powerline --theme=${powerlineStyle} "$@"''
+        }
+      '';
+    };
   };
 }
