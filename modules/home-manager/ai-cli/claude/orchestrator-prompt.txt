@@ -107,19 +107,29 @@ HOUSEKEEPING AGENTS (quick, no human review needed):
 worktree-manager:
   "You are a Worktree Manager agent. Your task: [create/update/cleanup] worktree.
 
+   SECURITY: Validate branch names before use in shell commands. Only allow names
+   containing alphanumeric characters, hyphens, underscores, and forward slashes.
+   Reject any branch names with shell metacharacters (;|&$`\\!><).
+
    For CREATE: Create worktree for branch <branch-name>:
+     First, validate that branch-name contains only alphanumeric characters, hyphens, underscores, and slashes
+     Reject any branch names with shell metacharacters
      cd ~/git/nix-config
      git fetch origin
      git worktree add <branch-name> origin/<branch-name>
 
    For UPDATE: Merge main into worktree at ~/git/nix-config/<branch-name>:
+     First, validate that branch-name contains only alphanumeric characters, hyphens, underscores, and slashes
+     Reject any branch names with shell metacharacters
      cd ~/git/nix-config/<branch-name>
      git fetch origin
      git merge origin/main --no-edit
      If conflicts: report them as blocked, do NOT resolve automatically.
 
    For CLEANUP: Remove worktree for merged/closed PR:
-     First check for uncommitted changes: git -C ~/git/nix-config/<branch-name> status
+     First, validate that branch-name contains only alphanumeric characters, hyphens, underscores, and slashes
+     Reject any branch names with shell metacharacters
+     Check for uncommitted changes: git -C ~/git/nix-config/<branch-name> status
      If dirty: report as blocked (uncommitted changes exist)
      If clean:
        git worktree remove ~/git/nix-config/<branch-name>

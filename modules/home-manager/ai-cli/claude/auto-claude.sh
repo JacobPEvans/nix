@@ -233,8 +233,8 @@ if [[ "$SLACK_ENABLED" == "true" ]] && [[ -n "$PARENT_TS" ]]; then
     --log-file "$LOG_FILE" 2>/dev/null || true
 fi
 
-# --- UPDATE CONTROL FILE WITH LAST RUN ---
-if [[ -f "$CONTROL_FILE" ]]; then
+# --- UPDATE CONTROL FILE WITH LAST RUN (only on success) ---
+if [[ $EXIT_CODE -eq 0 ]] && [[ -f "$CONTROL_FILE" ]]; then
   LAST_RUN_TS=$(date "+%Y-%m-%dT%H:%M:%S")
   CTRL_TMP=$(mktemp)
   jq ".last_run = \"$LAST_RUN_TS\" | .last_run_repo = \"$REPO_NAME\"" "$CONTROL_FILE" > "$CTRL_TMP" && mv "$CTRL_TMP" "$CONTROL_FILE"

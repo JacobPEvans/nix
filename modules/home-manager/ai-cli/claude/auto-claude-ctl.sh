@@ -193,7 +193,17 @@ cmd_pause() {
   fi
 
   init_control_file
-  local pause_until=$(date -v "+${hours}H" "+%Y-%m-%dT%H:%M:%S")
+
+  # Date arithmetic with cross-platform support (BSD/macOS and GNU/Linux)
+  local pause_until
+  if date -v +1H "+%Y-%m-%dT%H:%M:%S" >/dev/null 2>&1; then
+    # BSD/macOS date
+    pause_until=$(date -v "+${hours}H" "+%Y-%m-%dT%H:%M:%S")
+  else
+    # GNU/Linux date
+    pause_until=$(date -d "+${hours} hours" "+%Y-%m-%dT%H:%M:%S")
+  fi
+
   update_field "pause_until" "\"$pause_until\""
 
   echo "Auto-claude paused until $(format_time "$pause_until")"
