@@ -54,23 +54,29 @@ let
   }
   // lib.optionalAttrs (envAttrs != { }) { env = envAttrs; }
 
-  # Status line (if enabled)
-  // lib.optionalAttrs cfg.statusLine.enable {
-    statusLine =
-      if cfg.statusLine.enhanced.enable && cfg.statusLine.enhanced.package != null then
-        {
-          type = "command";
-          # Reference package built by statusline.nix (single source of truth)
-          command = "${cfg.statusLine.enhanced.package}/bin/claude-code-statusline";
-        }
-      else if cfg.statusLine.script != null then
-        {
-          type = "command";
-          command = "${homeDir}/.claude/statusline-command.sh";
-        }
-      else
-        { };
-  };
+  # Status line (only include if we have valid configuration)
+  # Include when: enhanced mode with package, OR custom script
+  # Do NOT include empty statusLine object (breaks Claude Code schema)
+  // lib.optionalAttrs
+    (cfg.statusLine.enable
+      && (
+        (cfg.statusLine.enhanced.enable && cfg.statusLine.enhanced.package != null)
+        || cfg.statusLine.script != null
+      ))
+    {
+      statusLine =
+        if cfg.statusLine.enhanced.enable && cfg.statusLine.enhanced.package != null then
+          {
+            type = "command";
+            # Reference package built by statusline.nix (single source of truth)
+            command = "${cfg.statusLine.enhanced.package}/bin/claude-code-statusline";
+          }
+        else
+          {
+            type = "command";
+            command = "${homeDir}/.claude/statusline-command.sh";
+          };
+    };
 
   # Pretty-print JSON
   settingsJson =
