@@ -50,6 +50,7 @@ _:
       "git remote"
       "git clone"
       "git merge"
+      "git rebase"
     ];
     config = [
       "git config"
@@ -205,6 +206,8 @@ _:
     "yq"
     "file"
     "readlink"
+    "sed"
+    "awk"
   ];
 
   fileCreate = [
@@ -232,7 +235,7 @@ _:
     "delta"
     "eza"
     "fd"
-    "fzf"
+    "fzp"
     "htop"
     "ncdu"
     "tldr"
@@ -267,6 +270,8 @@ _:
     "mdfind"
     "launchctl list"
     "launchctl print"
+    "pbcopy"
+    "pbpaste"
   ];
 
   shell = [
@@ -280,6 +285,7 @@ _:
     "true"
     "false"
     "zsh"
+    "source"
   ];
 
   # --- Network ---
@@ -296,6 +302,7 @@ _:
     "host"
     "netstat"
     "lsof -i"
+    "wget"
   ];
 
   # --- Languages ---
@@ -314,19 +321,27 @@ _:
       "pip list"
       "pip show"
       "pip freeze"
+      "pip install"
+      "pip install --user"
       "pip3 list"
       "pip3 show"
+      "pip3 install"
     ];
     poetry = [
       "poetry --version"
       "poetry run"
       "poetry shell"
       "poetry show"
+      "poetry install"
+      "poetry add"
+      "poetry remove"
+      "poetry update"
     ];
     pyenv = [
       "pyenv versions"
       "pyenv global"
       "pyenv local"
+      "pyenv install"
     ];
     test = [
       "pytest"
@@ -369,9 +384,20 @@ _:
       "npm outdated"
       "npm audit"
       "npm view"
+      "npm install"
+      "npm ci"
     ];
-    yarn = [ "yarn run" ];
-    pnpm = [ "pnpm run" ];
+    yarn = [
+      "yarn run"
+      "yarn install"
+      "yarn add"
+      "yarn remove"
+    ];
+    pnpm = [
+      "pnpm run"
+      "pnpm install"
+      "pnpm add"
+    ];
   };
 
   rust = {
@@ -387,6 +413,8 @@ _:
       "cargo update"
       "cargo search"
       "cargo tree"
+      "cargo install"
+      "cargo uninstall"
     ];
     rustup = [
       "rustc --version"
@@ -478,8 +506,8 @@ _:
     "terragrunt plan"
     "terragrunt show"
     "terragrunt state list"
-    "terragrunt state show"
-    "terragrunt output"
+      "terragrunt state show"
+      "terragrunt output"
     "terragrunt graph-dependencies"
     "terragrunt hclfmt"
   ];
