@@ -240,7 +240,9 @@ This configuration uses multiple layers to ensure TCC permissions persist:
 
 1. **mac-app-util trampolines**: Apps in `home.packages` get stable wrapper apps at `~/Applications/Home Manager Trampolines/` that don't change paths across rebuilds
 
-2. **TCC-sensitive apps in home.packages**: Ghostty, Zoom, and OrbStack are in `hosts/macbook-m4/home.nix` home.packages (not system packages) to get stable trampolines
+2. **TCC-sensitive apps in home.packages**: Ghostty, Zoom, and OrbStack are in
+   `home.packages` (see `hosts/macbook-m4/home.nix`) (not system packages) to get
+   stable trampolines
 
 3. **AssociatedBundleIdentifiers**: Auto-claude launchd agents are linked to Ghostty's bundle identifier so they can inherit its TCC permissions
 
@@ -265,7 +267,7 @@ After a fresh install or if permissions aren't working:
 
 ```bash
 # Check Home Manager trampolines
-ls -la ~/Applications/Home\ Manager\ Trampolines/
+ls -la "~/Applications/Home Manager Trampolines/"
 # Should show Ghostty.app, Zoom.app, OrbStack.app
 
 # Check system apps (these do NOT get stable TCC)
@@ -296,7 +298,7 @@ echo $TERM_PROGRAM
 
 ```bash
 # Check if agents have AssociatedBundleIdentifiers
-plutil -p ~/Library/LaunchAgents/com.claude.auto-claude-*.plist | grep Associated
+find ~/Library/LaunchAgents -name 'com.claude.auto-claude-*.plist' -exec plutil -p {} + | grep Associated
 
 # Verify Ghostty trampoline has Full Disk Access
 # System Settings > Privacy & Security > Full Disk Access
