@@ -73,14 +73,12 @@ in
 
                   hours = lib.mkOption {
                     type = lib.types.listOf (lib.types.ints.between 0 23);
-                    default = [
-                      14
-                    ];
+                    default = [ ];
                     description = ''
                       List of hours (0-23) to run each day.
 
-                      Default runs once daily at 2pm to minimize unexpected costs.
-                      Add more hours if you want more frequent maintenance runs.
+                      If empty and schedule.hour is set, uses that single hour.
+                      For alternating schedules across repos, use hours explicitly.
                     '';
                   };
                 };
