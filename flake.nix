@@ -76,6 +76,14 @@
       flake = false; # Not a flake, just fetch the repo
     };
 
+    # Claude Code Statusline - Advanced integration with 18+ themes
+    # Configurable statusline for Claude Code with git and cost tracking
+    # Used by modules/home-manager/ai-cli/claude/statusline/advanced.nix
+    claude-code-statusline = {
+      url = "github:rz1989s/claude-code-statusline";
+      flake = false; # Not a flake, just fetch the repo
+    };
+
     # Superpowers - comprehensive software development workflow system
     # Provides brainstorming, planning, execution, testing, and review skills
     # https://github.com/obra/superpowers
@@ -106,6 +114,7 @@
       anthropic-skills,
       agent-os,
       ai-assistant-instructions,
+      claude-code-statusline,
       superpowers-marketplace,
       nix-config-main,
       ...
@@ -153,6 +162,7 @@
           anthropic-skills
           agent-os
           ai-assistant-instructions
+          claude-code-statusline
           superpowers-marketplace
           nix-config-main
           ;
