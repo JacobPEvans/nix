@@ -23,10 +23,6 @@ let
 
   # Import shared package builder
   inherit (import ./package.nix { inherit lib pkgs; }) mkStatuslinePackage;
-
-  # Import shared theme definitions
-  themes = import ./themes.nix { };
-  availableThemes = themes.availableThemes;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.theme == "advanced") (
