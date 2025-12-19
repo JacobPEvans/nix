@@ -101,6 +101,34 @@ update_last_run() {
   fi
 }
 
+# Calculate total tokens used from JSONL log
+calculate_token_usage() {
+  local log_file="$1"
+
+  if [[ ! -f "$log_file" ]]; then
+    echo "0"
+    return
+  fi
+
+  # Sum all input_tokens + output_tokens from assistant messages
+  local total=$(jq -r 'select(.type == "message" and .message.role == "assistant") | .message.usage | (.input_tokens + .output_tokens)' "$log_file" 2>/dev/null | awk '{sum+=$1} END {print sum}')
+
+  echo "${total:-0}"
+}
+
+# Check if context usage exceeded threshold
+check_context_usage() {
+  local total_tokens=$(calculate_token_usage "$LOG_FILE")
+  local context_window=200000  # Standard tier
+  local usage_pct=$((total_tokens * 100 / context_window))
+
+  echo "[$RUN_ID] Total tokens used: $total_tokens / $context_window ($usage_pct%)" >> "$SUMMARY_LOG"
+
+  if (( usage_pct > 90 )); then
+    echo "[$RUN_ID] WARNING: Context usage exceeded 90% - orchestrator should have exited gracefully" >> "$SUMMARY_LOG"
+  fi
+}
+
 # --- ARGUMENT PARSING ---
 if [[ $# -lt 2 ]]; then
   echo "Usage: $0 <target_dir> <max_budget_usd> [log_dir] [slack_channel]" >&2
@@ -359,6 +387,9 @@ set -e
 
 # --- POST-RUN PROCESSING ---
 TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+
+# Check context usage for monitoring (optional tracking)
+check_context_usage
 
 if [[ $EXIT_CODE -eq 0 ]]; then
   echo "=== [$TIMESTAMP] Completed: $REPO_NAME (exit 0) ===" >> "$SUMMARY_LOG"
