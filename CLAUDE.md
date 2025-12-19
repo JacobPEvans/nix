@@ -37,26 +37,50 @@ consciously choose the appropriate model (Opus for complex tasks).
 
 **MANDATORY for all changes.** Follow without exception.
 
-### Worktree-Based Development (Required for ai-assistant-instructions)
+### Repository Structure
 
-The `ai-assistant-instructions` repository uses git worktrees for branch isolation:
+This repository uses a **bare git repo with worktrees**:
 
-- **Main branch**: `~/git/ai-assistant-instructions/main/`
-- **Feature branches**: `~/git/ai-assistant-instructions/<branch-name>/`
-
-**All changes MUST be made on a dedicated worktree/branch** - never edit `main` directly.
-This enables concurrent AI sessions and parallel development on separate features.
-
-```bash
-# Create new worktree for a feature
-cd ~/git/ai-assistant-instructions/main
-git worktree add ../my-feature -b feat/my-feature
-cd ../my-feature
+```text
+~/git/ai-assistant-instructions/   (bare repo - DO NOT cd here directly)
+├── main/                          (main branch worktree - for pulling updates)
+├── <feature-branch>/              (your feature worktree)
+└── ...
 ```
 
-**Content source**: Permissions, commands, and instruction files come from the **Nix store**
-(flake input), not the local repo. The local repo is only used by autoClaude for autonomous
-commits. Changes require `nix flake lock --update-input ai-assistant-instructions` + rebuild.
+**Key Points:**
+
+- **Content Source:** Permissions and commands come from the **Nix store** (flake input), not just the local files.
+- **Isolation:** All development happens in `~/git/ai-assistant-instructions/<worktree-name>/`.
+- **Updates:** Changes usually require `nix flake lock --update-input ai-assistant-instructions` + rebuild.
+
+### MANDATORY: New Worktree for New Work
+
+**NEVER work directly in an existing worktree for unrelated changes.**
+**NEVER work in the bare repo directory (`~/git/ai-assistant-instructions/`)**
+
+Before making ANY changes:
+
+1. Check if changes relate to current worktree's branch/PR.
+2. If NOT related → **create a NEW worktree** for the new work.
+3. If related → continue in current worktree.
+
+**To create a new worktree:**
+
+```bash
+cd ~/git/nix-config
+git fetch origin
+git worktree add <branch-name> -b <branch-name> origin/main
+cd <branch-name>
+# Now you're ready to work
+```
+
+**Why worktrees?**
+
+- Each PR/feature has an isolated working directory.
+- No accidental commits to the wrong branch.
+- Enables concurrent AI sessions and parallel development.
+- auto-claude manages worktree lifecycle automatically.
 
 ### SSH Agent Pre-Flight Check (Required for Remote Git Operations)
 
@@ -77,10 +101,10 @@ Without this check, authenticated Git operations will fail with authentication e
 
 ### Before Making Changes
 
-1. Check current branch - determine if change relates to current worktree+branch
-2. If on `main`: create new feature branch before modifying any files
-3. If on unrelated branch: switch to main, pull latest, create new dedicated branch
-4. Never make changes directly on `main`
+1. Check current worktree - determine if change relates to current worktree's branch/PR
+2. If change is unrelated → **create a new worktree** (see above)
+3. If in main worktree → only pull updates, **never commit directly to main**
+4. If change is related → continue in current worktree
 
 ### After Completing Changes
 
