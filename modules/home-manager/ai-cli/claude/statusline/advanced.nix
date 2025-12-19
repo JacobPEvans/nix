@@ -24,27 +24,9 @@ let
   # Import shared package builder
   inherit (import ./package.nix { inherit lib pkgs; }) mkStatuslinePackage;
 
-  # Available themes from claude-code-statusline repository
-  availableThemes = [
-    "gruvbox"
-    "nord"
-    "dracula"
-    "monokai"
-    "solarized-dark"
-    "solarized-light"
-    "tokyo-night"
-    "catppuccin-mocha"
-    "catppuccin-latte"
-    "catppuccin-frappe"
-    "catppuccin-macchiato"
-    "onedark"
-    "github-dark"
-    "github-light"
-    "material"
-    "palenight"
-    "ayu-dark"
-    "ayu-light"
-  ];
+  # Import shared theme definitions
+  themes = import ./themes.nix { };
+  availableThemes = themes.availableThemes;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.theme == "advanced") (
@@ -68,21 +50,6 @@ in
       '';
     in
     {
-      assertions = [
-        {
-          assertion = builtins.elem advancedCfg.theme availableThemes;
-          message = ''
-            Invalid theme '${advancedCfg.theme}' for advanced statusline.
-
-            Available themes:
-            ${lib.concatStringsSep "\n" (map (t: "  - ${t}") availableThemes)}
-
-            To change the theme, set:
-              programs.claudeStatusline.advanced.theme = "theme-name";
-          '';
-        }
-      ];
-
       # Install the statusline package
       home.packages = [ statuslinePackage ];
 

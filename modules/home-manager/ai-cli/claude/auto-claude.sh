@@ -118,70 +118,6 @@ if ! command -v jq &>/dev/null; then
   exit 1
 fi
 
-# --- CONTROL FILE CHECK ---
-CONTROL_FILE="${HOME}/.claude/auto-claude-control.json"
-
-# Convert ISO8601 timestamp to epoch seconds for reliable comparison
-# Supports both macOS (BSD date) and Linux (GNU date)
-iso_to_epoch() {
-  local iso="$1"
-  if date --version >/dev/null 2>&1; then
-    # GNU date (Linux)
-    date -d "$iso" "+%s" 2>/dev/null
-  else
-    # BSD date (macOS)
-    date -j -f "%Y-%m-%dT%H:%M:%S" "${iso%%.*}" "+%s" 2>/dev/null
-  fi
-}
-
-check_control_file() {
-  # Skip checks if FORCE_RUN is set
-  if [[ "${FORCE_RUN:-}" == "1" ]]; then
-    return 0
-  fi
-
-  # Skip if control file doesn't exist
-  if [[ ! -f "$CONTROL_FILE" ]]; then
-    return 0
-  fi
-
-  local now=$(date "+%Y-%m-%dT%H:%M:%S")
-
-  # Check pause_until
-  local pause_until=$(jq -r '.pause_until // empty' "$CONTROL_FILE" 2>/dev/null)
-  if [[ -n "$pause_until" && "$pause_until" != "null" ]]; then
-    local now_epoch=$(iso_to_epoch "$now")
-    local pause_until_epoch=$(iso_to_epoch "$pause_until")
-    if [[ -z "$now_epoch" || -z "$pause_until_epoch" ]]; then
-      echo "Warning: Could not parse pause_until or current time. Skipping pause check." >&2
-    elif [[ "$now_epoch" -lt "$pause_until_epoch" ]]; then
-      echo "Auto-claude paused until $pause_until. Skipping this run." >&2
-      echo "Run 'auto-claude-ctl resume' to resume earlier." >&2
-      exit 0
-    fi
-  fi
-
-  # Check skip_count
-  local skip_count=$(jq -r '.skip_count // 0' "$CONTROL_FILE" 2>/dev/null)
-  if [[ "$skip_count" -gt 0 ]] 2>/dev/null; then
-    local new_count=$((skip_count - 1))
-    local tmp=$(mktemp)
-    jq ".skip_count = $new_count" "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
-    echo "Skipping this run ($new_count remaining). Run 'auto-claude-ctl resume' to clear." >&2
-    exit 0
-  fi
-
-  # Clear run_now flag if set (we're about to run)
-  local run_now=$(jq -r '.run_now // false' "$CONTROL_FILE" 2>/dev/null)
-  if [[ "$run_now" == "true" ]]; then
-    local tmp=$(mktemp)
-    jq '.run_now = false' "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
-  fi
-}
-
-# Run control file check
-check_control_file
-
 # --- INPUT VALIDATION ---
 if [[ ! -d "$TARGET_DIR" ]]; then
   echo "Error: Directory $TARGET_DIR does not exist." >&2
@@ -255,27 +191,32 @@ pre_flight_git_check() {
   local local_sha=$(git rev-parse HEAD 2>/dev/null)
   local remote_sha=$(git rev-parse "origin/$branch" 2>/dev/null || echo "")
 
-  if [[ -n "$remote_sha" && "$local_sha" != "$remote_sha" ]]; then
-    # Determine divergence type using merge-base
-    local base=$(git merge-base HEAD "origin/$branch" 2>/dev/null || echo "")
+  if [[ -n "$remote_sha" ]]; then
+    if [[ "$local_sha" == "$remote_sha" ]]; then
+      # Branches are synchronized
+      echo "[$RUN_ID] INFO: Local and origin are synchronized" >> "$SUMMARY_LOG"
+    else
+      # Branches differ - determine divergence type using merge-base
+      local base=$(git merge-base HEAD "origin/$branch" 2>/dev/null || echo "")
 
-    if [[ "$base" == "$remote_sha" ]]; then
-      # Local is ahead of remote - this is OK (unpushed commits)
-      echo "[$RUN_ID] INFO: Local is ahead of origin (unpushed commits exist)" >> "$SUMMARY_LOG"
-    elif [[ "$base" == "$local_sha" ]]; then
-      # Local is behind remote - fast-forward pull
-      echo "[$RUN_ID] INFO: Pulling latest from origin (fast-forward)..." >> "$SUMMARY_LOG"
-      if ! git pull --ff-only origin "$branch" 2>/dev/null; then
-        echo "[$RUN_ID] ERROR: Fast-forward pull failed" >> "$FAILURES_LOG"
+      if [[ "$base" == "$remote_sha" ]]; then
+        # Local is ahead of remote - this is OK (unpushed commits)
+        echo "[$RUN_ID] INFO: Local is ahead of origin (unpushed commits exist)" >> "$SUMMARY_LOG"
+      elif [[ "$base" == "$local_sha" ]]; then
+        # Local is behind remote - fast-forward pull
+        echo "[$RUN_ID] INFO: Pulling latest from origin (fast-forward)..." >> "$SUMMARY_LOG"
+        if ! git pull --ff-only origin "$branch" 2>/dev/null; then
+          echo "[$RUN_ID] ERROR: Fast-forward pull failed" >> "$FAILURES_LOG"
+          exit 1
+        fi
+      else
+        # Branches have diverged - cannot auto-resolve
+        echo "[$RUN_ID] ERROR: Branch has diverged from origin. Manual resolution required." >> "$FAILURES_LOG"
+        echo "[$RUN_ID]   Local:  $local_sha" >> "$FAILURES_LOG"
+        echo "[$RUN_ID]   Remote: $remote_sha" >> "$FAILURES_LOG"
+        echo "[$RUN_ID]   Base:   $base" >> "$FAILURES_LOG"
         exit 1
       fi
-    else
-      # Branches have diverged - cannot auto-resolve
-      echo "[$RUN_ID] ERROR: Branch has diverged from origin. Manual resolution required." >> "$FAILURES_LOG"
-      echo "[$RUN_ID]   Local:  $local_sha" >> "$FAILURES_LOG"
-      echo "[$RUN_ID]   Remote: $remote_sha" >> "$FAILURES_LOG"
-      echo "[$RUN_ID]   Base:   $base" >> "$FAILURES_LOG"
-      exit 1
     fi
   fi
 
@@ -378,16 +319,11 @@ if [[ "$SLACK_ENABLED" == "true" ]] && [[ -n "$PARENT_TS" ]]; then
     --log-file "$LOG_FILE" 2>/dev/null || true
 fi
 
-# --- UPDATE CONTROL FILE WITH LAST RUN (only on success) ---
-if [[ $EXIT_CODE -eq 0 ]] && [[ -f "$CONTROL_FILE" ]]; then
-  LAST_RUN_TS=$(date "+%Y-%m-%dT%H:%M:%S")
-  CTRL_TMP=$(mktemp)
-  jq ".last_run = \"$LAST_RUN_TS\" | .last_run_repo = \"$REPO_NAME\"" "$CONTROL_FILE" > "$CTRL_TMP" && mv "$CTRL_TMP" "$CONTROL_FILE"
-fi
-
 echo "" >> "$SUMMARY_LOG"
 
-# --- UPDATE CONTROL FILE ---
-update_last_run "$REPO_NAME"
+# --- UPDATE CONTROL FILE (only on success) ---
+if [[ $EXIT_CODE -eq 0 ]]; then
+  update_last_run "$REPO_NAME"
+fi
 
 exit "$EXIT_CODE"

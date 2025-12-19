@@ -68,7 +68,7 @@ repos:
       # Validates syntax of all auto-claude shell scripts
       - id: validate-auto-claude-scripts
         name: Validate auto-claude shell scripts
-        entry: bash -c 'shopt -s nullglob; rc=0; for f in modules/home-manager/ai-cli/claude/auto-claude*.sh; do zsh -n "$f" || rc=1; done; exit $rc'
+        entry: zsh -c 'setopt NULL_GLOB; rc=0; for f in modules/home-manager/ai-cli/claude/auto-claude*.sh; do zsh -n "$f" || rc=1; done; exit $rc'
         language: system
         files: '^modules/home-manager/ai-cli/claude/auto-claude.*\.sh$'
         types: [file]

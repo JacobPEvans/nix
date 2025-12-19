@@ -6,6 +6,11 @@
 
 with lib;
 
+let
+  # Import shared theme definitions
+  themes = import ./themes.nix { };
+  availableThemes = themes.availableThemes;
+in
 {
   options.programs.claudeStatusline = {
     enable = mkEnableOption "Claude Code statusline with theme support";
@@ -48,26 +53,7 @@ with lib;
       type = types.submodule {
         options = {
           theme = mkOption {
-            type = types.enum [
-              "gruvbox"
-              "nord"
-              "dracula"
-              "monokai"
-              "solarized-dark"
-              "solarized-light"
-              "tokyo-night"
-              "catppuccin-mocha"
-              "catppuccin-latte"
-              "catppuccin-frappe"
-              "catppuccin-macchiato"
-              "onedark"
-              "github-dark"
-              "github-light"
-              "material"
-              "palenight"
-              "ayu-dark"
-              "ayu-light"
-            ];
+            type = types.enum availableThemes;
             default = "gruvbox";
             description = ''
               Color theme for advanced statusline.

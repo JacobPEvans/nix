@@ -212,14 +212,9 @@ in
           executable = true;
         };
       };
-
-      # Shell alias for convenient access to control script
-      shellAliases = {
-        auto-claude-ctl = "${homeDir}/.claude/scripts/auto-claude-ctl.sh";
-      };
     };
 
-    # Add shell alias for convenience
+    # Add shell alias for convenient access to control script
     programs.zsh.shellAliases = {
       auto-claude-ctl = "${homeDir}/.claude/scripts/auto-claude-ctl.sh";
     };
