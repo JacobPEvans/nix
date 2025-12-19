@@ -50,7 +50,7 @@ in
       "curl -X PATCH"
       "curl --request POST"
       "curl --request PUT"
-     Ãurl --request DELETE"
+      "curl --request DELETE"
       "curl --request PATCH"
       "curl -d"
       "curl --data"
