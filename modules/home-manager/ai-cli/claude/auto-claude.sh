@@ -193,7 +193,8 @@ check_control_file() {
   local skip_count=$(jq -r '.skip_count // 0' "$CONTROL_FILE" 2>/dev/null)
   if [[ "$skip_count" -gt 0 ]] 2>/dev/null; then
     local new_count=$((skip_count - 1))
-    local tmp=$(mktemp)
+    local tmp
+    tmp=$(mktemp) || { echo "Error: could not create temporary file for skip_count update." >&2; exit 1; }
     jq ".skip_count = $new_count" "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
     echo "Skipping this run ($new_count remaining). Run 'auto-claude-ctl resume' to clear." >&2
     exit 0
@@ -202,7 +203,8 @@ check_control_file() {
   # Clear run_now flag if set (we're about to run)
   local run_now=$(jq -r '.run_now // false' "$CONTROL_FILE" 2>/dev/null)
   if [[ "$run_now" == "true" ]]; then
-    local tmp=$(mktemp)
+    local tmp
+    tmp=$(mktemp) || { echo "Error: could not create temporary file for run_now flag clear." >&2; exit 1; }
     jq '.run_now = false' "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
   fi
 }
@@ -413,8 +415,10 @@ fi
 # --- UPDATE CONTROL FILE WITH LAST RUN (only on success) ---
 if [[ $EXIT_CODE -eq 0 ]] && [[ -f "$CONTROL_FILE" ]]; then
   LAST_RUN_TS=$(date "+%Y-%m-%dT%H:%M:%S")
-  CTRL_TMP=$(mktemp)
-  jq ".last_run = \"$LAST_RUN_TS\" | .last_run_repo = \"$REPO_NAME\"" "$CONTROL_FILE" > "$CTRL_TMP" && mv "$CTRL_TMP" "$CONTROL_FILE"
+  CTRL_TMP=$(mktemp) || { echo "Warning: could not create temporary file for last_run update." >&2; }
+  if [[ -n "$CTRL_TMP" ]]; then
+    jq ".last_run = \"$LAST_RUN_TS\" | .last_run_repo = \"$REPO_NAME\"" "$CONTROL_FILE" > "$CTRL_TMP" && mv "$CTRL_TMP" "$CONTROL_FILE"
+  fi
 fi
 
 echo "" >> "$SUMMARY_LOG"
