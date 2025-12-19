@@ -505,8 +505,8 @@ _:
     "terragrunt plan"
     "terragrunt show"
     "terragrunt state list"
-      "terragrunt state show"
-      "terragrunt output"
+    "terragrunt state show"
+    "terragrunt output"
     "terragrunt graph-dependencies"
     "terragrunt hclfmt"
   ];
