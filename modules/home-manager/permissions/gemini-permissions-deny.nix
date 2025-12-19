@@ -15,7 +15,7 @@
 # - If a legitimate use case arises, edit ai-cli/common/permissions.nix
 
 {
-  config ? { },
+  config,
   lib ? import <nixpkgs/lib>,
   ...
 }:

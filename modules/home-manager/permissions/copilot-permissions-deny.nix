@@ -25,7 +25,7 @@
 #   alias copilot-safe='copilot --deny-tool "shell(rm -rf /)" --deny-tool "shell(sudo rm)"'
 
 {
-  config ? { },
+  config,
   lib ? import <nixpkgs/lib>,
   ...
 }:
