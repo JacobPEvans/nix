@@ -131,7 +131,20 @@ in
       # Uses local repo (not Nix store) because autoClaude needs writable git
       ai-assistant-instructions = {
         path = autoClaudeLocalRepoPath;
-        schedule.hours = [ 0 2 4 6 8 10 12 14 16 18 20 22 ];
+        schedule.hours = [
+          0
+          2
+          4
+          6
+          8
+          10
+          12
+          14
+          16
+          18
+          20
+          22
+        ];
         maxBudget = 25.0;
         # TODO: Configure Slack channel ID for this repo
         # slackChannel = "C_AI_INSTRUCTIONS";
@@ -139,7 +152,20 @@ in
       # nix-config: runs on ODD hours
       nix = {
         path = "${config.home.homeDirectory}/.config/nix";
-        schedule.hours = [ 1 3 5 7 9 11 13 15 17 19 21 23 ];
+        schedule.hours = [
+          1
+          3
+          5
+          7
+          9
+          11
+          13
+          15
+          17
+          19
+          21
+          23
+        ];
         maxBudget = 25.0;
         # TODO: Configure Slack channel ID for this repo
         # slackChannel = "C_NIX_CONFIG";
