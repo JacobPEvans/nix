@@ -273,6 +273,14 @@ pre_flight_git_check() {
     exit 1
   fi
 
+  # CRITICAL: Check working tree is clean BEFORE any git operations
+  # This prevents pull attempts on dirty trees which could cause conflicts
+  if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
+    echo "[$RUN_ID] ERROR: Working tree has uncommitted changes. Commit or stash them first." >> "$FAILURES_LOG"
+    git status --short >> "$FAILURES_LOG"
+    exit 1
+  fi
+
   # Fetch latest from remote (silently)
   if ! git fetch origin "$branch" --quiet 2>/dev/null; then
     echo "[$RUN_ID] WARNING: Could not fetch from origin (network issue?)" >> "$SUMMARY_LOG"
@@ -305,13 +313,6 @@ pre_flight_git_check() {
       echo "[$RUN_ID]   Base:   $base" >> "$FAILURES_LOG"
       exit 1
     fi
-  fi
-
-  # Ensure working tree is clean (no uncommitted changes)
-  if [[ -n "$(git status --porcelain 2>/dev/null)" ]]; then
-    echo "[$RUN_ID] ERROR: Working tree has uncommitted changes. Commit or stash them first." >> "$FAILURES_LOG"
-    git status --short >> "$FAILURES_LOG"
-    exit 1
   fi
 
   echo "[$RUN_ID] INFO: Git pre-flight checks passed" >> "$SUMMARY_LOG"
