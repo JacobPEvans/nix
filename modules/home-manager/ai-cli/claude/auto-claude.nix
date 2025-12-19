@@ -219,11 +219,6 @@ in
       };
     };
 
-    # Add shell alias for convenience
-    programs.zsh.shellAliases = {
-      auto-claude-ctl = "${homeDir}/.claude/scripts/auto-claude-ctl.sh";
-    };
-
     # Create launchd agents for each repository (Darwin only)
     # Each agent calls the same script with repository-specific arguments
     launchd.agents = lib.mapAttrs' (
