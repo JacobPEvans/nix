@@ -129,16 +129,14 @@ in
         path = autoClaudeLocalRepoPath;
         schedule.hours = lib.lists.genList (i: i * 2) 12;
         maxBudget = 25.0;
-        # TODO: Configure Slack channel ID for this repo
-        # slackChannel = "C_AI_INSTRUCTIONS";
+        slackChannel = "C0A3XA3PBL1";
       };
       # nix config: runs at odd hours (1, 3, 5, ...)
       nix = {
         path = "${config.home.homeDirectory}/.config/nix";
         schedule.hours = lib.lists.genList (i: i * 2 + 1) 12;
         maxBudget = 25.0;
-        # TODO: Configure Slack channel ID for this repo
-        # slackChannel = "C_NIX_CONFIG";
+        slackChannel = "C0A32VA40KH";
       };
     };
   };
