@@ -19,11 +19,11 @@
     "ai-assistant-instructions": {
       "flake": false,
       "locked": {
-        "lastModified": 1766166493,
-        "narHash": "sha256-HNuZdVoYd17bnPJySgvU7ce37JaJnr5hZfXBK1OKZtQ=",
+        "lastModified": 1766193521,
+        "narHash": "sha256-26CbVWtwX/0FRn09XBEKzrRuM5KRY+dUDS2TXMoQu30=",
         "owner": "JacobPEvans",
         "repo": "ai-assistant-instructions",
-        "rev": "3991002850e19a3305e490f4df5d1ad19eaaf83d",
+        "rev": "7409311ae0fe2bec7e3740320c97cc64528f4106",
         "type": "github"
       },
       "original": {
@@ -77,22 +77,6 @@
       "original": {
         "owner": "anthropics",
         "repo": "claude-code",
-        "type": "github"
-      }
-    },
-    "claude-code-statusline": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1765965162,
-        "narHash": "sha256-8/f7Xbz3aV9hAg8J9SSys5HxPzIMXO44rOFWu5ynKXQ=",
-        "owner": "rz1989s",
-        "repo": "claude-code-statusline",
-        "rev": "68a6a18515813c87340ca2f8357f598160002aa4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rz1989s",
-        "repo": "claude-code-statusline",
         "type": "github"
       }
     },
@@ -249,11 +233,11 @@
     "nix-config-main": {
       "flake": false,
       "locked": {
-        "lastModified": 1766178464,
-        "narHash": "sha256-q2PJbReery+1hoDFaIrNOCdrcvifg6xZ2+Ti9e3oP4w=",
+        "lastModified": 1766201001,
+        "narHash": "sha256-paottgzn9Kovlue55itAR1yd+c0a5+BkPqXrQB6g5A4=",
         "owner": "JacobPEvans",
         "repo": "nix",
-        "rev": "41ee5f590e7ed7e3791869f7329d989ebb3a5428",
+        "rev": "d18fbf28251299432b004101ef05aa8dec08ab63",
         "type": "github"
       },
       "original": {
@@ -284,7 +268,6 @@
         "ai-assistant-instructions": "ai-assistant-instructions",
         "anthropic-skills": "anthropic-skills",
         "claude-code-plugins": "claude-code-plugins",
-        "claude-code-statusline": "claude-code-statusline",
         "claude-cookbooks": "claude-cookbooks",
         "claude-plugins-official": "claude-plugins-official",
         "claude-powerline": "claude-powerline",
