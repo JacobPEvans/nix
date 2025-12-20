@@ -1,8 +1,11 @@
 # Monitoring Infrastructure - Session Planning
 
 **Branch:** `feat/monitoring`
+**PR:** <https://github.com/JacobPEvans/nix/pull/172>
 **Created:** 2024-12-20
 **Status:** In Progress
+
+**Blocking Issue:** <https://github.com/JacobPEvans/nix/issues/173> (BWS token invalid)
 
 ## Overview
 
