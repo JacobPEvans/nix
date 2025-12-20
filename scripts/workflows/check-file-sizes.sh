@@ -25,7 +25,7 @@ else
 fi
 ERRORS=0
 
-for f in $(find . \( -name "*.md" -o -name "*.nix" \) -not -path "./.git/*" | sort); do
+while IFS= read -r -d '' f; do
   # Skip symlinks (they point to files that are already checked)
   if [ -L "$f" ]; then continue; fi
 
@@ -54,6 +54,6 @@ for f in $(find . \( -name "*.md" -o -name "*.nix" \) -not -path "./.git/*" | so
   elif [ "$size" -gt "$warn_threshold" ]; then
     echo "::warning file=$f::$f is ${kb}KB (exceeds $((warn_threshold/1024))KB recommended)"
   fi
-done
+done < <(find . \( -name "*.md" -o -name "*.nix" \) -not -path "./.git/*" -print0 | sort -z)
 
 exit $ERRORS
