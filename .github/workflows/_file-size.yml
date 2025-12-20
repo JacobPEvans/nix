@@ -8,7 +8,8 @@ on:
       extended:
         description: 'Space-separated list of files with extended limit (32KB)'
         required: false
-        default: 'CLAUDE ANTHROPIC-ECOSYSTEM TROUBLESHOOTING'
+        # Note: CLAUDE.md is a symlink to AGENTS.md (symlinks are skipped by the script)
+        default: 'AGENTS ANTHROPIC-ECOSYSTEM TROUBLESHOOTING'
         type: string
       exempt:
         description: 'Space-separated list of exempt files (no limit)'
