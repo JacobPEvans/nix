@@ -14,14 +14,13 @@
 
 set -euo pipefail
 
-# Arguments from git
-ANCESTOR="$1"  # %O - common ancestor
+# Arguments from git - only %A (current) is needed; %O and %B are ignored
+# The regeneration strategy doesn't use ancestor or other versions
 CURRENT="$2"   # %A - current version (ours) - we write result here
-OTHER="$3"     # %B - other version (theirs)
 
-# Regenerate flake.lock
-# This updates flake.lock in the working directory
-if nix flake lock 2>/dev/null; then
+# Regenerate flake.lock without updating inputs
+# Uses --no-update-lock-file to preserve current input versions
+if nix flake lock --no-update-lock-file 2>/dev/null; then
     # Copy regenerated lock to the merge result
     cp flake.lock "$CURRENT"
     exit 0
