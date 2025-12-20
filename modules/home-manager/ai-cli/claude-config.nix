@@ -145,13 +145,8 @@ in
 
   plugins = {
     marketplaces = {
-      "anthropics/claude-code" = {
-        source = {
-          type = "git";
-          url = "https://github.com/anthropics/claude-code.git";
-        };
-        flakeInput = claude-code-plugins;
-      };
+      # Superset marketplace: 13 Anthropic plugins + 10 LSP servers + 11 MCP integrations
+      # (Replaces anthropics/claude-code which was a subset)
       "anthropics/claude-plugins-official" = {
         source = {
           type = "git";
