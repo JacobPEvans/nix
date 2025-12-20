@@ -52,23 +52,38 @@ Added `emit_event()` function for consistent JSONL event logging to `~/.claude/l
 {"event": "run_completed", "duration_minutes": 45, "total_cost": 12.50}
 ```
 
-### 3. Kubernetes Manifests
+### 3. Kubernetes Stack (DEPLOYED)
+
+**Status:** Running on OrbStack
 
 **Directory:** `modules/monitoring/k8s/`
 
-Created K8s manifests for OrbStack deployment:
+**Components Running:**
 
-- `namespace.yaml` - `monitoring` namespace
-- `otel-collector/` - OTEL Collector (ports 4317, 4318)
-- `cribl-edge/` - Cribl Edge log shipper (ports 9420, 9000)
-- `splunk/` - Local Splunk SIEM (ports 8000, 8088)
-- `kustomization.yaml` - Full stack deployment
+| Component | Status | Notes |
+|-----------|--------|-------|
+| OTEL Collector | ✅ Running | Watching `~/.claude/logs/*.jsonl` |
+| Cribl Edge | ✅ Running | Standalone "edge" mode |
+| Splunk | ❌ Disabled | ARM64/Rosetta incompatible (KVStore fails) |
 
-**Required Secrets (not created yet):**
+**Deployment Fixes Applied:**
+
+- OTEL: Added `health_check` extension on port 13133
+- Cribl Edge: Changed to standalone "edge" mode (was "worker")
+- Cribl Edge: Changed probe to `exec` on `127.0.0.1:9420` (service binds to localhost)
+- Splunk: Added ARM64 digest + license acceptance (disabled due to KVStore incompatibility)
+
+**Secrets Created:**
 
 ```bash
-kubectl -n monitoring create secret generic splunk-admin --from-literal=password='...'
-kubectl -n monitoring create secret generic splunk-hec-token --from-literal=token="$(uuidgen)"
+# Splunk (created but unused - service disabled)
+kubectl -n monitoring get secret splunk-admin
+kubectl -n monitoring get secret splunk-hec-token
+```
+
+**Cribl Cloud (optional, not configured):**
+
+```bash
 kubectl -n monitoring create secret generic cribl-cloud-config \
   --from-literal=master-url='https://YOUR_ORG.cribl.cloud:4200' \
   --from-literal=auth-token='YOUR_FLEET_TOKEN'
@@ -142,14 +157,18 @@ The Slack bot token (`auto-claude-slack-bot-token`) in BWS hasn't been verified 
 
 ### Medium Priority
 
-1. **Deploy K8s Stack** - After secrets are created:
+1. **Add Elasticsearch Cluster** - Replace Splunk (ARM64 native support):
 
    ```bash
-   kubectl apply -k modules/monitoring/k8s/
+   # Create Elasticsearch manifests in modules/monitoring/k8s/elasticsearch/
+   # Use elastic/elasticsearch:8.x (has ARM64 images)
    ```
 
 2. **Configure Cribl Cloud** - Create Fleet, get enrollment token
-3. **Configure Splunk** - Create `claude` index, configure HEC
+3. **Plan Dev/Prod Separation** - Per user requirements:
+   - Minimum 1 dev + 1 prod instance per service
+   - 3 replicas for critical services in prod
+   - Auto-restart on failure for all containers
 
 ### Low Priority / Future
 
@@ -168,6 +187,8 @@ The Slack bot token (`auto-claude-slack-bot-token`) in BWS hasn't been verified 
 1. `e7faf90` - feat(monitoring): add Slack skip notifications and monitoring infrastructure
 2. `ff8c508` - docs(monitoring): add detailed documentation for each component
 3. `b96f91e` - fix(auto-claude): retrieve BWS_ACCESS_TOKEN from keychain for Slack
+4. `93e8604` - docs: add PLANNING-monitoring.md for session continuity
+5. `2c9c7f2` - feat(monitoring): deploy K8s stack to OrbStack with fixes
 
 ## Testing Commands
 
