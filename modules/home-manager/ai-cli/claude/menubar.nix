@@ -12,116 +12,159 @@
 let
   cfg = config.programs.claude;
 
-  # SwiftBar plugin script
-  menubarScript = pkgs.writeShellScript "auto-claude-status.sh" ''
-    #!/usr/bin/env bash
-    # SwiftBar Auto-Claude Status Plugin
-    # Refresh: 30s (configured via filename)
+  # SwiftBar plugin script (Python for readability)
+  menubarScript = pkgs.writeScript "auto-claude-status.py" ''
+    #!${pkgs.python3}/bin/python3
+    """SwiftBar Auto-Claude Status Plugin."""
 
-    CONTROL_FILE="$HOME/.claude/auto-claude-control.json"
-    LOG_DIR="$HOME/.claude/logs"
+    import json
+    import os
+    import subprocess
+    from datetime import datetime
+    from pathlib import Path
 
-    # Check if jq is available
-    if ! command -v jq &> /dev/null; then
-      echo "⚠️"
-      echo "---"
-      echo "jq not found | color=red"
-      exit 0
-    fi
+    HOME = Path.home()
+    CONTROL_FILE = HOME / ".claude" / "auto-claude-control.json"
+    LOG_DIR = HOME / ".claude" / "logs"
+    CTL_SCRIPT = HOME / ".claude" / "scripts" / "auto-claude-ctl.sh"
 
-    # Initialize control file if missing
-    if [[ ! -f "$CONTROL_FILE" ]]; then
-      echo "🤖"
-      echo "---"
-      echo "No control file | color=gray"
-      exit 0
-    fi
 
-    # Read status
-    pause_until=$(jq -r '.pause_until // empty' "$CONTROL_FILE" 2>/dev/null)
-    skip_count=$(jq -r '.skip_count // 0' "$CONTROL_FILE" 2>/dev/null)
-    last_run=$(jq -r '.last_run // empty' "$CONTROL_FILE" 2>/dev/null)
-    last_repo=$(jq -r '.last_run_repo // empty' "$CONTROL_FILE" 2>/dev/null)
+    def get_active_sessions() -> int:
+        """Count running Claude sessions."""
+        try:
+            result = subprocess.run(
+                ["pgrep", "-f", "claude.*--print"],
+                capture_output=True,
+                text=True,
+            )
+            return len(result.stdout.strip().split("\n")) if result.stdout.strip() else 0
+        except Exception:
+            return 0
 
-    # Check for active Claude processes
-    active_sessions=$(pgrep -f "claude.*--print" 2>/dev/null | wc -l | tr -d ' ')
 
-    # Determine status icon
-    if [[ "$active_sessions" -gt 0 ]]; then
-      icon="🔄"
-      status="Running ($active_sessions sessions)"
-      color="blue"
-    elif [[ -n "$pause_until" && "$pause_until" != "null" ]]; then
-      # Check if pause is still active
-      now=$(date +%s)
-      if command -v gdate &>/dev/null; then
-        pause_epoch=$(gdate -d "$pause_until" +%s 2>/dev/null || echo 0)
-      else
-        # BSD date (macOS)
-        pause_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%S" "''${pause_until%%.*}" +%s 2>/dev/null || echo 0)
-      fi
-      if [[ "$now" -lt "$pause_epoch" ]]; then
-        icon="⏸️"
-        status="Paused until $(date -j -f "%Y-%m-%dT%H:%M:%S" "''${pause_until%%.*}" "+%H:%M" 2>/dev/null || echo "$pause_until")"
-        color="orange"
-      else
-        icon="🤖"
-        status="Active (pause expired)"
-        color="green"
-      fi
-    elif [[ "$skip_count" -gt 0 ]]; then
-      icon="⏭️"
-      status="Skipping $skip_count runs"
-      color="yellow"
-    else
-      icon="🤖"
-      status="Active"
-      color="green"
-    fi
+    def parse_iso_time(iso_str: str):
+        """Parse ISO timestamp."""
+        try:
+            return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+        except Exception:
+            return None
 
-    # Output menu bar title
-    echo "$icon"
-    echo "---"
-    echo "Auto-Claude Status | size=14"
-    echo "$status | color=$color"
-    echo "---"
 
-    # Last run info
-    if [[ -n "$last_run" && "$last_run" != "null" ]]; then
-      echo "Last run: $last_run"
-      echo "Repo: ''${last_repo:-unknown}"
-    else
-      echo "Last run: never | color=gray"
-    fi
-    echo "---"
+    def get_status():
+        """Return (icon, status_text, color)."""
+        if not CONTROL_FILE.exists():
+            return "🤖", "No control file", "gray"
 
-    # Recent logs (last 5)
-    echo "Recent Logs | size=12"
-    if [[ -d "$LOG_DIR" ]]; then
-      ls -t "$LOG_DIR"/*.jsonl 2>/dev/null | head -5 | while read -r logfile; do
-        name=$(basename "$logfile" .jsonl)
-        size=$(du -h "$logfile" 2>/dev/null | cut -f1)
-        echo "  $name ($size) | bash='open -R \"$logfile\"' terminal=false"
-      done
-    else
-      echo "  No logs found | color=gray"
-    fi
-    echo "---"
+        try:
+            with open(CONTROL_FILE) as f:
+                data = json.load(f)
+        except Exception:
+            return "⚠️", "Error reading control file", "red"
 
-    # Actions
-    echo "Actions | size=12"
-    echo "  Resume | bash='$HOME/.claude/scripts/auto-claude-ctl.sh resume' terminal=true refresh=true"
-    echo "  Pause 1 hour | bash='$HOME/.claude/scripts/auto-claude-ctl.sh pause 1' terminal=true refresh=true"
-    echo "  Pause 4 hours | bash='$HOME/.claude/scripts/auto-claude-ctl.sh pause 4' terminal=true refresh=true"
-    echo "  Skip next run | bash='$HOME/.claude/scripts/auto-claude-ctl.sh skip 1' terminal=true refresh=true"
-    echo "---"
-    echo "  Run Now... | bash='$HOME/.claude/scripts/auto-claude-ctl.sh run' terminal=true"
-    echo "---"
-    echo "Open Logs Folder | bash='open \"$LOG_DIR\"' terminal=false"
-    echo "View Status | bash='$HOME/.claude/scripts/auto-claude-ctl.sh status' terminal=true"
-    echo "---"
-    echo "Refresh | refresh=true"
+        active = get_active_sessions()
+        if active > 0:
+            return "🔄", f"Running ({active} sessions)", "blue"
+
+        pause_until = data.get("pause_until")
+        if pause_until:
+            pause_time = parse_iso_time(pause_until)
+            now = datetime.now()
+            if pause_time:
+                # Handle timezone-aware vs naive comparison
+                try:
+                    if pause_time.tzinfo:
+                        now = now.astimezone()
+                    if now < pause_time:
+                        return "⏸️", f"Paused until {pause_time.strftime('%H:%M')}", "orange"
+                except Exception:
+                    pass
+
+        skip_count = data.get("skip_count", 0)
+        if skip_count > 0:
+            return "⏭️", f"Skipping {skip_count} runs", "yellow"
+
+        return "🤖", "Active", "green"
+
+
+    def get_recent_logs(limit: int = 5):
+        """Return [(name, size, path), ...] for recent logs."""
+        if not LOG_DIR.exists():
+            return []
+
+        logs = sorted(LOG_DIR.glob("*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)
+        result = []
+        for log in logs[:limit]:
+            size = log.stat().st_size
+            if size > 1_000_000:
+                size_str = f"{size / 1_000_000:.1f}MB"
+            elif size > 1000:
+                size_str = f"{size / 1000:.1f}KB"
+            else:
+                size_str = f"{size}B"
+            result.append((log.stem, size_str, str(log)))
+        return result
+
+
+    def main():
+        icon, status, color = get_status()
+
+        # Menu bar title
+        print(icon)
+        print("---")
+        print("Auto-Claude Status | size=14")
+        print(f"{status} | color={color}")
+        print("---")
+
+        # Control file info
+        if CONTROL_FILE.exists():
+            try:
+                with open(CONTROL_FILE) as f:
+                    data = json.load(f)
+                last_run = data.get("last_run", "never")
+                last_repo = data.get("last_run_repo", "unknown")
+                print(f"Last run: {last_run}")
+                print(f"Repo: {last_repo}")
+            except Exception:
+                print("Last run: error | color=red")
+        else:
+            print("Last run: never | color=gray")
+
+        print("---")
+
+        # Recent logs
+        print("Recent Logs | size=12")
+        logs = get_recent_logs()
+        if logs:
+            for name, size, path in logs:
+                print(f"  {name} ({size}) | bash='open -R \"{path}\"' terminal=false")
+        else:
+            print("  No logs found | color=gray")
+
+        print("---")
+
+        # Actions
+        ctl = str(CTL_SCRIPT)
+        print("Actions | size=12")
+        print(f"  Resume | bash='{ctl}' param1='resume' terminal=true refresh=true")
+        print(f"  Pause 1 hour | bash='{ctl}' param1='pause' param2='1' terminal=true refresh=true")
+        print(f"  Pause 4 hours | bash='{ctl}' param1='pause' param2='4' terminal=true refresh=true")
+        print(f"  Skip next run | bash='{ctl}' param1='skip' param2='1' terminal=true refresh=true")
+        print("---")
+        print(f"  Run Now... | bash='{ctl}' param1='run' terminal=true")
+        print("---")
+        print(f"Open Logs Folder | bash='open \"{LOG_DIR}\"' terminal=false")
+        print(f"View Status | bash='{ctl}' param1='status' terminal=true")
+        print("---")
+        print("Refresh | refresh=true")
+
+
+    if __name__ == "__main__":
+        main()
   '';
+
+  # Use a simple path without spaces for reliability
+  pluginDir = ".config/swiftbar/plugins";
+  pluginName = "auto-claude.${toString cfg.menubar.refreshInterval}s.py";
 
 in
 {
@@ -136,12 +179,14 @@ in
   };
 
   config = lib.mkIf (cfg.enable && cfg.menubar.enable) {
-    # Deploy the SwiftBar plugin with the correct filename for refresh interval
-    home.file."Library/Application Support/SwiftBar/Plugins/auto-claude.${toString cfg.menubar.refreshInterval}s.sh" =
-      {
-        source = menubarScript;
-        executable = true;
-      };
+    # Deploy the SwiftBar plugin
+    home.file."${pluginDir}/${pluginName}" = {
+      source = menubarScript;
+      executable = true;
+    };
+
+    # Note: User must configure SwiftBar to use ~/.config/swiftbar/plugins/
+    # on first launch, or symlink from their chosen location.
 
     # Add a note about SwiftBar setup
     warnings = lib.optional (!config.programs.claude.autoClaude.enable) ''
