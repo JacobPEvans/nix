@@ -4,7 +4,7 @@
 # Builds the package from source using Nix for reproducible, hermetic deployment.
 #
 # Features:
-# - Multi-line layout (4 lines by default)
+# - Multi-line layout (3 lines by default)
 # - 5-hour billing block tracking with reset timer
 # - Session and daily cost tracking
 # - Full directory path display
