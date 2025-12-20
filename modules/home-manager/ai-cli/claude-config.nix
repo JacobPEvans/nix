@@ -30,44 +30,26 @@ let
   claudeAskJson = readPermissionsJson "${ai-assistant-instructions}/.claude/permissions/ask.json";
   claudeDenyJson = readPermissionsJson "${ai-assistant-instructions}/.claude/permissions/deny.json";
 
+  # Dynamic command discovery from flake inputs
+  # No more hardcoded lists - discovers all .md files automatically
+  discoverCommands = dir:
+    let
+      files = builtins.readDir dir;
+      mdFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) files;
+    in
+    map (name: lib.removeSuffix ".md" name) (builtins.attrNames mdFiles);
+
   # Commands from agentsmd (Nix store / flake input)
-  # Located in .claude/commands/
-  # Note: "commit" removed - use /commit from commit-commands plugin instead
-  agentsMdCommands = [
-    "fix-all-pr-ci"
-    "fix-pr-ci"
-    "generate-code"
-    "git-refresh"
-    "infrastructure-review"
-    "init-change"
-    "init-worktree"
-    "pr"
-    "pr-review-feedback"
-    "quick-add-permission"
-    "review-code"
-    "review-docs"
-    "rok-manage-pr"
-    "rok-resolve-issues"
-    "rok-resolve-pr-review-thread"
-    "rok-review-pr"
-    "rok-shape-issues"
-    "sync-main"
-    "sync-main-all"
-    "sync-permissions"
-    "sync-prs-with-main"
-  ];
+  # Auto-discovers all .md files in agentsmd/commands/
+  agentsMdCommands = discoverCommands "${ai-assistant-instructions}/agentsmd/commands";
 
   # Commands from claude-cookbooks (immutable from flake)
-  # Removed: "review-pr-ci", "review-pr" - replaced by code-review plugin (/code-review)
-  cookbookCommands = [
-    "review-issue"
-    "notebook-review"
-    "model-check"
-    "link-review"
-  ];
+  # Auto-discovers all .md files in .claude/commands/
+  cookbookCommands = discoverCommands "${claude-cookbooks}/.claude/commands";
 
   # Agents from claude-cookbooks
-  cookbookAgents = [ "code-reviewer" ];
+  # Auto-discovers all .md files in .claude/agents/
+  cookbookAgents = discoverCommands "${claude-cookbooks}/.claude/agents";
 
   # Plugin enablement
   # See: https://github.com/anthropics/claude-code/tree/main/plugins
