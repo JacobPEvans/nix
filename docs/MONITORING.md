@@ -229,47 +229,9 @@ OTEL environment variables are set in `modules/home-manager/ai-cli/claude/otel.n
 
 ### Auto-Claude OTEL
 
-The `auto-claude.sh` script emits OTEL spans for:
+The `auto-claude.sh` script emits OTEL spans for run lifecycle, subagent spawns, and checkpoints.
 
-- Full run lifecycle
-- Individual subagent spawns
-- Budget and context checkpoints
-
-### Collector Configuration
-
-The OTEL Collector config (`modules/monitoring/otel/collector-config.yaml`) defines:
-
-```yaml
-receivers:
-  otlp:
-    protocols:
-      grpc:
-        endpoint: 0.0.0.0:4317
-      http:
-        endpoint: 0.0.0.0:4318
-
-processors:
-  batch:
-    timeout: 10s
-    send_batch_size: 1024
-
-exporters:
-  otlphttp:
-    endpoint: http://cribl-edge:9420
-  logging:
-    loglevel: debug
-
-service:
-  pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlphttp, logging]
-    metrics:
-      receivers: [otlp]
-      processors: [batch]
-      exporters: [otlphttp, logging]
-```
+See [OTEL Configuration](./monitoring/OTEL.md) for full collector config and sampling options.
 
 ---
 
@@ -352,6 +314,16 @@ kubectl -n monitoring set image deployment/cribl-edge cribl-edge=cribl/cribl:lat
 ```
 
 ---
+
+## Detailed Documentation
+
+For in-depth guides on each component:
+
+- **[Kubernetes Setup](./monitoring/KUBERNETES.md)** - Full K8s deployment guide, secrets, troubleshooting
+- **[Slack Notifications](./monitoring/SLACK.md)** - Notification types, Block Kit customization, testing
+- **[OTEL Configuration](./monitoring/OTEL.md)** - Tracing, metrics, collector config, sampling
+- **[Splunk Queries](./monitoring/SPLUNK.md)** - SPL queries, dashboards, saved searches
+- **[Ollama Intelligence](./monitoring/OLLAMA.md)** - AI-powered log enrichment, Cribl pipelines
 
 ## Related Documentation
 
