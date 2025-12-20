@@ -24,7 +24,6 @@
 let
   cfg = config.programs.claudeStatusline;
   powerlineStyle = cfg.powerline.style;
-  homeDir = config.home.homeDirectory;
 
   # Build claude-powerline as a Nix package from the flake input
   # This ensures reproducible builds without runtime network dependencies
