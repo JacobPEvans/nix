@@ -90,7 +90,7 @@ kubectl -n monitoring get secret cribl-cloud-config
 
 **Configuration:**
 
-- Connected to Cribl Cloud fleet: `main-stoic-kaminsky-d9o9i3r.cribl.cloud`
+- Connected to Cribl Cloud fleet: `<your-org>.cribl.cloud`
 - Running as root (required for FDA bypass - see `docs/cribl-edge-macos-fda-attempts.md`)
 - Launchd service: `/Library/LaunchDaemons/io.cribl.plist`
 
@@ -124,9 +124,9 @@ The BWS access token in macOS Keychain is invalid/corrupted:
 
 ```bash
 $ security find-generic-password -s "bws-claude-automation" -w
-0.aa078f10-a76c-4cad-8832-b3a501617143.1lDjaRiXAXkr2UXE6NyuFbQweB4H1u:9nW5WIQxaFTOJIRq3cg8fg==
+<REDACTED_INVALID_TOKEN>
 
-$ export BWS_ACCESS_TOKEN="..." && bws secret list
+$ export BWS_ACCESS_TOKEN="<REDACTED>" && bws secret list
 Error: Access token is not in a valid format: Doesn't contain a decryption key
 ```
 
