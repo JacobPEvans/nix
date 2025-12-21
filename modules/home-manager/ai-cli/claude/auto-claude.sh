@@ -159,10 +159,17 @@ fi
 # Source shell configs for full environment (API keys, PATH, git credentials)
 # Required because launchd runs in a minimal shell
 # Must happen BEFORE skip notifications so bws has access token
-set +e
-[[ -r "$HOME/.zshrc" ]] && source "$HOME/.zshrc" 2>/dev/null
-[[ -r "$HOME/.profile" ]] && source "$HOME/.profile" 2>/dev/null
-set -e
+if [[ -r "$HOME/.zshrc" ]]; then
+  if ! source "$HOME/.zshrc" 2>/dev/null; then
+    echo "WARNING: Failed to source .zshrc" >&2
+  fi
+fi
+
+if [[ -r "$HOME/.profile" ]]; then
+  if ! source "$HOME/.profile" 2>/dev/null; then
+    echo "WARNING: Failed to source .profile" >&2
+  fi
+fi
 
 # --- BWS AUTHENTICATION ---
 # Retrieve BWS access token from macOS Keychain for Bitwarden Secrets Manager
@@ -207,74 +214,6 @@ notify_skipped() {
     >> "${HOME}/.claude/logs/events.jsonl"
 }
 
-# --- CONTROL FILE CHECK ---
-CONTROL_FILE="${HOME}/.claude/auto-claude-control.json"
-
-# Convert ISO8601 timestamp to epoch seconds for reliable comparison
-# Supports both macOS (BSD date) and Linux (GNU date)
-iso_to_epoch() {
-  local iso="$1"
-  if date --version >/dev/null 2>&1; then
-    # GNU date (Linux)
-    date -d "$iso" "+%s" 2>/dev/null
-  else
-    # BSD date (macOS)
-    date -j -f "%Y-%m-%dT%H:%M:%S" "${iso%%.*}" "+%s" 2>/dev/null
-  fi
-}
-
-check_control_file() {
-  # Skip checks if FORCE_RUN is set
-  if [[ "${FORCE_RUN:-}" == "1" ]]; then
-    return 0
-  fi
-
-  # Skip if control file doesn't exist
-  if [[ ! -f "$CONTROL_FILE" ]]; then
-    return 0
-  fi
-
-  local now=$(date "+%Y-%m-%dT%H:%M:%S")
-
-  # Check pause_until
-  local pause_until=$(jq -r '.pause_until // empty' "$CONTROL_FILE" 2>/dev/null)
-  if [[ -n "$pause_until" && "$pause_until" != "null" ]]; then
-    local now_epoch=$(iso_to_epoch "$now")
-    local pause_until_epoch=$(iso_to_epoch "$pause_until")
-    if [[ -z "$now_epoch" || -z "$pause_until_epoch" ]]; then
-      echo "Warning: Could not parse pause_until or current time. Skipping pause check." >&2
-    elif [[ "$now_epoch" -lt "$pause_until_epoch" ]]; then
-      echo "Auto-claude paused until $pause_until. Skipping this run." >&2
-      echo "Run 'auto-claude-ctl resume' to resume earlier." >&2
-      notify_skipped "Paused until $pause_until"
-      exit 0
-    fi
-  fi
-
-  # Check skip_count
-  local skip_count=$(jq -r '.skip_count // 0' "$CONTROL_FILE" 2>/dev/null)
-  if [[ "$skip_count" -gt 0 ]] 2>/dev/null; then
-    local new_count=$((skip_count - 1))
-    local tmp
-    tmp=$(mktemp) || { echo "Error: could not create temporary file for skip_count update." >&2; exit 1; }
-    jq ".skip_count = $new_count" "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
-    echo "Skipping this run ($new_count remaining). Run 'auto-claude-ctl resume' to clear." >&2
-    notify_skipped "Skip count: $new_count remaining"
-    exit 0
-  fi
-
-  # Clear run_now flag if set (we're about to run)
-  local run_now=$(jq -r '.run_now // false' "$CONTROL_FILE" 2>/dev/null)
-  if [[ "$run_now" == "true" ]]; then
-    local tmp
-    tmp=$(mktemp) || { echo "Error: could not create temporary file for run_now flag clear." >&2; exit 1; }
-    jq '.run_now = false' "$CONTROL_FILE" > "$tmp" && mv "$tmp" "$CONTROL_FILE"
-  fi
-}
-
-# Run control file check
-check_control_file
-
 # --- INPUT VALIDATION ---
 if [[ ! -d "$TARGET_DIR" ]]; then
   echo "Error: Directory $TARGET_DIR does not exist." >&2
@@ -286,7 +225,6 @@ if ! [[ "$MAX_BUDGET_USD" =~ ^[0-9]+\.?[0-9]*$ ]] || ! awk -v val="$MAX_BUDGET_U
   echo "Error: MAX_BUDGET_USD must be a positive number, got: $MAX_BUDGET_USD" >&2
   exit 1
 fi
-
 # --- LOGGING SETUP ---
 if ! mkdir -p "$LOG_DIR"; then
   echo "Error: Cannot create log directory $LOG_DIR" >&2
