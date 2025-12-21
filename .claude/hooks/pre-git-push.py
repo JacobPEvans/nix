@@ -52,6 +52,36 @@ def has_nix_changes():
 
 
 def main():
+    # Only run this hook in nix-config repository
+    # This prevents the hook from blocking git push in other repositories
+    is_nix_repo = False
+    try:
+        # Get the root git directory
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        git_root = result.stdout.strip()
+
+        # Check if this is a nix-darwin repository by looking for flake.nix with darwinConfigurations
+        # This works for both main repo and worktrees
+        flake_path = os.path.join(git_root, "flake.nix")
+        if os.path.exists(flake_path):
+            try:
+                with open(flake_path, "r") as f:
+                    flake_content = f.read()
+                    is_nix_repo = "darwinConfigurations" in flake_content
+            except (OSError, IOError):
+                pass
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    if not is_nix_repo:
+        # Not in nix-config repo, skip hook silently
+        return 0
+
     # Read hook input from stdin
     try:
         hook_input = json.load(sys.stdin)
