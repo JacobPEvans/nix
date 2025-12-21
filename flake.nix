@@ -175,11 +175,13 @@
               # mac-app-util: Also needed for home.packages if any GUI apps there
               # Agent OS: Proper home-manager module for spec-driven AI development
               # Claude: Unified configuration for Claude Code ecosystem
+              # OpenCode: AI-agnostic coding agent with multi-provider support
               # nix-config-symlink: Read-only ~/.config/nix pointing to main branch
               sharedModules = [
                 mac-app-util.homeManagerModules.default
                 ./modules/home-manager/ai-cli/agent-os
                 ./modules/home-manager/ai-cli/claude
+                ./modules/home-manager/ai-cli/opencode
                 ./modules/home-manager/nix-config-symlink.nix
               ];
             };
