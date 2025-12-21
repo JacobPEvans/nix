@@ -308,7 +308,7 @@ cmd_schedule() {
     local schedule="["
     local first=true
     for time in "$@"; do
-      if [[ "$time" =~ '^([0-9]+):([0-9]+)$' ]]; then
+      if [[ "$time" =~ ^([0-9]{1,2}):([0-9]{2})$ ]]; then
         # Extract hour and minute using zsh's match array (populated by =~ operator)
         # Note: zsh arrays are 1-indexed, and match[1] is first capture group
         local hour="${match[1]}"
