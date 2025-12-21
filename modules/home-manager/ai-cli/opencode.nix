@@ -1,7 +1,7 @@
-# OpenCode Configuration
+# OpenCode Configuration Module
 #
-# Returns home.file entries for OpenCode AI coding agent.
-# Imported by home.nix for clean separation of AI CLI configs.
+# Proper Home Manager module for OpenCode AI coding agent.
+# Provides declarative configuration with enable option and settings.
 #
 # OpenCode is a provider-agnostic AI coding agent that supports:
 # - Claude (Anthropic)
@@ -24,39 +24,48 @@
 }:
 
 let
-  # Import unified permission definitions
-  permissions = import ./common/permissions.nix { inherit lib config; };
-  formatters = import ./common/formatters.nix { inherit lib; };
+  cfg = config.programs.opencode;
+
+  # Import unified permission definitions (commented out until needed)
+  # TODO: Uncomment when OpenCode permission format is determined
+  # permissions = import ./common/permissions.nix { inherit lib config; };
+  # formatters = import ./common/formatters.nix { inherit lib; };
 
   # OpenCode settings object
   settings = {
     # UI configuration
-    theme = "auto";
+    inherit (cfg) theme;
 
     # Model configuration
     model = {
-      # Default to Claude Sonnet 4.5 (fast, capable)
-      default = "claude-sonnet-4-20250514";
+      # Default AI model to use
+      default = cfg.defaultModel;
     };
 
     # TODO: Add shared permissions once OpenCode permission format is determined
     # The formatters.opencode placeholder exists but needs implementation
     # based on OpenCode's actual permission syntax
   };
-
-  # Generate pretty-printed JSON using a derivation with jq
-  # This improves readability for debugging and matches other AI CLI configs
-  settingsJson =
-    pkgs.runCommand "opencode-settings.json"
-      {
-        nativeBuildInputs = [ pkgs.jq ];
-        json = builtins.toJSON settings;
-        passAsFile = [ "json" ];
-      }
-      ''
-        jq '.' "$jsonPath" > $out
-      '';
 in
 {
-  ".config/opencode/opencode.json".source = settingsJson;
+  options.programs.opencode = {
+    enable = lib.mkEnableOption "OpenCode AI coding agent";
+
+    theme = lib.mkOption {
+      type = lib.types.str;
+      default = "auto";
+      description = "UI theme for OpenCode (dark, light, auto).";
+    };
+
+    defaultModel = lib.mkOption {
+      type = lib.types.str;
+      default = "claude-sonnet-4-20250514";
+      description = "Default AI model for OpenCode.";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    home.file.".config/opencode/opencode.json".source =
+      pkgs.formats.json.generate "opencode-settings.json" settings;
+  };
 }

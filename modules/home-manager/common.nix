@@ -77,9 +77,15 @@ let
   };
   geminiFiles = import ./ai-cli/gemini.nix { inherit config lib pkgs; };
   copilotFiles = import ./ai-cli/copilot.nix { inherit config lib pkgs; };
-  opencodeFiles = import ./ai-cli/opencode.nix { inherit config lib pkgs; };
 in
 {
+  # ==========================================================================
+  # Module Imports
+  # ==========================================================================
+  imports = [
+    ./ai-cli/opencode.nix
+  ];
+
   # ==========================================================================
   # Home Configuration
   # ==========================================================================
@@ -91,17 +97,17 @@ in
     # - claude.nix: Claude Code settings + status line script
     # - gemini.nix: Gemini CLI settings
     # - copilot.nix: GitHub Copilot CLI config
-    # - opencode.nix: OpenCode AI agent settings
+    # - opencode.nix: OpenCode AI agent settings (proper module)
     #
     # Permissions: Now read from JSON in ai-assistant-instructions repo
     # Symlinks: ai-assistant-instructions flake input provides CLAUDE.md, GEMINI.md, AGENTS.md
     # NOTE: claudeFiles removed - now handled by programs.claude module
+    # NOTE: opencodeFiles removed - now handled by programs.opencode module
     file =
       npmFiles
       // awsFiles
       // geminiFiles
       // copilotFiles
-      // opencodeFiles
       // agentsMdSymlinks
       // gitHooks
       // gitMergeDrivers;
@@ -245,5 +251,12 @@ in
     # Commands and agents installed globally to ~/.claude/ (no per-project setup)
     # Config stored in ~/agent-os/config.yml
     agent-os.enable = true;
+
+    # ==========================================================================
+    # OpenCode
+    # ==========================================================================
+    # Provider-agnostic AI coding agent supporting Claude, GPT-4, Gemini, and local models
+    # Configuration managed through programs.opencode module
+    opencode.enable = true;
   };
 }
