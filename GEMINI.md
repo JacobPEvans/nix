@@ -191,7 +191,7 @@ This repo may have multiple AI reviewers (Copilot, Gemini, Claude):
 
 - **Don't repeat feedback** - If another reviewer already commented, add +1 or skip
 - **Complement, don't duplicate** - Focus on areas where Gemini adds unique value
-- **Reference other comments** - "Agreeing with @copilot-pull-request-reviewer on line 45..."
+- **Reference other comments** - "Agreeing with the Copilot reviewer on line 45..."
 
 ## Comment Limit
 
