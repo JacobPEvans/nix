@@ -28,6 +28,22 @@ let
       ) attrs
     );
 
+  # Claude-specific helper: Get all tool-specific permissions (non-shell)
+  getClaudeToolPermissions =
+    permissions:
+    let
+      claudePerms = permissions.toolSpecific.claude or { };
+    in
+    (claudePerms.builtin or [ ]) ++ (claudePerms.webFetch or [ ]) ++ (claudePerms.read or [ ]);
+
+  # Claude-specific helper: Get tool-specific deny permissions
+  getClaudeDenyPermissions =
+    permissions:
+    let
+      claudePerms = permissions.toolSpecific.claude or { };
+    in
+    claudePerms.denyRead or [ ];
+
 in
 {
   # ============================================================================
@@ -50,7 +66,7 @@ in
         allCommands = flattenCommands permissions.allow;
         shellPermissions = map (cmd: "Bash(${cmd}:*)") allCommands;
       in
-      (getToolPermissions permissions) ++ shellPermissions;
+      (getClaudeToolPermissions permissions) ++ shellPermissions;
 
     # Format all denied commands (shell + tool-specific)
     formatDenied =
@@ -59,23 +75,11 @@ in
         allCommands = flattenCommands permissions.deny;
         shellDenied = map (cmd: "Bash(${cmd}:*)") allCommands;
       in
-      (getDenyPermissions permissions) ++ shellDenied;
+      (getClaudeDenyPermissions permissions) ++ shellDenied;
 
-    # Get all tool-specific permissions (non-shell)
-    getToolPermissions =
-      permissions:
-      let
-        claudePerms = permissions.toolSpecific.claude or { };
-      in
-      (claudePerms.builtin or [ ]) ++ (claudePerms.webFetch or [ ]) ++ (claudePerms.read or [ ]);
-
-    # Get tool-specific deny permissions
-    getDenyPermissions =
-      permissions:
-      let
-        claudePerms = permissions.toolSpecific.claude or { };
-      in
-      claudePerms.denyRead or [ ];
+    # Export helpers for external use
+    getToolPermissions = getClaudeToolPermissions;
+    getDenyPermissions = getClaudeDenyPermissions;
   };
 
   # ============================================================================
