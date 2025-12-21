@@ -29,12 +29,30 @@ repos:
   # Local hooks using system-installed tools (from nix)
   - repo: local
     hooks:
-      # Nix quality checks - DRY with GitHub Actions via flake checks
-      # Single source of truth: checks defined in flake.nix
-      # Runs: formatting (nixfmt-rfc-style), linting (statix), dead code (deadnix)
-      - id: nix-flake-check
-        name: Nix quality checks (format + lint + deadnix)
-        entry: nix flake check --no-build --print-build-logs
+      # Nix formatting check - nixfmt-rfc-style
+      - id: nix-fmt-check
+        name: Nix formatting (nixfmt-rfc-style)
+        entry: "bash -c 'nixfmt --check \"$@\" || (echo \"Run: nix fmt\"; exit 1)' --"
+        language: system
+        files: \.nix$
+        types: [file]
+        exclude: ^worktrees/
+
+      # Nix linting - statix (catches anti-patterns and code smells)
+      # CRITICAL: This MUST run and block commits - no --no-build shortcuts
+      - id: nix-statix
+        name: Nix linting (statix)
+        entry: statix check
+        language: system
+        files: \.nix$
+        types: [file]
+        exclude: ^worktrees/
+        pass_filenames: false
+
+      # Nix dead code detection - deadnix
+      - id: nix-deadnix
+        name: Nix dead code (deadnix)
+        entry: deadnix -L --fail
         language: system
         files: \.nix$
         types: [file]
@@ -77,15 +95,5 @@ repos:
         entry: bash -c 'f="modules/home-manager/ai-cli/claude/orchestrator-prompt.txt"; test -s "$f" && grep -q "CORE LOOP" "$f" && grep -q "IDENTITY" "$f"'
         language: system
         files: '^modules/home-manager/ai-cli/claude/orchestrator-prompt\.txt$'
-        types: [file]
-        pass_filenames: false
-
-      # Flake input updates - run on .nix file changes
-      # Updates critical inputs to stay current with upstream
-      - id: update-flake-inputs
-        name: Update flake inputs (nixpkgs, ai-assistant-instructions, agent-os, nix-config-main)
-        entry: nix flake lock --update-input nixpkgs --update-input ai-assistant-instructions --update-input agent-os --update-input nix-config-main
-        language: system
-        files: \.nix$
         types: [file]
         pass_filenames: false

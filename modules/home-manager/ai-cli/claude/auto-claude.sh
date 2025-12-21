@@ -227,10 +227,17 @@ fi
 # --- ENVIRONMENT ---
 # Source shell configs for full environment (API keys, PATH, git credentials)
 # Required because launchd runs in a minimal shell
-set +e
-[[ -r "$HOME/.zshrc" ]] && source "$HOME/.zshrc" 2>/dev/null
-[[ -r "$HOME/.profile" ]] && source "$HOME/.profile" 2>/dev/null
-set -e
+if [[ -r "$HOME/.zshrc" ]]; then
+  if ! source "$HOME/.zshrc" 2>/dev/null; then
+    echo "WARNING: Failed to source .zshrc" >&2
+  fi
+fi
+
+if [[ -r "$HOME/.profile" ]]; then
+  if ! source "$HOME/.profile" 2>/dev/null; then
+    echo "WARNING: Failed to source .profile" >&2
+  fi
+fi
 
 # --- LOGGING SETUP ---
 if ! mkdir -p "$LOG_DIR"; then
@@ -374,10 +381,13 @@ elif command -v timeout &>/dev/null; then
   TIMEOUT_CMD="timeout 3600"
 fi
 
+# SECURITY: Uses default permission mode which respects the curated allowlist
+# in ~/.claude/settings.json (managed by ai-assistant-instructions flake input).
+# The orchestrator prompt instructs Claude to use only pre-approved commands.
+# Commands not in the allowlist will fail rather than prompting (since running unattended).
 $TIMEOUT_CMD claude -p "$ORCHESTRATOR_PROMPT" \
   --output-format stream-json \
   --verbose \
-  --permission-mode bypassPermissions \
   --max-budget-usd "$MAX_BUDGET_USD" \
   --no-session-persistence \
   2>&1 | tee "$LOG_FILE"

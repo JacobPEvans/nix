@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Pre-git-push hook: Requires darwin-rebuild before pushing.
+Pre-git-push hook: Requires darwin-rebuild before pushing (if .nix files changed).
 
-This hook runs before Bash commands. If it's a git push,
-it runs darwin-rebuild first and blocks the push if it fails.
+This hook runs before Bash commands. If it's a git push AND .nix files
+were modified, it runs darwin-rebuild first and blocks the push if it fails.
 
 Exit codes:
   0 = allow the command
@@ -17,6 +17,61 @@ import json
 import os
 import subprocess
 import sys
+
+
+def is_nix_config_repo():
+    """Check if the current repository is the nix-config repository."""
+    try:
+        # Get the remote origin URL
+        result = subprocess.run(
+            ["git", "config", "--get", "remote.origin.url"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        remote_url = result.stdout.strip()
+
+        # This is more robust than checking the local path as it works for any
+        # clone location and handles both SSH and HTTPS remote URLs.
+        return remote_url.endswith("JacobPEvans/nix-config.git") or remote_url.endswith("JacobPEvans/nix.git")
+    except subprocess.CalledProcessError:
+        # Git command failed (not in a git repo, no remote configured, etc.)
+        return False
+    except FileNotFoundError:
+        # Git executable not found
+        return False
+
+
+def has_nix_changes():
+    """Check if any .nix files were modified in commits being pushed."""
+    try:
+        # Get the upstream tracking branch
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            # No upstream, compare against origin/main
+            upstream = "origin/main"
+        else:
+            upstream = result.stdout.strip()
+
+        # Get list of changed files between upstream and HEAD
+        # Use -z to handle filenames with spaces/newlines robustly
+        result = subprocess.run(
+            ["git", "diff", "-z", "--name-only", upstream, "HEAD"],
+            capture_output=True,
+        )
+        if result.returncode != 0:
+            # If diff fails, be conservative and run the check
+            return True
+
+        changed_files_bytes = result.stdout.strip(b'\0').split(b'\0')
+        return any(f.endswith(b".nix") for f in changed_files_bytes if f)
+    except (OSError, subprocess.SubprocessError):
+        # On subprocess/OS errors, be conservative and run the check
+        return True
 
 
 def main():
@@ -34,6 +89,10 @@ def main():
     if "git push" not in command:
         return 0
 
+    # Skip hook for non-nix-config repositories
+    if not is_nix_config_repo():
+        return 0
+
     # Skip darwin-rebuild in CI/automated workflows
     ci_markers = ["CI", "GITHUB_ACTIONS", "AUTOMATED_WORKFLOW", "AUTO_CLAUDE"]
     is_automated = any(os.environ.get(marker) for marker in ci_markers)
@@ -45,9 +104,16 @@ def main():
         print("═" * 64 + "\n", flush=True)
         return 0
 
+    # Skip if no .nix files were changed
+    if not has_nix_changes():
+        print("\n" + "═" * 64)
+        print("⏭️  Pre-push: No .nix files changed, skipping darwin-rebuild")
+        print("═" * 64 + "\n", flush=True)
+        return 0
+
     # Run darwin-rebuild build (dry-run, no system changes)
     print("\n" + "═" * 64)
-    print("🔨 Pre-push: Validating build with darwin-rebuild...")
+    print("🔨 Pre-push: .nix files changed, validating build...")
     print("═" * 64 + "\n", flush=True)
 
     try:

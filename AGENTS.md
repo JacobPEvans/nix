@@ -158,7 +158,7 @@ run `/compact` on the main conversation before spawning subagents.
    Use: `gh api repos/OWNER/REPO/pulls/NUM/reviews` to get reviews with commit_id.
    Wait until all reviewers have reviewed the current head commit before finishing.
    When a reviewer completes their review (comments, changes requested, or approved),
-   automatically invoke `/rok-resolve-pr-review-thread` to address feedback.
+   automatically invoke `/resolve-pr-review-thread` to address feedback.
    Continue monitoring until PR is merged or closed.
 
 ### Procedure Violations
@@ -402,6 +402,20 @@ In rare cases where a security update is urgent:
 **Quick approval**: Click "accept indefinitely" in Claude UI (writes to `~/.claude/settings.local.json`)
 
 **Permanent additions**: Edit source files → `nix flake lock --update-input ai-assistant-instructions` → rebuild
+
+### CRITICAL: Gemini tools.allowed vs tools.core
+
+**DO NOT USE tools.core FOR AUTO-APPROVAL!**
+
+Per the official Gemini CLI schema:
+
+- `tools.allowed` = "Tool names that bypass the confirmation dialog" (**AUTO-APPROVE**)
+- `tools.core` = "Allowlist to RESTRICT built-in tools to a specific set" (**LIMITS** usage!)
+
+Using `tools.core` **restricts** what tools Gemini can use - it does NOT grant permissions!
+Always use `tools.allowed` for auto-approved commands. Never rename `allowedTools` to `coreTools`.
+
+Schema: <https://github.com/google-gemini/gemini-cli/blob/main/schemas/settings.schema.json>
 
 ## Pull Request Workflow
 

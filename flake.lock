@@ -19,11 +19,11 @@
     "ai-assistant-instructions": {
       "flake": false,
       "locked": {
-        "lastModified": 1766251138,
-        "narHash": "sha256-8YshmJwsbCYLV++eIMjQfJScQnKZvGTTC4WBHfgR3Dg=",
+        "lastModified": 1766274883,
+        "narHash": "sha256-y7kp/jwMMttbirEQEc8l5q3sPmYOyK70eoJB7CVOl3U=",
         "owner": "JacobPEvans",
         "repo": "ai-assistant-instructions",
-        "rev": "ec96d871bccf1cd86bcab714d9ad7139dd82853b",
+        "rev": "227ba2fcf03d7f4998ef0172ed9bd000356f1f23",
         "type": "github"
       },
       "original": {
@@ -77,22 +77,6 @@
       "original": {
         "owner": "anthropics",
         "repo": "claude-code",
-        "type": "github"
-      }
-    },
-    "claude-code-statusline": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1765965162,
-        "narHash": "sha256-8/f7Xbz3aV9hAg8J9SSys5HxPzIMXO44rOFWu5ynKXQ=",
-        "owner": "rz1989s",
-        "repo": "claude-code-statusline",
-        "rev": "68a6a18515813c87340ca2f8357f598160002aa4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rz1989s",
-        "repo": "claude-code-statusline",
         "type": "github"
       }
     },
@@ -268,7 +252,6 @@
         "ai-assistant-instructions": "ai-assistant-instructions",
         "anthropic-skills": "anthropic-skills",
         "claude-code-plugins": "claude-code-plugins",
-        "claude-code-statusline": "claude-code-statusline",
         "claude-cookbooks": "claude-cookbooks",
         "claude-plugins-official": "claude-plugins-official",
         "claude-powerline": "claude-powerline",
