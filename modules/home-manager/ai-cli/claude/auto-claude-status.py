@@ -4,7 +4,7 @@
 import json
 import shlex
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -147,9 +147,13 @@ def main():
         label = f"{hours} hour" if hours == 1 else f"{hours} hours"
         print(f"----{label} | bash={ctl} param1='pause' param2='{hours}' terminal=false refresh=true")
     # Calculate hours until midnight for "pause until midnight" option
+    # Target next day's 00:00:00 and use ceiling division for accuracy
     now = datetime.now()
-    midnight = now.replace(hour=23, minute=59, second=59, microsecond=0)
-    hours_until_midnight = max(1, int((midnight - now).total_seconds() / 3600) + 1)
+    tomorrow = now + timedelta(days=1)
+    midnight = tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
+    seconds_until_midnight = int((midnight - now).total_seconds())
+    # Ceiling division: (n + divisor - 1) // divisor ensures we round up
+    hours_until_midnight = max(1, (seconds_until_midnight + 3599) // 3600)
     print(f"----Until midnight | bash={ctl} param1='pause' param2='{hours_until_midnight}' terminal=false refresh=true")
     print(f"--Skip next run | bash={ctl} param1='skip' param2='1' terminal=false refresh=true")
     print("---")
