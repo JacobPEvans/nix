@@ -18,7 +18,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -69,7 +68,8 @@ in
         '';
       }
       {
-        assertion = (lib.length (lib.attrNames (lib.filterAttrs (_: p: p.enabled) cfg.settings.providers))) > 0;
+        assertion =
+          (lib.length (lib.attrNames (lib.filterAttrs (_: p: p.enabled) cfg.settings.providers))) > 0;
         message = ''
           programs.opencode requires at least one enabled provider.
           Enable a provider with:

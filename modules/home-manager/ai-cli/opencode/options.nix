@@ -24,7 +24,7 @@ let
 
       models = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "List of available models for this provider";
       };
     };
@@ -43,7 +43,11 @@ in
 
     settings = {
       theme = mkOption {
-        type = types.enum [ "dark" "light" "auto" ];
+        type = types.enum [
+          "dark"
+          "light"
+          "auto"
+        ];
         default = "auto";
         description = "UI theme for OpenCode";
       };
@@ -93,7 +97,7 @@ in
       # Environment variables for OpenCode
       env = mkOption {
         type = types.attrsOf types.str;
-        default = {};
+        default = { };
         description = ''
           Environment variables passed to OpenCode.
           Common variables:
@@ -120,19 +124,19 @@ in
 
       allow = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "OpenCode-specific commands to auto-approve (added to shared if useShared is true)";
       };
 
       deny = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "OpenCode-specific commands to deny (added to shared if useShared is true)";
       };
 
       ask = mkOption {
         type = types.listOf types.str;
-        default = [];
+        default = [ ];
         description = "OpenCode-specific commands requiring confirmation (added to shared if useShared is true)";
       };
     };
@@ -151,7 +155,7 @@ in
 
       enabled = mkOption {
         type = types.attrsOf types.bool;
-        default = {};
+        default = { };
         description = "Map of plugin names to enabled status";
       };
     };

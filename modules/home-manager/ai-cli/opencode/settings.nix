@@ -34,9 +34,9 @@ let
       }
     else
       {
-        allow = [];
-        deny = [];
-        ask = [];
+        allow = [ ];
+        deny = [ ];
+        ask = [ ];
       };
 
   # Merge shared and OpenCode-specific permissions
@@ -58,11 +58,13 @@ let
 
     # Provider configurations
     providers = lib.mapAttrs (
-      name: provider: {
+      _name: provider:
+      {
         enabled = provider.enabled;
         models = provider.models;
         # Only include apiKey if set (null means read from env)
-      } // lib.optionalAttrs (provider.apiKey != null) {
+      }
+      // lib.optionalAttrs (provider.apiKey != null) {
         apiKey = provider.apiKey;
       }
     ) enabledProviders;
@@ -74,23 +76,26 @@ let
     env = cfg.settings.env;
 
     # Plugin configuration (placeholder for Issue #140)
-    plugins = lib.optionalAttrs cfg.plugins.oh-my-opencode.enable {
-      "oh-my-opencode" = {
-        enabled = true;
-      };
-    } // lib.mapAttrs (_name: enabled: { inherit enabled; }) cfg.plugins.enabled;
+    plugins =
+      lib.optionalAttrs cfg.plugins.oh-my-opencode.enable {
+        "oh-my-opencode" = {
+          enabled = true;
+        };
+      }
+      // lib.mapAttrs (_name: enabled: { inherit enabled; }) cfg.plugins.enabled;
   };
 
   # Pretty-print JSON using jq
-  opencodeSettingsJson = pkgs.runCommand "opencode-settings.json"
-    {
-      nativeBuildInputs = [ pkgs.jq ];
-      json = builtins.toJSON opencodeSettings;
-      passAsFile = [ "json" ];
-    }
-    ''
-      jq '.' "$jsonPath" > $out
-    '';
+  opencodeSettingsJson =
+    pkgs.runCommand "opencode-settings.json"
+      {
+        nativeBuildInputs = [ pkgs.jq ];
+        json = builtins.toJSON opencodeSettings;
+        passAsFile = [ "json" ];
+      }
+      ''
+        jq '.' "$jsonPath" > $out
+      '';
 
 in
 {
