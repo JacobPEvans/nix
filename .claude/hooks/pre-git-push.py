@@ -19,6 +19,28 @@ import subprocess
 import sys
 
 
+def is_nix_config_repo():
+    """Check if current directory is a nix-config worktree."""
+    try:
+        # Get the git common directory (bare repo path)
+        result = subprocess.run(
+            ["git", "rev-parse", "--git-common-dir"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        common_dir = result.stdout.strip()
+        # Resolve to absolute path
+        common_dir = os.path.abspath(common_dir)
+
+        # Check if this is the nix-config repo
+        nix_config_dir = os.path.expanduser("~/git/nix-config/.git")
+        return common_dir == nix_config_dir
+    except (OSError, subprocess.SubprocessError):
+        # If we can't determine, skip the hook (safer to not block)
+        return False
+
+
 def has_nix_changes():
     """Check if any .nix files were modified in commits being pushed."""
     try:
@@ -64,6 +86,10 @@ def main():
 
     # Only act on git push commands
     if "git push" not in command:
+        return 0
+
+    # Skip hook for non-nix-config repositories
+    if not is_nix_config_repo():
         return 0
 
     # Skip darwin-rebuild in CI/automated workflows
