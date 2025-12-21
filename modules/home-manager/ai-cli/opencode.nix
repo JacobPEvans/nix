@@ -40,18 +40,9 @@ let
     # Permissions integration pending OpenCode's permission system design
   };
 
-  # Generate pretty-printed JSON using a derivation with jq
+  # Generate pretty-printed JSON using Nix's built-in formatter
   # This improves readability for debugging and matches Claude/Gemini format
-  settingsJson =
-    pkgs.runCommand "opencode-config.json"
-      {
-        nativeBuildInputs = [ pkgs.jq ];
-        json = builtins.toJSON settings;
-        passAsFile = [ "json" ];
-      }
-      ''
-        jq '.' "$jsonPath" > $out
-      '';
+  settingsJson = pkgs.formats.json { }.generate "opencode-config.json" settings;
 in
 {
   # XDG config path: ~/.config/opencode/opencode.json

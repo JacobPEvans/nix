@@ -23,16 +23,6 @@ in
   # Export deniedCommands list (permanently blocked commands)
   # OpenCode config format TBD - currently passes through raw commands
   deniedCommands = formatters.opencode.formatShellCommands (
-    lib.flatten (
-      lib.mapAttrsToList (
-        _name: value:
-        if builtins.isList value then
-          value
-        else if builtins.isAttrs value then
-          lib.flatten (lib.attrValues value)
-        else
-          [ ]
-      ) permissions.deny
-    )
+    formatters.utils.flattenCommands permissions.deny
   );
 }

@@ -23,16 +23,6 @@ in
   # Export allowedCommands list (auto-approved commands)
   # OpenCode config format TBD - currently passes through raw commands
   allowedCommands = formatters.opencode.formatShellCommands (
-    lib.flatten (
-      lib.mapAttrsToList (
-        _name: value:
-        if builtins.isList value then
-          value
-        else if builtins.isAttrs value then
-          lib.flatten (lib.attrValues value)
-        else
-          [ ]
-      ) permissions.allow
-    )
+    formatters.utils.flattenCommands permissions.allow
   );
 }
