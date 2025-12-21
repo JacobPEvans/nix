@@ -229,13 +229,13 @@ fi
 # Required because launchd runs in a minimal shell
 if [[ -r "$HOME/.zshrc" ]]; then
   if ! source "$HOME/.zshrc" 2>/dev/null; then
-    echo "WARNING: Failed to source .zshrc" >&2
+    echo "Warning: Failed to source .zshrc" >&2
   fi
 fi
 
 if [[ -r "$HOME/.profile" ]]; then
   if ! source "$HOME/.profile" 2>/dev/null; then
-    echo "WARNING: Failed to source .profile" >&2
+    echo "Warning: Failed to source .profile" >&2
   fi
 fi
 
