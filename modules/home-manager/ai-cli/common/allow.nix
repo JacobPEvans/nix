@@ -258,6 +258,7 @@ _:
     "which"
     "whereis"
     "ps"
+    "pgrep"
     "top -l 1"
     "df"
     "du"
@@ -307,7 +308,6 @@ _:
     "host"
     "netstat"
     "lsof -i"
-    "pgrep"
     "wget"
   ];
 

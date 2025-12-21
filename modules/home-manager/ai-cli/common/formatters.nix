@@ -49,11 +49,8 @@ in
       let
         allCommands = flattenCommands permissions.allow;
         shellPermissions = map (cmd: "Bash(${cmd}:*)") allCommands;
-        claudePerms = permissions.toolSpecific.claude or { };
-        toolPermissions =
-          (claudePerms.builtin or [ ]) ++ (claudePerms.webFetch or [ ]) ++ (claudePerms.read or [ ]);
       in
-      toolPermissions ++ shellPermissions;
+      (getToolPermissions permissions) ++ shellPermissions;
 
     # Format all denied commands (shell + tool-specific)
     formatDenied =
@@ -61,10 +58,8 @@ in
       let
         allCommands = flattenCommands permissions.deny;
         shellDenied = map (cmd: "Bash(${cmd}:*)") allCommands;
-        claudePerms = permissions.toolSpecific.claude or { };
-        toolDenied = claudePerms.denyRead or [ ];
       in
-      toolDenied ++ shellDenied;
+      (getDenyPermissions permissions) ++ shellDenied;
 
     # Get all tool-specific permissions (non-shell)
     getToolPermissions =

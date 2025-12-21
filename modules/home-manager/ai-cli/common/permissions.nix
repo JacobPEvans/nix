@@ -91,10 +91,7 @@ in
       "git config core.hooksPath"
       "git -c core.hooksPath"
       "pre-commit uninstall"
-      "rm .git/hooks"
       "rm -rf .git/hooks"
-      "rm .git/hooks/"
-      "rm -rf .git/hooks/"
       "chmod -x .git/hooks/"
     ];
 
@@ -139,6 +136,9 @@ in
     ];
 
     # Claude built-in tools (non-shell)
+    # NOTE: Deny rules (denyRead) take precedence over allow rules (builtin).
+    # Even though Read(**) allows reading any file, the denyRead patterns
+    # will block sensitive files (.env, SSH keys, etc.) at evaluation time.
     claude = {
       # Core built-in tools with glob patterns
       builtin = [
@@ -180,7 +180,7 @@ in
 
       # Special read patterns
       read = [
-        "Read(//nix/store/**)"
+        "Read(/nix/store/**)"
       ];
 
       # Deny patterns for sensitive files (Claude-specific Read tool)
