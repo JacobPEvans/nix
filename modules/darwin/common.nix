@@ -152,6 +152,18 @@ in
   nix = {
     enable = false;
     package = lib.mkForce pkgs.nix;
+
+    # Automatic garbage collection to free disk space
+    # Runs weekly via launchd, keeps last 30 days of generations
+    gc = {
+      automatic = true;
+      interval = {
+        Weekday = 0; # Sunday
+        Hour = 3; # 3 AM
+        Minute = 0;
+      };
+      options = "--delete-older-than 30d";
+    };
   };
 
   # Disable documentation to suppress builtins.toFile warnings
