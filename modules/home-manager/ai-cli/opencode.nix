@@ -40,9 +40,9 @@ let
     # Permissions integration pending OpenCode's permission system design
   };
 
-  # Generate pretty-printed JSON using Nix's built-in formatter
-  # This improves readability for debugging and matches Claude/Gemini format
-  settingsJson = pkgs.formats.json { }.generate "opencode-config.json" settings;
+  # Generate JSON config file using writeText + builtins.toJSON
+  # This matches the pattern used by other AI CLI configs (e.g., powerline.nix)
+  settingsJson = pkgs.writeText "opencode.json" (builtins.toJSON settings);
 in
 {
   # XDG config path: ~/.config/opencode/opencode.json
