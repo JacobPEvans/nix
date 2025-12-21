@@ -69,9 +69,9 @@ let
     homeDir = config.home.homeDirectory;
     schemaUrl = userConfig.ai.claudeSchemaUrl;
     permissions = {
-      allow = claudeAllow.allow;
-      deny = claudeDeny.deny;
-      ask = claudeAsk.ask;
+      inherit (claudeAllow) allow;
+      inherit (claudeDeny) deny;
+      inherit (claudeAsk) ask;
     };
     plugins = claudePlugins.pluginConfig;
   };
