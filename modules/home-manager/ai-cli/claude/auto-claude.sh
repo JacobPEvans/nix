@@ -185,10 +185,13 @@ fi
 SCRIPT_DIR="${HOME}/.claude/scripts"
 NOTIFIER="${SCRIPT_DIR}/auto-claude-notify.py"
 REPO_NAME=$(basename "${TARGET_DIR%/}")
+LOG_DIR="${HOME}/.claude/logs"
+EVENTS_LOG="$LOG_DIR/events.jsonl"
 
 # Check if Python notifier is available for skip notifications
+# Also verify BWS_ACCESS_TOKEN is set (required for Slack API calls)
 SLACK_ENABLED=false
-if [[ -n "$SLACK_CHANNEL" ]] && [[ -x "$NOTIFIER" ]] && command -v python3 &>/dev/null; then
+if [[ -n "$SLACK_CHANNEL" ]] && [[ -x "$NOTIFIER" ]] && command -v python3 &>/dev/null && [[ -n "${BWS_ACCESS_TOKEN:-}" ]]; then
   SLACK_ENABLED=true
 fi
 
@@ -211,7 +214,7 @@ notify_skipped() {
     --arg repo "$REPO_NAME" \
     --arg reason "$reason" \
     '{event: $event, timestamp: $timestamp, run_id: $run_id, repo: $repo, reason: $reason}' \
-    >> "${HOME}/.claude/logs/events.jsonl"
+    >> "$EVENTS_LOG"
 }
 
 # --- INPUT VALIDATION ---
@@ -231,18 +234,23 @@ if ! mkdir -p "$LOG_DIR"; then
   exit 1
 fi
 RUN_ID=$(date "+%Y%m%d_%H%M%S")
-# Normalize path (remove trailing slashes) before extracting basename
-REPO_NAME=$(basename "${TARGET_DIR%/}")
+# LOG_DIR, REPO_NAME, and EVENTS_LOG already defined in early setup (needed for notify_skipped)
 LOG_FILE="$LOG_DIR/${REPO_NAME}_${RUN_ID}.jsonl"
 SUMMARY_LOG="$LOG_DIR/summary.log"
 FAILURES_LOG="$LOG_DIR/failures.log"
-EVENTS_LOG="$LOG_DIR/events.jsonl"
 
 # --- STRUCTURED EVENT LOGGING ---
 # Emit JSON events for monitoring systems (OTEL, Cribl, Splunk)
 emit_event() {
   local event_type="$1"
   shift
+
+  # Validate even number of remaining arguments (key-value pairs)
+  if [[ $(($# % 2)) -ne 0 ]]; then
+    echo "ERROR: emit_event requires even number of arguments for key-value pairs" >&2
+    return 1
+  fi
+
   local timestamp=$(date -u "+%Y-%m-%dT%H:%M:%SZ")
 
   # Use jq for proper JSON encoding (required by script dependency check)

@@ -102,8 +102,9 @@ in
         ".config/monitoring/k8s/splunk/configmap.yaml".source = ./k8s/splunk/configmap.yaml;
       };
 
-      # Helper script to deploy/update the monitoring stack
-      packages = [
+      # Helper scripts for Kubernetes-based monitoring
+      # Only create these when kubernetes is actually enabled
+      packages = lib.mkIf cfg.kubernetes.enable [
         (pkgs.writeShellScriptBin "monitoring-deploy" ''
           #!/usr/bin/env bash
           set -euo pipefail
