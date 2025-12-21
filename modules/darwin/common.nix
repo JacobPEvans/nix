@@ -154,15 +154,15 @@ in
     package = lib.mkForce pkgs.nix;
 
     # Automatic garbage collection to free disk space
-    # Runs weekly via launchd, keeps last 30 days of generations
+    # Schedule and retention policy defined in lib/user-config.nix
     gc = {
       automatic = true;
       interval = {
-        Weekday = 0; # Sunday
-        Hour = 3; # 3 AM
-        Minute = 0;
+        Weekday = userConfig.nix.gc.weekday;
+        Hour = userConfig.nix.gc.hour;
+        Minute = userConfig.nix.gc.minute;
       };
-      options = "--delete-older-than 30d";
+      options = "--delete-older-than ${userConfig.nix.gc.retention}";
     };
   };
 
