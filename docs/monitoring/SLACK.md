@@ -24,13 +24,13 @@ programs.claude.autoClaude.repositories = {
     path = "/path/to/repo";
     schedule.hours = lib.lists.genList (i: i * 2) 12;
     maxBudget = 25.0;
-    slackChannel = "C0A3XA3PBL1";  # Channel ID
+    slackChannel = "C0AXXXXXXXX";  # Get from BWS: slack-channel-ai-assistant-instructions
   };
   nix = {
     path = "${config.home.homeDirectory}/.config/nix";
     schedule.hours = lib.lists.genList (i: i * 2 + 1) 12;
     maxBudget = 25.0;
-    slackChannel = "C0A32VA40KH";  # Different channel
+    slackChannel = "C0AXXXXXXXX";  # Get from BWS: slack-channel-nix
   };
 };
 ```
@@ -192,13 +192,13 @@ auto-claude-ctl run ai-assistant-instructions
   --repo test \
   --budget 1.0 \
   --run-id test-123 \
-  --channel C0A3XA3PBL1
+  --channel C0AXXXXXXXX
 
 # Test run_skipped
 ~/.claude/scripts/auto-claude-notify.py run_skipped \
   --repo test \
   --reason "Testing skip notification" \
-  --channel C0A3XA3PBL1
+  --channel C0AXXXXXXXX
 ```
 
 ### Environment Check

@@ -129,14 +129,18 @@ in
         path = autoClaudeLocalRepoPath;
         schedule.hours = lib.lists.genList (i: i * 2) 12;
         maxBudget = 25.0;
-        slackChannel = "C0A3XA3PBL1";
+        # Slack channel ID removed for security - retrieved from BWS at runtime
+        # Store in BWS as: slack-channel-ai-assistant-instructions
+        # slackChannel = "...";
       };
       # nix config: runs at odd hours (1, 3, 5, ...)
       nix = {
         path = "${config.home.homeDirectory}/.config/nix";
         schedule.hours = lib.lists.genList (i: i * 2 + 1) 12;
         maxBudget = 25.0;
-        slackChannel = "C0A32VA40KH";
+        # Slack channel ID removed for security - retrieved from BWS at runtime
+        # Store in BWS as: slack-channel-nix
+        # slackChannel = "...";
       };
     };
   };

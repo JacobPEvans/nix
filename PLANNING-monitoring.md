@@ -24,8 +24,8 @@ Comprehensive observability infrastructure for Claude Code autonomous agents and
 **Channel Configuration:**
 
 ```nix
-ai-assistant-instructions.slackChannel = "C0A3XA3PBL1";
-nix.slackChannel = "C0A32VA40KH";
+ai-assistant-instructions.slackChannel = "C0AXXXXXXXX";  # From BWS
+nix.slackChannel = "C0AXXXXXXXX";  # From BWS
 ```
 
 **Notification Types Implemented:**
@@ -159,7 +159,7 @@ The Slack bot token (`auto-claude-slack-bot-token`) in BWS hasn't been verified 
 
    ```bash
    ~/.claude/scripts/auto-claude-notify.py run_skipped \
-     --repo test --reason "Test" --channel C0A32VA40KH
+     --repo test --reason "Test" --channel C0AXXXXXXXX
    ```
 
 3. **Create PR** - Push branch and create PR for review
@@ -208,7 +208,7 @@ The Slack bot token (`auto-claude-slack-bot-token`) in BWS hasn't been verified 
 # Test Slack notification (after BWS fix)
 export BWS_ACCESS_TOKEN=$(security find-generic-password -s "bws-claude-automation" -w)
 /etc/profiles/per-user/jevans/bin/python3 ~/.claude/scripts/auto-claude-notify.py run_skipped \
-  --repo "nix-config" --reason "Test notification" --channel "C0A32VA40KH"
+  --repo "nix-config" --reason "Test notification" --channel "C0AXXXXXXXX"
 
 # Trigger auto-claude manually
 auto-claude-ctl run ai-assistant-instructions

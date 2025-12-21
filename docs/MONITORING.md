@@ -115,11 +115,11 @@ Slack notifications are configured per repository in `modules/home-manager/ai-cl
 programs.claude.autoClaude.repositories = {
   ai-assistant-instructions = {
     # ...
-    slackChannel = "C0A3XA3PBL1";  # Channel ID
+    slackChannel = "C0AXXXXXXXX";  # Get from BWS: slack-channel-ai-assistant-instructions
   };
   nix = {
     # ...
-    slackChannel = "C0A32VA40KH";  # Different channel
+    slackChannel = "C0AXXXXXXXX";  # Get from BWS: slack-channel-nix
   };
 };
 ```
@@ -166,7 +166,7 @@ auto-claude-ctl run ai-assistant-instructions
   --repo test \
   --budget 1.0 \
   --run-id test-123 \
-  --channel C0A3XA3PBL1
+  --channel C0AXXXXXXXX
 ```
 
 ---
