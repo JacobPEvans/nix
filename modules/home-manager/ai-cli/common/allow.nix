@@ -19,15 +19,18 @@
 _:
 
 let
-  # Import all category-specific permission files
-  git = import ./allow/git.nix { };
-  nix = import ./allow/nix.nix { };
-  languages = import ./allow/languages.nix { };
-  containers = import ./allow/containers.nix { };
-  cloud = import ./allow/cloud.nix { };
-  tools = import ./allow/tools.nix { };
-  system = import ./allow/system.nix { };
+  # Dynamically import all .nix files from the allow/ directory
+  # This eliminates the need to manually list each category file
+  allowDir = ./allow;
+
+  # Get all files in the allow directory
+  files = builtins.attrNames (builtins.readDir allowDir);
+
+  # Filter for only .nix files and import them
+  nixFiles = builtins.filter (f: builtins.match ".*\\.nix$" f != null) files;
+  modules = builtins.map (file: import (allowDir + "/${file}") { }) nixFiles;
 in
 
-# Merge all categories into a single attribute set
-git // nix // languages // containers // cloud // tools // system
+# Merge all category modules into a single attribute set
+# foldl' processes the list left-to-right, merging each module's attributes
+builtins.foldl' (acc: attrs: acc // attrs) { } modules
