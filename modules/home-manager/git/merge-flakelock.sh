@@ -20,12 +20,24 @@ CURRENT="$2"   # %A - current version (ours) - we write result here
 
 # Regenerate flake.lock without updating inputs
 # Uses --no-update-lock-file to preserve current input versions
-if nix flake lock --no-update-lock-file 2>/dev/null; then
-    # Copy regenerated lock to the merge result
-    cp flake.lock "$CURRENT"
-    exit 0
-else
-    # If regeneration fails, accept current version and let user handle it
-    echo "Warning: flake.lock regeneration failed, keeping current version" >&2
+LOCK_DIR="$(dirname "$CURRENT")"
+
+# Ensure we're operating in a directory that contains a flake.nix
+if [ ! -f "$LOCK_DIR/flake.nix" ]; then
+    echo "Warning: flake.nix not found in $LOCK_DIR, keeping current flake.lock" >&2
     exit 0
 fi
+
+(
+    cd "$LOCK_DIR"
+
+    if nix flake lock --no-update-lock-file 2>/dev/null; then
+        # Copy regenerated lock to the merge result
+        cp flake.lock "$CURRENT"
+        exit 0
+    else
+        # If regeneration fails, accept current version and let user handle it
+        echo "Warning: flake.lock regeneration failed, keeping current version" >&2
+        exit 0
+    fi
+)

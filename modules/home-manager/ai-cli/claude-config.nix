@@ -34,7 +34,10 @@ let
   # No more hardcoded lists - discovers all .md files automatically
   discoverCommands = dir:
     let
-      files = builtins.readDir dir;
+      files =
+        if builtins.pathExists dir
+        then builtins.readDir dir
+        else {};
       mdFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".md" name) files;
     in
     map (name: lib.removeSuffix ".md" name) (builtins.attrNames mdFiles);
