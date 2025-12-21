@@ -48,10 +48,10 @@ let
   getClaudeDenyPermissions =
     permissions:
     let
-      # Deny patterns from ai-assistant-instructions (file patterns for Read tool)
+      # Deny patterns from ai-assistant-instructions (file patterns for the Read tool)
       denyPatterns = permissions.denyPatterns or [ ];
-      # Convert patterns to Read(...) format
-      # Replace tilde with homeDir variable interpolation if available
+      # Convert patterns to Read(...) format for Claude's deny list.
+      # Note: patterns are used as provided; any tilde (~) expansion must be done upstream.
       denyReadPatterns = map (p: "Read(${p})") denyPatterns;
     in
     denyReadPatterns;
