@@ -4,7 +4,7 @@
 # Each tool uses formatters to convert these to their specific format.
 #
 # STRUCTURE:
-# - allow: Auto-approved commands (imported from allow.nix)
+# - allow: Auto-approved commands (from ai-assistant-instructions)
 # - deny: Permanently blocked, catastrophic operations
 # - directories: Shared directory trust configuration
 # - toolSpecific: Non-shell tool identifiers
@@ -18,99 +18,49 @@
 {
   lib,
   config,
+  ai-assistant-instructions,
   ...
 }:
 
 let
   homeDir = config.home.homeDirectory;
+
+  # Read all JSON files from a directory and extract commands
+  readPermissionDir =
+    dir:
+    let
+      files = builtins.readDir dir;
+      jsonFiles = lib.filterAttrs (n: v: v == "regular" && lib.hasSuffix ".json" n) files;
+      readJson = name: (builtins.fromJSON (builtins.readFile "${dir}/${name}")).commands or [ ];
+    in
+    lib.flatten (map readJson (builtins.attrNames jsonFiles));
+
+  # Paths to permission directories in ai-assistant-instructions
+  allowDir = "${ai-assistant-instructions}/agentsmd/permissions/allow";
+  denyDir = "${ai-assistant-instructions}/agentsmd/permissions/deny";
+  domainsFile = "${ai-assistant-instructions}/agentsmd/permissions/domains/webfetch.json";
+
+  # Read deny file for both commands and patterns
+  denyDangerousFile = "${denyDir}/dangerous.json";
+  denyDangerousJson = builtins.fromJSON (builtins.readFile denyDangerousFile);
+
 in
 {
-  # Auto-approved commands (imported from separate file for size)
-  allow = import ./allow.nix { };
+  # Auto-approved commands from ai-assistant-instructions
+  allow = readPermissionDir allowDir;
 
-  # Denied commands (catastrophic, permanently blocked)
-  deny = {
-    fileDestruction = [
-      "rm -rf /"
-      "rm -rf /*"
-      "rm -rf ~"
-      "rm -fr /"
-      "rm -fr /*"
-      "rm --recursive --force /"
-      "rm --recursive --force /*"
-    ];
+  # Denied commands from ai-assistant-instructions
+  # Combine all deny/*.json files into a flat list
+  deny = readPermissionDir denyDir;
 
-    httpWrite = [
-      "curl -X POST"
-      "curl -X PUT"
-      "curl -X DELETE"
-      "curl -X PATCH"
-      "curl --request POST"
-      "curl --request PUT"
-      "curl --request DELETE"
-      "curl --request PATCH"
-      "curl -d"
-      "curl --data"
-    ];
+  # WebFetch domains
+  webfetchDomains = (builtins.fromJSON (builtins.readFile domainsFile)).domains;
 
-    systemDestruction = [
-      "sudo rm"
-      "sudo dd"
-      "mkfs"
-      "fdisk"
-      "diskutil"
-    ];
+  # File patterns to deny (for Claude Read tool)
+  # These come from dangerous.json's "patterns" field
+  denyPatterns = denyDangerousJson.patterns or [ ];
 
-    privilegeEscalation = [
-      "sudo su"
-      "sudo -i"
-      "sudo bash"
-      "sudo -s"
-    ];
-
-    reverseShells = [
-      "nc -l"
-      "ncat -l"
-      "socat"
-    ];
-
-    gitDangerous = [
-      "git push --force origin main"
-      "git push --force origin master"
-      "git push -f origin main"
-      "git push -f origin master"
-      # Note: git -C is not denied here because:
-      # 1. It's used by trusted Nix-managed scripts (e.g., statusline)
-      # 2. It's not catastrophic like force push to main
-      # 3. AI agents are instructed via CLAUDE.md not to use it (breaks permission matching)
-    ];
-
-    gitHookBypasses = [
-      "git commit --no-verify"
-      "git commit -n"
-      "git merge --no-verify"
-      "git cherry-pick --no-verify"
-      "git rebase --no-verify"
-      "git config core.hooksPath"
-      "git -c core.hooksPath"
-      "pre-commit uninstall"
-      "rm -rf .git/hooks"
-      "chmod -x .git/hooks/"
-    ];
-
-    shellDangerous = [
-      # Block dangerous bulk operations via xargs
-      # Note: xargs can bypass permission matching by constructing commands from input
-      # Allow safe read-only uses (xargs echo, find | xargs wc) by only blocking dangerous patterns
-      "xargs rm"
-      "xargs -0 rm"
-      "xargs sudo"
-      # Block for loops - they break permission matching and force sequential execution
-      "for"
-    ];
-  };
-
-  # Trusted directories
+  # Trusted directories (local config)
   directories = {
     development = [
       "${homeDir}/projects"
@@ -162,32 +112,8 @@ in
         "SlashCommand(**)"
       ];
 
-      # WebFetch with allowed domains
-      webFetch = [
-        "WebFetch(domain:github.com)"
-        "WebFetch(domain:githubusercontent.com)"
-        "WebFetch(domain:anthropic.com)"
-        "WebFetch(domain:nixos.org)"
-        "WebFetch(domain:hashicorp.com)"
-        "WebFetch(domain:terraform.io)"
-        "WebFetch(domain:geminicli.com)"
-        "WebFetch(domain:google.dev)"
-        "WebFetch(domain:npmjs.com)"
-        "WebFetch(domain:docker.com)"
-        "WebFetch(domain:kubernetes.io)"
-        "WebFetch(domain:python.org)"
-        "WebFetch(domain:pypi.org)"
-        "WebFetch(domain:readthedocs.io)"
-        "WebFetch(domain:rust-lang.org)"
-        "WebFetch(domain:typescriptlang.org)"
-        "WebFetch(domain:stackoverflow.com)"
-        "WebFetch(domain:mozilla.org)"
-        "WebFetch(domain:openai.com)"
-        "WebFetch(domain:raycast.com)"
-        "WebFetch(domain:apple.com)"
-        "WebFetch(domain:google.com)"
-        "WebFetch(domain:github.io)"
-      ];
+      # WebFetch with allowed domains (dynamically generated from ai-assistant-instructions)
+      # This will be populated by formatters.nix using webfetchDomains
 
       # Special read patterns
       read = [
@@ -195,22 +121,8 @@ in
       ];
 
       # Deny patterns for sensitive files (Claude-specific Read tool)
-      denyRead = [
-        "Read(.env)"
-        "Read(.env.*)"
-        "Read(**/.env)"
-        "Read(**/.env.*)"
-        "Read(**/secrets/**)"
-        "Read(**/credentials/**)"
-        "Read(**/*_rsa)"
-        "Read(**/*_dsa)"
-        "Read(**/*_ecdsa)"
-        "Read(**/*_ed25519)"
-        # Use homeDir interpolation instead of tilde expansion for reliable pattern matching
-        "Read(${homeDir}/.ssh/id_*)"
-        "Read(${homeDir}/.aws/credentials)"
-        "Read(${homeDir}/.gnupg/**)"
-      ];
+      # Populated from ai-assistant-instructions deny/dangerous.json patterns field
+      # This will be transformed by formatters.nix to Read(...) format
     };
   };
 }
