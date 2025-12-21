@@ -60,12 +60,11 @@ let
     providers = lib.mapAttrs (
       _name: provider:
       {
-        enabled = provider.enabled;
-        models = provider.models;
+        inherit (provider) enabled models;
         # Only include apiKey if set (null means read from env)
       }
       // lib.optionalAttrs (provider.apiKey != null) {
-        apiKey = provider.apiKey;
+        inherit (provider) apiKey;
       }
     ) enabledProviders;
 
@@ -73,7 +72,7 @@ let
     inherit permissions;
 
     # Environment variables
-    env = cfg.settings.env;
+    inherit (cfg.settings) env;
 
     # Plugin configuration (placeholder for Issue #140)
     plugins =
