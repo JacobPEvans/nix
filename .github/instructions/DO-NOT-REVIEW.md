@@ -21,20 +21,22 @@ As we use Copilot for PR reviews, we'll identify:
 
 ## Suppression Categories
 
-### 1. Personal Configuration Paths
+### 1. Hardcoded Values - DRY Principle
 
-**Don't comment on these paths** (this is a personal config, not a generic template):
+**GOOD to flag (we want these reviewed):**
 
-- `/Users/jevans/` - Correct user home directory
-- `~/git/nix-config/` - Correct repo location
-- `jevans` as username - Correct username in examples
-- `macbook-m4` as hostname - Correct host identifier
+- Hardcoded username (`jevans`, `/Users/jevans/`) appearing multiple times - should be a variable
+- Hardcoded hostname duplicated across files - should be centralized
+- Any value that appears more than once - DRY principle applies
 
-**Examples of bad comments to suppress**:
+**DON'T flag:**
 
-- "Consider using a variable for the username"
-- "Hardcoded path should be configurable"
-- "Replace `/Users/jevans/` with `$HOME`" (when Nix needs literal path)
+- `~` or `$HOME` for home directory (portable, acceptable)
+- Single occurrence of username in a central config (like `lib/user-config.nix`)
+- Path in context where variable substitution isn't possible
+
+**Why:** This repo practices extreme DRY - username/hostname should appear ONCE and be
+injected everywhere else via Nix's `config.home.homeDirectory` or similar patterns.
 
 ### 2. Intentional Nix Patterns
 

@@ -5,6 +5,12 @@ applyTo:
 
 # General Code Review Instructions
 
+## Critical Rules - Read First
+
+1. **NEVER create a Pull Request as a code review response** - Use inline review comments ONLY
+2. **50-comment hard limit** - Stop reviewing completely after 50 comments (see Comment Limits section)
+3. **This is a personal config repo** - Verbose comments are intentional for learning
+
 ## What to Focus On
 
 ### High Priority (Always Review)
@@ -68,11 +74,24 @@ applyTo:
    - If you've commented on a pattern once, don't comment on every instance
    - Batch similar issues: "This pattern appears in 5 places: ..."
 
-## Comment Limits
+## Comment Limits - MANDATORY
 
-- **50-comment limit per PR** - Stop reviewing after 50 comments
-- After 50 comments, the PR needs human judgment, not more AI feedback
+### Hard Limit: 50 Comments Per PR
+
+When a PR has 50+ comments total (from any reviewer):
+
+1. **STOP REVIEWING COMPLETELY** - Do not add more comments
+2. **Exception**: Only comment on P0 blocking bugs with 99%+ confidence that the software will not function (crashes, data loss, security breach)
+3. **NEVER create a Pull Request as a code review response** - Only use inline review comments
+4. **Do not summarize** - Do not create summary comments after 50 comments
+
+After 50 comments, the PR needs human judgment. More AI feedback is counterproductive.
+
+**Before reaching 50 comments:**
+
 - Batch related feedback into single comments when possible
+- Prioritize - only comment on high/medium priority issues
+- Skip low priority issues entirely if nearing the limit
 
 ## Review Posture
 
