@@ -11,7 +11,12 @@
 #
 # Reference: https://github.com/moretension/duti
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -19,20 +24,20 @@ let
   cfg = config.system.fileAssociations;
 
   # Convert extension mapping to duti command
-  # Example: { extension = "spl"; uti = "public.tar-archive"; } -> duti command
-  associationToDutiCommand = assoc:
+  # Example: { extension = "spl"; handler = "com.apple.archiveutility"; } -> duti command
+  associationToDutiCommand =
+    assoc:
     let
-      # Use Archive Utility as the default handler for archives
-      # This is the built-in macOS app that handles .tar.gz files
-      handler = "com.apple.archiveutility";
       role = "all"; # all = viewer, editor, and shell role
     in
-    ''${pkgs.duti}/bin/duti -s ${handler} .${assoc.extension} ${role}'';
+    ''${pkgs.duti}/bin/duti -s ${escapeShellArg assoc.handler} ${escapeShellArg ".${assoc.extension}"} ${escapeShellArg role}'';
 
   # Generate activation script for all file associations
   activationScript = ''
-    echo "Configuring file type associations..."
+    echo "Configuring file type associations..." >&2
+    set -e  # Exit on any command failure
     ${concatMapStringsSep "\n" associationToDutiCommand cfg.customExtensions}
+    set +e  # Re-enable error tolerance for Finder restart
 
     # Restart Finder to apply changes immediately
     # (Launch Services database updates may not be visible until restart)
@@ -50,69 +55,74 @@ in
     };
 
     customExtensions = mkOption {
-      type = types.listOf (types.submodule {
-        options = {
-          extension = mkOption {
-            type = types.str;
-            description = "File extension (without leading dot)";
-            example = "spl";
-          };
+      type = types.listOf (
+        types.submodule {
+          options = {
+            extension = mkOption {
+              # Restrict to reasonable filename extension characters and disallow leading dots
+              type = types.strMatching "^[A-Za-z0-9][A-Za-z0-9._-]*$";
+              description = "File extension (without leading dot)";
+              example = "spl";
+            };
 
-          uti = mkOption {
-            type = types.str;
-            description = "Uniform Type Identifier for the file type";
-            example = "public.tar-archive";
-          };
+            handler = mkOption {
+              type = types.str;
+              description = "Bundle identifier for the handler application";
+              example = "com.apple.archiveutility";
+            };
 
-          description = mkOption {
-            type = types.str;
-            default = "";
-            description = "Human-readable description of the file type";
-            example = "Splunk archive";
+            description = mkOption {
+              type = types.str;
+              default = "";
+              description = "Human-readable description of the file type";
+              example = "Splunk archive";
+            };
           };
-        };
-      });
+        }
+      );
 
       default = [
         {
           extension = "spl";
-          uti = "public.tar-archive";
+          handler = "com.apple.archiveutility";
           description = "Splunk archive (tar.gz)";
         }
         {
           extension = "crbl";
-          uti = "public.tar-archive";
+          handler = "com.apple.archiveutility";
           description = "CRBL archive (tar.gz)";
         }
       ];
 
       description = ''
-        List of custom file extensions to associate with specific UTIs.
+        List of custom file extensions to associate with specific application handlers.
 
         Each extension will be registered with macOS Launch Services to enable:
-        - Double-click extraction in Finder
+        - Double-click opening with the specified application
         - Proper file type detection
         - Shell autocomplete suggestions
 
-        Common UTIs for archive types:
-        - public.tar-archive (for .tar files)
-        - org.gnu.gnu-zip-archive (for .gz files)
-        - public.zip-archive (for .zip files)
+        Common bundle identifiers for macOS applications:
+        - com.apple.archiveutility (Archive Utility for archives)
+        - com.apple.TextEdit (TextEdit for text files)
+        - com.apple.Preview (Preview for PDFs and images)
 
-        To find UTIs for existing file types:
-          mdls -name kMDItemContentType <filename>
+        To find bundle IDs for existing file types:
+          duti -x <extension>
+        To find bundle IDs for installed applications:
+          osascript -e 'id of app "<Application Name>"'
       '';
 
       example = literalExpression ''
         [
           {
             extension = "spl";
-            uti = "public.tar-archive";
+            handler = "com.apple.archiveutility";
             description = "Splunk archive";
           }
           {
             extension = "myarchive";
-            uti = "public.tar-archive";
+            handler = "com.apple.archiveutility";
             description = "My custom archive format";
           }
         ]
@@ -133,20 +143,21 @@ in
 
     # User instructions displayed after rebuild
     system.activationScripts.postActivation.text = mkAfter ''
-      echo ""
-      echo "File associations configured for:"
-      ${concatMapStringsSep "\n" (assoc:
-        ''echo "  - .${assoc.extension} → ${assoc.uti}${
+      echo "" >&2
+      echo "File associations configured for:" >&2
+      ${concatMapStringsSep "\n" (
+        assoc:
+        ''echo "  - .${assoc.extension} → ${assoc.handler}${
           optionalString (assoc.description != "") " (${assoc.description})"
-        }"''
+        }" >&2''
       ) cfg.customExtensions}
-      echo ""
-      echo "To verify associations, run:"
-      echo "  duti -x <extension>"
-      echo ""
-      echo "Example:"
-      echo "  duti -x spl"
-      echo ""
+      echo "" >&2
+      echo "To verify associations, run:" >&2
+      echo "  duti -x <extension>" >&2
+      echo "" >&2
+      echo "Example:" >&2
+      echo "  duti -x spl" >&2
+      echo "" >&2
     '';
   };
 }
