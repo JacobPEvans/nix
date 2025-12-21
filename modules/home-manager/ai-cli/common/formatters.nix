@@ -60,6 +60,8 @@ in
     formatShellCommands = cmds: map (cmd: "Bash(${cmd}:*)") cmds;
 
     # Format all allowed commands from permissions (shell + tool-specific)
+    # Note: Tool-specific permissions are placed before shell permissions.
+    # This ordering matches formatDenied and ensures consistent evaluation by Claude Code.
     formatAllowed =
       permissions:
       let

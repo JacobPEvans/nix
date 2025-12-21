@@ -79,7 +79,10 @@ in
       "git push --force origin master"
       "git push -f origin main"
       "git push -f origin master"
-      "git -C"
+      # Note: git -C is not denied here because:
+      # 1. It's used by trusted Nix-managed scripts (e.g., statusline)
+      # 2. It's not catastrophic like force push to main
+      # 3. AI agents are instructed via CLAUDE.md not to use it (breaks permission matching)
     ];
 
     gitHookBypasses = [
@@ -96,8 +99,14 @@ in
     ];
 
     shellDangerous = [
-      "xargs"
-      "for "
+      # Block dangerous bulk operations via xargs
+      # Note: xargs can bypass permission matching by constructing commands from input
+      # Allow safe read-only uses (xargs echo, find | xargs wc) by only blocking dangerous patterns
+      "xargs rm"
+      "xargs -0 rm"
+      "xargs sudo"
+      # Block for loops - they break permission matching and force sequential execution
+      "for"
     ];
   };
 
@@ -136,9 +145,11 @@ in
     ];
 
     # Claude built-in tools (non-shell)
-    # NOTE: Deny rules (denyRead) take precedence over allow rules (builtin).
-    # Even though Read(**) allows reading any file, the denyRead patterns
-    # will block sensitive files (.env, SSH keys, etc.) at evaluation time.
+    # NOTE: Deny rules (denyRead) take precedence over allow rules (builtin)
+    # as enforced by Claude Code at runtime when it evaluates these patterns,
+    # not by this Nix configuration itself. Even though Read(**) allows reading
+    # any file, the denyRead patterns will block sensitive files (.env, SSH keys,
+    # etc.) when Claude Code processes the permission lists.
     claude = {
       # Core built-in tools with glob patterns
       builtin = [
@@ -195,9 +206,10 @@ in
         "Read(**/*_dsa)"
         "Read(**/*_ecdsa)"
         "Read(**/*_ed25519)"
-        "Read(~/.ssh/id_*)"
-        "Read(~/.aws/credentials)"
-        "Read(~/.gnupg/**)"
+        # Use homeDir interpolation instead of tilde expansion for reliable pattern matching
+        "Read(${homeDir}/.ssh/id_*)"
+        "Read(${homeDir}/.aws/credentials)"
+        "Read(${homeDir}/.gnupg/**)"
       ];
     };
   };
