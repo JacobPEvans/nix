@@ -20,11 +20,6 @@
 
 let
   cfg = config.monitoring;
-  homeDir = config.home.homeDirectory;
-
-  # K8s manifest directory
-  k8sManifestDir = ./k8s;
-
 in
 {
   options.monitoring = {
