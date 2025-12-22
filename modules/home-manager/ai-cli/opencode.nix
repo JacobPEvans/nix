@@ -26,23 +26,32 @@ let
   # opencodeDeny = import ../permissions/opencode-permissions-deny.nix { inherit config lib; };
 
   # OpenCode settings object
-  # See: https://github.com/opencode-ai/opencode (documentation TBD)
+  # Project repository: https://github.com/opencode-ai/opencode
   settings = {
     # Theme setting (auto follows terminal theme)
     theme = "auto";
 
     # Default model configuration
     model = {
-      default = "claude-sonnet-4-20250514";
+      default = "claude-sonnet-4-5";
     };
 
     # Additional settings can be added here as OpenCode evolves
     # Permissions integration pending OpenCode's permission system design
   };
 
-  # Generate JSON config file using writeText + builtins.toJSON
-  # This matches the pattern used by other AI CLI configs (e.g., powerline.nix)
-  settingsJson = pkgs.writeText "opencode.json" (builtins.toJSON settings);
+  # Generate pretty-printed JSON using a derivation with jq
+  # This matches the pattern used by other AI CLI configs (e.g., gemini.nix, copilot.nix)
+  settingsJson =
+    pkgs.runCommand "opencode.json"
+      {
+        nativeBuildInputs = [ pkgs.jq ];
+        json = builtins.toJSON settings;
+        passAsFile = [ "json" ];
+      }
+      ''
+        jq '.' "$jsonPath" > $out
+      '';
 in
 {
   # XDG config path: ~/.config/opencode/opencode.json
