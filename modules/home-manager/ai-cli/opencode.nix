@@ -32,7 +32,7 @@ let
     # Model configuration
     model = {
       # Default to Claude Sonnet 4.5 (fast, capable)
-      default = "claude-sonnet-4-20250514";
+      default = "claude-sonnet-4-5-20250514";
     };
 
     # TODO: Add shared permissions once OpenCode permission format is determined
