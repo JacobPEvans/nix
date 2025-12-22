@@ -156,11 +156,17 @@ in
     enable = false;
     package = lib.mkForce pkgs.nix;
 
-    # DISABLED: nix.gc.automatic requires nix.enable = true, which conflicts with
-    # Determinate Nix (which manages its own daemon). For gc, use manual:
-    #   nix-collect-garbage --delete-older-than 30d
-    # Or consider a launchd plist that runs nix-collect-garbage directly.
-    gc.automatic = false;
+    # Automatic garbage collection to free disk space
+    # Schedule and retention policy defined in lib/user-config.nix
+    gc = {
+      automatic = true;
+      interval = {
+        Weekday = userConfig.nix.gc.weekday;
+        Hour = userConfig.nix.gc.hour;
+        Minute = userConfig.nix.gc.minute;
+      };
+      options = "--delete-older-than ${userConfig.nix.gc.retention}";
+    };
   };
 
   # Add Nix settings via conf.d snippet, as nix.settings is ignored when nix.enable = false.
