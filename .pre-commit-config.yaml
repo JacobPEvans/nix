@@ -1,0 +1,99 @@
+# Pre-commit hooks for nix-darwin configuration
+#
+# Hooks run automatically via core.hooksPath (set in common.nix)
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  # Markdown linting (using markdownlint-cli2 which reads .markdownlint-cli2.jsonc)
+  # Config file has "fix: true" to auto-fix issues
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.18.1
+    hooks:
+      - id: markdownlint-cli2
+        files: \.md$
+
+  # Local hooks using system-installed tools (from nix)
+  - repo: local
+    hooks:
+      # Nix formatting check - nixfmt-rfc-style
+      - id: nix-fmt-check
+        name: Nix formatting (nixfmt-rfc-style)
+        entry: "bash -c 'nixfmt --check \"$@\" || (echo \"Run: nix fmt\"; exit 1)' --"
+        language: system
+        files: \.nix$
+        types: [file]
+        exclude: ^worktrees/
+
+      # Nix linting - statix (catches anti-patterns and code smells)
+      # CRITICAL: This MUST run and block commits - no --no-build shortcuts
+      - id: nix-statix
+        name: Nix linting (statix)
+        entry: statix check
+        language: system
+        files: \.nix$
+        types: [file]
+        exclude: ^worktrees/
+        pass_filenames: false
+
+      # Nix dead code detection - deadnix
+      - id: nix-deadnix
+        name: Nix dead code (deadnix)
+        entry: deadnix -L --fail
+        language: system
+        files: \.nix$
+        types: [file]
+        exclude: ^worktrees/
+        pass_filenames: false
+
+      # Claude Code settings validation - check-jsonschema installed via nix
+      - id: validate-claude-settings
+        name: Validate Claude settings
+        entry: check-jsonschema --schemafile https://json.schemastore.org/claude-code-settings.json
+        language: system
+        files: '\.claude/settings(\.local)?\.json$'
+        types: [json]
+
+      # File size check - DRY with GitHub Actions via shared config
+      # Config: scripts/workflows/file-size-config.sh (single source of truth)
+      # Limits: 6KB recommended, 12KB hard, 32KB extended
+      - id: file-size-check
+        name: File size check (6KB warn, 12KB fail)
+        entry: scripts/workflows/check-file-sizes.sh
+        language: system
+        files: \.(md|nix)$
+        types: [file]
+        pass_filenames: false
+
+      # Auto-Claude shell script validation
+      # Validates syntax of all auto-claude shell scripts
+      - id: validate-auto-claude-scripts
+        name: Validate auto-claude shell scripts
+        entry: bash -c 'shopt -s nullglob; rc=0; for f in modules/home-manager/ai-cli/claude/auto-claude*.sh; do zsh -n "$f" || rc=1; done; exit $rc'
+        language: system
+        files: '^modules/home-manager/ai-cli/claude/auto-claude.*\.sh$'
+        types: [file]
+        pass_filenames: false
+
+      # Orchestrator prompt validation
+      # Ensures prompt file exists and contains required sections
+      - id: validate-orchestrator-prompt
+        name: Validate orchestrator prompt
+        entry: bash -c 'f="modules/home-manager/ai-cli/claude/orchestrator-prompt.txt"; test -s "$f" && grep -q "CORE LOOP" "$f" && grep -q "IDENTITY" "$f"'
+        language: system
+        files: '^modules/home-manager/ai-cli/claude/orchestrator-prompt\.txt$'
+        types: [file]
+        pass_filenames: false

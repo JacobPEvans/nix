@@ -1,0 +1,22 @@
+# File Size Check (standalone)
+#
+# Runs on push to main for visibility. PRs use ci-gate.yml instead.
+# Calls reusable workflow for DRY.
+
+name: File Size Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.md'
+      - '**.nix'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check File Sizes
+    uses: ./.github/workflows/_file-size.yml

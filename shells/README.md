@@ -1,0 +1,111 @@
+# Development Shell Templates
+
+Per-project development environments using Nix flakes with direnv integration.
+
+## Quick Start
+
+1. Copy desired flake to your project:
+
+   ```bash
+   cp ~/.config/nix/shells/python/flake.nix ~/myproject/
+   ```
+
+2. Create `.envrc` in your project:
+
+   ```bash
+   echo "use flake" > ~/myproject/.envrc
+   ```
+
+3. Allow direnv:
+
+   ```bash
+   cd ~/myproject && direnv allow
+   ```
+
+The environment will now load automatically when you `cd` into the project.
+
+## Available Templates
+
+| Template | Description | Key Packages |
+|----------|-------------|--------------|
+| `python/` | Basic Python development | Python, pip, venv |
+| `python-data/` | Data science / ML | Python, pandas, numpy, jupyter |
+| `js/` | Node.js development | Node.js, npm, yarn, pnpm |
+| `go/` | Go development | Go, gopls, delve |
+| `terraform/` | Infrastructure as Code | Terraform, Terragrunt, OpenTofu, tflint, checkov, tfsec, trivy, infracost |
+| `claude-sdk-python/` | Claude Agent SDK (Python) | Python 3.11, Anthropic SDK, pytest, black, mypy, ruff |
+| `claude-sdk-typescript/` | Claude Agent SDK (TypeScript) | Node.js 20, TypeScript, prettier, eslint |
+
+## Customization
+
+Each `flake.nix` can be customized for your project needs:
+
+- Add packages to `buildInputs`
+- Add Python packages to the `withPackages` list
+- Set environment variables in `shellHook`
+
+## Updating Dependencies
+
+```bash
+# Update flake.lock in your project
+nix flake update
+```
+
+## Without direnv
+
+You can also use these directly:
+
+```bash
+# Enter shell manually
+nix develop ~/myproject
+
+# Or run a single command
+nix develop ~/myproject -c python --version
+```
+
+## Template Details
+
+### Terraform/Terragrunt (`terraform/`)
+
+Complete Infrastructure-as-Code development environment:
+
+| Category | Tools |
+|----------|-------|
+| Core IaC | terraform, terragrunt, opentofu |
+| Documentation | terraform-docs |
+| Linting | tflint |
+| Security Scanners | checkov, terrascan, tfsec, trivy |
+| Cost Estimation | infracost |
+| Utilities | jq, yq |
+
+**Note:** Terraform uses BSL license (unfree). This shell enables `allowUnfree`.
+OpenTofu is included as a fully open-source alternative.
+
+**Note:** `pre-commit` and `markdownlint-cli2` are already available system-wide
+via `modules/common/packages.nix` - no need to add them to project shells.
+
+### Claude Agent SDK Shells (`claude-sdk-*/`)
+
+Development environments for building AI agents with Claude:
+
+**Python SDK** (`claude-sdk-python/`):
+
+- Python 3.11+ with modern package management
+- Anthropic Python SDK pre-installed
+- Testing tools (pytest, pytest-asyncio)
+- Code quality tools (black, mypy, ruff)
+- Interactive IPython shell with rich formatting
+
+**TypeScript SDK** (`claude-sdk-typescript/`):
+
+- Node.js 20 LTS with npm, yarn, pnpm
+- TypeScript compiler and language server
+- Development tools (prettier, eslint)
+- ts-node for direct TypeScript execution
+
+Both shells include:
+
+- Pre-configured environment for Claude API development
+- Links to official SDK repositories and documentation
+- Quick start examples and usage guides
+- See individual README.md files in each directory for details

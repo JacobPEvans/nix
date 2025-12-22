@@ -1,0 +1,162 @@
+# Testing Guide
+
+Step-by-step procedures to verify this nix-darwin configuration is functioning correctly.
+
+> **Warning**: ALL warnings and errors from `nix flake check` and `darwin-rebuild`
+> MUST be resolved before proceeding. Do NOT continue past any command that produces
+> warnings or errors. This applies to every test in this document.
+
+---
+
+## Table of Contents
+
+- [Basic Local Change Testing](#basic-local-change-testing)
+- [Variables](#variables)
+- [Full Testing Procedure](#full-testing-procedure)
+- [Quick Smoke Test](#quick-smoke-test)
+- [Troubleshooting](#troubleshooting)
+
+---
+
+## Basic Local Change Testing
+
+**Core test command for any nix configuration change.**
+
+```bash
+sudo darwin-rebuild switch --flake .
+```
+
+**Prerequisites:**
+
+- All changes must be committed first (Nix flakes requirement)
+- Pre-commit hooks run automatically on `git commit`
+
+**Note:** For the complete git workflow (staging, committing, pushing), see
+[CLAUDE.md](CLAUDE.md#after-completing-changes) which is the single source of truth.
+
+---
+
+## Variables
+
+Set these variables before running tests. Adjust if paths change:
+
+```bash
+NIX_CONFIG_DIR=~/.config/nix
+FLAKE_TARGET=default
+```
+
+---
+
+## Full Testing Procedure
+
+### 1. Validate Flake Syntax
+
+```bash
+nix flake check $NIX_CONFIG_DIR
+```
+
+Validates the flake.nix structure without building. **Stop and fix any warnings or errors.**
+
+### 2. Validate Markdown Linting
+
+```bash
+cd $NIX_CONFIG_DIR
+markdownlint-cli2 .
+```
+
+Ensures all documentation passes linting (required for CI).
+
+### 3. Verify Git State
+
+```bash
+cd $NIX_CONFIG_DIR
+git status
+```
+
+All changes must be committed before rebuild (flakes requirement).
+
+### 4. Validate Flake
+
+```bash
+cd $NIX_CONFIG_DIR
+nix flake check
+```
+
+Validates the flake structure and runs checks. **Stop and fix any warnings or errors.**
+
+### 5. Full Rebuild
+
+```bash
+sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
+```
+
+Applies the configuration to the system. **Stop and fix any warnings or errors.**
+
+### 6. Verify Nix PATH Priority
+
+```bash
+echo $PATH | tr ':' '\n' | head -10
+```
+
+**Expected order**:
+
+1. `~/.nix-profile/bin`
+2. `/etc/profiles/per-user/$USER/bin`
+3. `/run/current-system/sw/bin` ← nix packages
+4. `/nix/var/nix/profiles/default/bin`
+5. `/opt/homebrew/bin` ← fallback only
+
+### 7. Verify Key Packages
+
+```bash
+which bat delta eza fd fzf rg jq claude
+```
+
+All should show `/run/current-system/sw/bin/...`
+
+### 8. Verify Dev Shells
+
+```bash
+nix develop $NIX_CONFIG_DIR#python --command python --version
+nix develop $NIX_CONFIG_DIR#js --command node --version
+```
+
+### 9. Verify Claude Code Configuration
+
+```bash
+cat ~/.claude/settings.json | jq '.permissions' | head -20
+ls ~/.claude/commands/
+ls ~/.claude/agents/
+```
+
+### 10. Rollback Test (Optional)
+
+```bash
+sudo darwin-rebuild --list-generations
+sudo darwin-rebuild --rollback
+# Then switch back
+sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
+```
+
+---
+
+## Quick Smoke Test
+
+Minimum validation for quick checks. **Any warnings or errors = stop and fix.**
+
+```bash
+NIX_CONFIG_DIR=~/.config/nix
+cd $NIX_CONFIG_DIR
+nix flake check $NIX_CONFIG_DIR && \
+  markdownlint-cli2 . && \
+  echo "✓ Validation passed"
+```
+
+---
+
+## Troubleshooting
+
+If any test fails, consult:
+
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues and solutions
+- [RUNBOOK.md](RUNBOOK.md) - Operational procedures including rollback

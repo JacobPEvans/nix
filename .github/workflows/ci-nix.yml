@@ -1,0 +1,24 @@
+# Nix CI - Build workflow (standalone)
+#
+# Runs on push to main for visibility. PRs use ci-gate.yml instead.
+# Calls reusable workflow for DRY.
+
+name: Nix Build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.nix'
+      - 'flake.lock'
+      - 'modules/**'
+      - 'scripts/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Nix
+    uses: ./.github/workflows/_nix-build.yml
