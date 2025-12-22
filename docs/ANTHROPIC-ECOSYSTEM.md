@@ -141,10 +141,6 @@ All plugins are from the `anthropics/claude-code` marketplace:
 - **explanatory-output-style** - Educational insights hook
 - **learning-output-style** - Interactive learning mode
 
-#### Migration Tools
-
-- **claude-opus-4-5-migration** - Model migration skill
-
 #### Experimental
 
 - **ralph-wiggum** - Autonomous iteration loops (commented out by default)
@@ -211,18 +207,18 @@ From community contributors, installed to `~/.claude/commands/`:
 
 | Command | Description | Source |
 |---------|-------------|--------|
-| `rok-shape-issues` | Shape raw ideas into actionable GitHub Issues | roksechs |
-| `rok-resolve-issues` | Analyze and resolve GitHub Issues efficiently | roksechs |
-| `rok-review-pr` | Comprehensive PR review with quality checks | roksechs |
-| `rok-resolve-pr-review-thread` | Resolve PR review comments systematically | roksechs |
+| `shape-issues` | Shape raw ideas into actionable GitHub Issues | roksechs |
+| `resolve-issues` | Analyze and resolve GitHub Issues efficiently | roksechs |
+| `review-pr` | Comprehensive PR review with quality checks | roksechs |
+| `resolve-pr-review-thread` | Resolve PR review comments systematically | roksechs |
 
 ### Usage
 
 All commands are available as slash commands in Claude Code:
 
 ```bash
-claude /review-issue       # Review an issue
-claude /rok-shape-issues   # Shape issues (community)
+claude /review-issue    # Review an issue
+claude /shape-issues    # Shape issues (community)
 ```
 
 ---

@@ -158,7 +158,7 @@ run `/compact` on the main conversation before spawning subagents.
    Use: `gh api repos/OWNER/REPO/pulls/NUM/reviews` to get reviews with commit_id.
    Wait until all reviewers have reviewed the current head commit before finishing.
    When a reviewer completes their review (comments, changes requested, or approved),
-   automatically invoke `/rok-resolve-pr-review-thread` to address feedback.
+   automatically invoke `/resolve-pr-review-thread` to address feedback.
    Continue monitoring until PR is merged or closed.
 
 ### Procedure Violations
@@ -507,6 +507,24 @@ for GitHub Copilot's automated PR reviews via `.github/copilot-instructions.md`.
 - User is learning Nix - comments are intentionally verbose
 - Flakes-only (no nix-channels, no nix-env)
 - Determinate Nix compatibility is required
+
+### Copilot Coding Agent Warning
+
+**NEVER use `@copilot` or `@copilot-*` in PR comments.**
+
+GitHub's mention parser extracts `@copilot` from strings like `@copilot-pull-request-reviewer`,
+triggering the Copilot Coding Agent to create unwanted "fix" PRs.
+
+**Instead of:**
+
+- ❌ "Thank you @copilot-pull-request-reviewer"
+- ❌ "@copilot-pull-request-reviewer's concern about..."
+
+**Use:**
+
+- ✅ "Thank you Copilot reviewer"
+- ✅ "The Copilot review mentioned..."
+- ✅ "Per the automated review..."
 
 ## Workflow
 
