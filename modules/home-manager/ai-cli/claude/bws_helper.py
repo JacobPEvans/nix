@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""
+BWS Helper - Fetch secrets from Bitwarden Secrets Manager via macOS Keychain.
+
+Config: ~/.config/bws/.env (not in git)
+Usage: python3 bws_helper.py CLAUDE_OAUTH  # prints secret value
+"""
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import keyring
+
+
+def load_env(path: Path = Path.home() / ".config/bws/.env") -> dict[str, str]:
+    """Load .env file into dict."""
+    if not path.exists():
+        raise FileNotFoundError(f"Config not found: {path}")
+    config = {}
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            if line.startswith("export "):
+                line = line[7:]
+            k, _, v = line.partition("=")
+            config[k.strip()] = v.strip().strip("'\"")
+    return config
+
+
+def get_bws_token() -> str:
+    """Get BWS access token from keychain."""
+    cfg = load_env()
+    token = keyring.get_password(cfg["BWS_KEYCHAIN_SERVICE"], cfg["BWS_KEYCHAIN_ACCOUNT"])
+    if not token:
+        raise RuntimeError(f"No keychain entry for BWS token")
+    return token
+
+
+def bws_get(name_or_id: str) -> str:
+    """Fetch secret from BWS by name (preferred) or ID."""
+    env = {**os.environ, "BWS_ACCESS_TOKEN": get_bws_token()}
+
+    # Try to find by name first
+    result = subprocess.run(["bws", "secret", "list", "-o", "json"], capture_output=True, text=True, env=env)
+    if result.returncode == 0:
+        for s in json.loads(result.stdout):
+            if s["key"] == name_or_id:
+                name_or_id = s["id"]
+                break
+
+    # Fetch by ID
+    result = subprocess.run(["bws", "secret", "get", name_or_id, "-o", "json"], capture_output=True, text=True, env=env)
+    if result.returncode != 0:
+        raise RuntimeError(f"bws secret get failed: {result.stderr}")
+    return json.loads(result.stdout)["value"]
+
+
+def get_secret(key: str) -> str:
+    """Get secret using config key (e.g., 'CLAUDE_OAUTH' -> BWS_SECRET_CLAUDE_OAUTH)."""
+    cfg = load_env()
+    name_or_id = cfg.get(f"BWS_SECRET_{key}")
+    if not name_or_id:
+        raise ValueError(f"BWS_SECRET_{key} not in config")
+    return bws_get(name_or_id)
+
+
+def get_keychain(service: str) -> str:
+    """Get value directly from keychain (for channel IDs, etc.)."""
+    cfg = load_env()
+    value = keyring.get_password(service, cfg["BWS_KEYCHAIN_ACCOUNT"])
+    if not value:
+        raise RuntimeError(f"No keychain entry: {service}")
+    return value
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: bws_helper.py <SECRET_KEY>", file=sys.stderr)
+        sys.exit(1)
+    print(get_secret(sys.argv[1].upper().replace("-", "_")))
