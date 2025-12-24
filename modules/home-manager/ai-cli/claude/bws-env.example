@@ -3,10 +3,15 @@
 # Copy this file to ~/.config/bws/.env and fill in your values.
 # This file should NEVER be committed to git.
 #
-# Setup:
-# 1. Create automation keychain: security create-keychain -p "" automation.keychain
-# 2. Add BWS token: security add-generic-password -a <account> -s <service> -w <token> automation.keychain
-# 3. Unlock on login: security unlock-keychain -p "" automation.keychain
+# Setup (choose one):
+#
+# Option A - Login keychain (recommended, auto-unlocks on login):
+#   security add-generic-password -a <account> -s <service> -w <token> login.keychain
+#
+# Option B - Separate automation keychain (if you need isolation):
+#   1. Create keychain with a password you'll remember
+#   2. In Keychain Access, add it to "Keychains" and configure to unlock on login
+#   3. Add tokens to that keychain
 #
 # Required Variables:
 

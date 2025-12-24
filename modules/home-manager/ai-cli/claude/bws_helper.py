@@ -40,6 +40,12 @@ def load_env(path: Path = Path.home() / ".config/bws/.env") -> dict[str, str]:
             if not value:
                 raise ValueError(f"Empty value for key '{key}' in {path}")
             config[key] = value
+
+    # Validate required keychain config keys are present
+    required_keys = ["BWS_KEYCHAIN_SERVICE", "BWS_KEYCHAIN_ACCOUNT"]
+    missing = [k for k in required_keys if k not in config]
+    if missing:
+        raise ValueError(f"Missing required config key(s) in {path}: {', '.join(missing)}")
     return config
 
 
@@ -70,12 +76,12 @@ def bws_get(name_or_id: str) -> str:
                 capture_output=True,
                 text=True,
                 env=env,
+                check=True,
             )
         except FileNotFoundError:
             raise RuntimeError("bws command not found. Install it from https://bitwarden.com/help/secrets-manager-cli/") from None
-
-        if result.returncode != 0:
-            raise RuntimeError(f"Failed to list bws secrets to find ID for '{name_or_id}': {result.stderr}")
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Failed to list bws secrets to find ID for '{name_or_id}': {e.stderr}") from e
 
         try:
             secrets = json.loads(result.stdout)
@@ -98,12 +104,12 @@ def bws_get(name_or_id: str) -> str:
             capture_output=True,
             text=True,
             env=env,
+            check=True,
         )
     except FileNotFoundError:
         raise RuntimeError("bws command not found. Install it from https://bitwarden.com/help/secrets-manager-cli/") from None
-
-    if result.returncode != 0:
-        raise RuntimeError(f"bws secret get failed for '{name_or_id}': {result.stderr}")
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"bws secret get failed for '{name_or_id}': {e.stderr}") from e
 
     try:
         return json.loads(result.stdout)["value"]
@@ -119,7 +125,7 @@ def _is_uuid(s: str) -> bool:
 
 
 def get_secret(key: str) -> str:
-    """Get secret using config key (e.g., 'CLAUDE_OAUTH' -> BWS_SECRET_CLAUDE_OAUTH)."""
+    """Get secret using config key (e.g., 'CLAUDE_OAUTH_TOKEN' -> BWS_SECRET_CLAUDE_OAUTH_TOKEN)."""
     cfg = load_env()
     name_or_id = cfg.get(f"BWS_SECRET_{key}")
     if not name_or_id:
