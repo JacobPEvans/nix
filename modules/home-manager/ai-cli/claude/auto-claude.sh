@@ -33,22 +33,33 @@ PROMPT_FILE="${SCRIPT_DIR}/orchestrator-prompt.txt"
 # Retrieve secrets from macOS automation keychain for headless operation
 # This provides early fallback before Python preflight runs
 AUTOMATION_KEYCHAIN="${HOME}/Library/Keychains/automation.keychain-db"
+KEYCHAIN_ACCOUNT="ai-cli-coder"
+
+# Function to get a secret from the automation keychain
+get_keychain_secret() {
+  local service_name="$1"
+  if ! command -v security >/dev/null 2>&1; then
+    echo "Warning: 'security' command not found. Cannot retrieve secrets from keychain." >&2
+    return 1
+  fi
+  security find-generic-password -a "$KEYCHAIN_ACCOUNT" -s "$service_name" -w "$AUTOMATION_KEYCHAIN" 2>/dev/null
+}
 
 # Get BWS access token (required for Slack notifier to authenticate with Bitwarden)
 if [[ -z "${BWS_ACCESS_TOKEN:-}" ]] && [[ -f "$AUTOMATION_KEYCHAIN" ]]; then
-  BWS_ACCESS_TOKEN=$(security find-generic-password -s "bws-access-token" -w "$AUTOMATION_KEYCHAIN" 2>/dev/null) || true
-  export BWS_ACCESS_TOKEN
+  if BWS_ACCESS_TOKEN=$(get_keychain_secret "bws-access-token"); then
+    export BWS_ACCESS_TOKEN
+  fi
 fi
 
 # Get Slack channel from keychain if not provided as argument
 # Channels are stored as SLACK_CHANNEL_ID_<REPO_NAME> (uppercase, dashes/dots to underscores)
 if [[ -z "$SLACK_CHANNEL" ]] && [[ -f "$AUTOMATION_KEYCHAIN" ]]; then
   # Normalize repo name: basename, uppercase, replace dashes/dots with underscores
-  # Note: dash must be at end of character set for BSD tr compatibility
   REPO_BASENAME=$(basename "${TARGET_DIR%/}")
-  REPO_KEY=$(echo "$REPO_BASENAME" | tr '[:lower:]' '[:upper:]' | tr '.-' '__')
+  REPO_KEY=$(echo "$REPO_BASENAME" | tr '[:lower:]' '[:upper:]' | tr '.-' '_')
   KEYCHAIN_SERVICE="SLACK_CHANNEL_ID_${REPO_KEY}"
-  SLACK_CHANNEL=$(security find-generic-password -s "$KEYCHAIN_SERVICE" -w "$AUTOMATION_KEYCHAIN" 2>/dev/null) || true
+  SLACK_CHANNEL=$(get_keychain_secret "$KEYCHAIN_SERVICE") || true
 fi
 
 # --- INPUT VALIDATION ---
