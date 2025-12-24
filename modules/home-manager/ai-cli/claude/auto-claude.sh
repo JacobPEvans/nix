@@ -154,7 +154,8 @@ SLACK_CHANNEL="${4:-}"
 if [[ -z "$SLACK_CHANNEL" ]]; then
   REPO_NAME=$(basename "$TARGET_DIR")
   # Convert to uppercase and replace dashes/dots with underscores (portable shell)
-  SANITIZED_REPO_NAME=$(printf '%s' "$REPO_NAME" | tr '[:lower:]' '[:upper:]' | tr '-.' '__')
+  # Note: dash must be at end of set for BSD tr compatibility
+  SANITIZED_REPO_NAME=$(printf '%s' "$REPO_NAME" | tr '[:lower:]' '[:upper:]' | tr '.-' '__')
   KEYCHAIN_KEY="SLACK_CHANNEL_ID_${SANITIZED_REPO_NAME}"
   # Source BWS account from config if available for consistent keychain lookups
   BWS_ENV_FILE="${HOME}/.config/bws/.env"
