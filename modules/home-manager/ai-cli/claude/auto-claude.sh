@@ -153,9 +153,19 @@ SLACK_CHANNEL="${4:-}"
 # If no Slack channel provided, try to fetch from keychain
 if [[ -z "$SLACK_CHANNEL" ]]; then
   REPO_NAME=$(basename "$TARGET_DIR")
-  # Convert to uppercase and replace dashes/dots with underscores
-  KEYCHAIN_KEY="SLACK_CHANNEL_ID_${REPO_NAME:u:gs/-/_/:gs/./_/}"
-  SLACK_CHANNEL=$(security find-generic-password -s "$KEYCHAIN_KEY" -w 2>/dev/null || true)
+  # Convert to uppercase and replace dashes/dots with underscores (portable shell)
+  SANITIZED_REPO_NAME=$(printf '%s' "$REPO_NAME" | tr '[:lower:]' '[:upper:]' | tr '-.' '__')
+  KEYCHAIN_KEY="SLACK_CHANNEL_ID_${SANITIZED_REPO_NAME}"
+  # Source BWS account from config if available for consistent keychain lookups
+  BWS_ENV_FILE="${HOME}/.config/bws/.env"
+  if [[ -f "$BWS_ENV_FILE" ]]; then
+    BWS_KEYCHAIN_ACCOUNT=$(grep -E '^BWS_KEYCHAIN_ACCOUNT=' "$BWS_ENV_FILE" 2>/dev/null | cut -d'=' -f2 | tr -d '"' | tr -d "'" || true)
+  fi
+  if [[ -n "${BWS_KEYCHAIN_ACCOUNT:-}" ]]; then
+    SLACK_CHANNEL=$(security find-generic-password -s "$KEYCHAIN_KEY" -a "$BWS_KEYCHAIN_ACCOUNT" -w 2>/dev/null || true)
+  else
+    SLACK_CHANNEL=$(security find-generic-password -s "$KEYCHAIN_KEY" -w 2>/dev/null || true)
+  fi
 fi
 
 # --- DEPENDENCY CHECKS ---
