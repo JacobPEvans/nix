@@ -1,8 +1,14 @@
 # Automated flake.lock updates with verified commits
 #
-# Schedule: Daily at noon UTC
-# - Tue/Fri: Updates ALL flake inputs
+# Triggers:
+# - Daily at noon UTC (schedule)
+# - Instant sync when ai-assistant-instructions pushes (repository_dispatch)
+# - Manual (workflow_dispatch)
+#
+# Update Strategy:
+# - Tue/Fri or manual with update_all: Updates ALL flake inputs
 # - Other days: Updates only AI-focused inputs
+# - repository_dispatch: Updates only ai-assistant-instructions (fast sync)
 #
 # Commits are signed via GitHub REST API (peter-evans/create-pull-request)
 # using GITHUB_TOKEN, producing verified signatures as github-actions[bot].
@@ -11,6 +17,8 @@ name: Update flake.lock
 on:
   schedule:
     - cron: "0 12 * * *"
+  repository_dispatch:
+    types: [ai-instructions-updated]
   workflow_dispatch:
     inputs:
       update_all:
@@ -41,15 +49,21 @@ jobs:
       - name: Determine inputs to update
         id: inputs
         run: |
-          DAY=$(date -u +%u)
-          if [[ "$DAY" == "2" || "$DAY" == "5" || "$UPDATE_ALL" == "true" ]]; then
+          # repository_dispatch = fast sync for ai-instructions only
+          if [[ "$EVENT_NAME" == "repository_dispatch" ]]; then
+            echo "inputs=ai-assistant-instructions" >> "$GITHUB_OUTPUT"
+            echo "::notice::Fast sync: updating ai-assistant-instructions only"
+          # Tue/Fri or manual override = all inputs
+          elif [[ "$(date -u +%u)" == "2" || "$(date -u +%u)" == "5" || "$UPDATE_ALL" == "true" ]]; then
             echo "inputs=" >> "$GITHUB_OUTPUT"
             echo "::notice::Updating ALL flake inputs"
+          # Other days = AI-focused inputs
           else
             echo "inputs=$AI_INPUTS" >> "$GITHUB_OUTPUT"
             echo "::notice::Updating AI-focused inputs only"
           fi
         env:
+          EVENT_NAME: ${{ github.event_name }}
           UPDATE_ALL: ${{ inputs.update_all }}
 
       - name: Checkout repository
