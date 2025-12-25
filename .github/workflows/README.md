@@ -151,9 +151,11 @@ jobs:
 
 | Workflow | Purpose |
 |----------|---------|
-| `review-code.yml` | Claude Code PR review (Haiku) |
+| `review-code.yml` | Claude Code PR review |
 | `review-deps.yml` | Dependency update reviews |
-| `deps-update-flake.yml` | Scheduled flake.lock updates |
+| `deps-update-flake.yml` | Unified flake.lock updates (schedule + instant sync) |
+| `deps-monitor-packages.yml` | Package version monitoring |
+| `nixos-release-check.yml` | NixOS release tracking |
 
 ## Configuration
 
@@ -161,7 +163,9 @@ jobs:
 
 | Secret | Required By |
 |--------|-------------|
-| `CLAUDE_CODE_OAUTH_TOKEN` | `review-code.yml` |
+| `CLAUDE_OAUTH_TOKEN` | `review-code.yml` |
+
+Note: `deps-update-flake.yml` uses only `GITHUB_TOKEN` (no additional secrets needed).
 
 ### Auto-Merge Compatibility
 
