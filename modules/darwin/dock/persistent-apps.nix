@@ -10,7 +10,7 @@
 #   - Manual installs: /Applications/
 #   - User apps: ~/Applications/
 #
-# NOTE: TCC-sensitive apps (Zoom, OrbStack) use Home Manager trampolines
+# NOTE: TCC-sensitive apps (Zoom, Ghostty) use Home Manager trampolines
 # for persistent macOS permissions across darwin-rebuild.
 
 _:
@@ -44,9 +44,9 @@ in
       # Development & Tools
       "/Applications/Nix Apps/RapidAPI.app"
       "/Applications/Nix Apps/Visual Studio Code.app"
-      "/System/Applications/Utilities/Terminal.app"
+      "${homeDir}/Applications/Home Manager Trampolines/Ghostty.app"
       "/Applications/Nix Apps/Bitwarden.app"
-      "${homeDir}/Applications/Home Manager Trampolines/OrbStack.app"
+      "/Applications/Nix Apps/OrbStack.app"
 
       # Browsers
       "/Applications/Safari.app"
