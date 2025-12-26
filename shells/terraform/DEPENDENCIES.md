@@ -139,7 +139,7 @@ Run this to verify all tools are accessible:
 
 ```bash
 # Activate development environment
-nix develop ~/git/nix-config/main/feat/terraform/shells/terraform
+nix develop <path-to-your-nix-config-repo>/shells/terraform
 
 # Verify each tool
 echo "=== TERRAFORM TOOLS ==="

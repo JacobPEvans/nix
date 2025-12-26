@@ -150,7 +150,7 @@
               echo ""
               echo "INFRASTRUCTURE AS CODE:"
               echo "  - terraform: $(terraform version -json 2>/dev/null | jq -r '.terraform_version' 2>/dev/null || terraform version | head -1)"
-              echo "  - terragrunt: $(terragrunt --version 2>/dev/null | cut -d' ' -f2)"
+              echo "  - terragrunt: $(terragrunt --version 2>/dev/null | cut -d' ' -f3)"
               echo "  - opentofu: $(tofu version 2>/dev/null | head -1)"
               echo ""
               echo "VALIDATION & DOCUMENTATION:"

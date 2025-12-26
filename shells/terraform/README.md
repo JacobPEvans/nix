@@ -6,10 +6,10 @@ Complete Nix-based development environment for the terraform-proxmox project, wi
 
 ```bash
 # From terraform-proxmox project root
-nix develop ~/git/nix-config/main/feat/terraform/shells/terraform
+nix develop <path-to-your-nix-config-repo>/shells/terraform
 
 # Or with direnv (one-time setup)
-echo "use flake ~/git/nix-config/main/feat/terraform/shells/terraform" > .envrc
+echo "use flake <path-to-your-nix-config-repo>/shells/terraform" > .envrc
 direnv allow
 ```
 
@@ -76,10 +76,10 @@ pattern for your needs.
 
 ```bash
 # Manual activation
-nix develop ~/git/nix-config/main/feat/terraform/shells/terraform
+nix develop <path-to-your-nix-config-repo>/shells/terraform
 
 # Or with direnv (recommended)
-echo "use flake ~/git/nix-config/main/feat/terraform/shells/terraform" > .envrc
+echo "use flake <path-to-your-nix-config-repo>/shells/terraform" > .envrc
 direnv allow
 ```
 
@@ -262,7 +262,7 @@ proxmox_api_url = "https://proxmox.example.com:8006/api2/json"
 
 ```bash
 # Activate development shell
-nix develop ~/git/nix-config/main/feat/terraform/shells/terraform
+nix develop <path-to-your-nix-config-repo>/shells/terraform
 
 # Verify all tools
 terraform version
@@ -327,7 +327,7 @@ terraform-proxmox/
 
 ### "ansible: command not found"
 
-→ Run `nix develop ~/git/nix-config/main/feat/terraform/shells/terraform` first
+→ Run `nix develop <path-to-your-nix-config-repo>/shells/terraform` first
 
 ### "docker: Cannot connect to Docker daemon"
 
