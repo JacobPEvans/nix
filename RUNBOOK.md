@@ -72,7 +72,7 @@ ll@
 | Alias | Command | Purpose |
 |-------|---------|---------|
 | `d-r` | `sudo darwin-rebuild switch --flake .` | Rebuild system configuration |
-| `nf-u` | `nix flake update` | Update flake.lock to latest versions |
+| `nf-u` | `nix flake update --flake .` | Update flake.lock to latest versions |
 
 ### AWS
 
