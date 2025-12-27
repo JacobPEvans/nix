@@ -26,12 +26,7 @@ if [ ! -f "$SETTINGS" ]; then
   exit 0
 fi
 
-if ! command -v check-jsonschema > /dev/null 2>&1; then
-  echo "Note: check-jsonschema not found, skipping Claude settings validation" >&2
-  exit 0
-fi
-
-# Run validation - warn but don't fail activation
-check-jsonschema --schemafile "$SCHEMA_URL" "$SETTINGS" || {
+# Run validation using ephemeral nix shell - warn but don't fail activation
+nix shell nixpkgs#check-jsonschema -c check-jsonschema --schemafile "$SCHEMA_URL" "$SETTINGS" || {
   echo "Warning: Claude Code settings.json validation failed" >&2
 }

@@ -59,10 +59,10 @@ repos:
         exclude: ^worktrees/
         pass_filenames: false
 
-      # Claude Code settings validation - check-jsonschema installed via nix
+      # Claude Code settings validation - check-jsonschema via nix shell
       - id: validate-claude-settings
         name: Validate Claude settings
-        entry: check-jsonschema --schemafile https://json.schemastore.org/claude-code-settings.json
+        entry: nix shell nixpkgs#check-jsonschema -c check-jsonschema --schemafile https://json.schemastore.org/claude-code-settings.json
         language: system
         files: '\.claude/settings(\.local)?\.json$'
         types: [json]
