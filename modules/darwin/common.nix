@@ -175,6 +175,17 @@ in
     primaryUser = userConfig.user.name;
 
     activationScripts.preActivation.text = ''
+      # DEBUG: Enable command tracing for activation debugging
+      set -x
+
+      echo "[DEBUG] ========================================" >&2
+      echo "[DEBUG] preActivation: Starting" >&2
+      echo "[DEBUG] User: $(whoami)" >&2
+      echo "[DEBUG] UID: $(id -u)" >&2
+      echo "[DEBUG] systemConfig: $systemConfig" >&2
+      echo "[DEBUG] Current /run/current-system: $(readlink -f /run/current-system 2>&1 || echo 'FAILED TO READ')" >&2
+      echo "[DEBUG] ========================================" >&2
+
       # Trap signals to prevent leaving system in bad state if interrupted
       cleanup() {
         echo "❌ Activation interrupted - system may be in an inconsistent state" >&2
@@ -189,15 +200,25 @@ in
         echo "Check permissions and ensure running as root" >&2
         exit 1
       fi
+
+      echo "[DEBUG] preActivation: /run is writable" >&2
+      echo "[DEBUG] preActivation: Completed" >&2
     '';
 
     activationScripts.postActivation.text = ''
+      # DEBUG: Log that we reached postActivation
+      echo "[DEBUG] postActivation: Starting verification" >&2
+      echo "[DEBUG] systemConfig=$systemConfig" >&2
+
       # Verify /run/current-system points to this generation
       # This catches silent activation failures where the build succeeds but
       # the symlink update doesn't happen (permissions, interrupts, etc.)
       # NOTE: Does NOT exit on failure (would kill activation). Just warns.
       EXPECTED="$systemConfig"
       ACTUAL="$(readlink -f /run/current-system)"
+
+      echo "[DEBUG] EXPECTED=$EXPECTED" >&2
+      echo "[DEBUG] ACTUAL=$ACTUAL" >&2
 
       # Using POSIX-compliant [ ] test for portability
       if [ "$EXPECTED" != "$ACTUAL" ]; then
@@ -214,6 +235,8 @@ in
       else
         echo "✅ Activation verified: /run/current-system updated successfully" >&2
       fi
+
+      echo "[DEBUG] postActivation: Completed" >&2
     '';
 
     # macOS system version (required for nix-darwin)

@@ -210,6 +210,12 @@ After system updates or profile switches, these packages may vanish because:
 symlink was never updated to point to it. This is a silent failure - the command exits successfully
 but the activation didn't complete.
 
+**Current Status (as of 2024-12-26)**: PARTIALLY FIXED
+
+- ✅ **Fixed**: Marketplace directory conflicts that blocked activation (see below)
+- ⚠️ **Still Broken**: The `/run/current-system` symlink update issue persists
+- 📊 **Investigation**: Active debugging in progress to find root cause
+
 **Solution**:
 
 ```bash
@@ -225,12 +231,61 @@ readlink /run/current-system  # Should point to latest generation in /nix/var/ni
 
 **Why This Happens**:
 
+Known causes:
+
 - Interrupted activation (Ctrl+C, terminal closed, SSH disconnect)
 - Permission issues with `/run` directory preventing symlink update
 
-**Prevention**: The system now includes automatic activation verification hooks in
-`modules/darwin/common.nix` that detect and report this error loudly, so you won't silently run
-old binaries.
+Under investigation:
+
+- The `ln -sfn` command at the end of the activate script may be failing silently
+- Possible race condition or permission issue preventing symlink creation
+- The command exists in the activate script but may not be executing
+
+**Debugging Info**: The activate script contains the symlink update command at line ~1526:
+
+```bash
+ln -sfn "$(readlink -f "$systemConfig")" /run/current-system
+```
+
+This command should run AFTER all activation steps complete, but evidence suggests it's not
+executing successfully even though activation reaches that point.
+
+**Detection**: The system includes activation verification in `modules/darwin/common.nix` that
+warns (but does not block) when `/run/current-system` points to the wrong generation.
+
+---
+
+### Claude Code Marketplace Symlink Conflicts (FIXED)
+
+**Problem**: `darwin-rebuild switch` would crash with:
+
+```text
+cmp: /nix/store/.../superpowers-marketplace: Is a directory
+ln: /Users/jevans/.claude/plugins/marketplaces/superpowers-marketplace: cannot overwrite directory
+```
+
+**Root Cause**: Runtime plugin installs (via `/plugin install`) create real directories at
+`~/.claude/plugins/marketplaces/*`, but Nix tries to create symlinks at the same paths. This
+creates a conflict that blocks home-manager's `linkGeneration` phase.
+
+**Solution**: Fixed in `modules/home-manager/ai-cli/claude/plugins.nix` (PR #298):
+
+1. **Pre-linkGeneration Cleanup**: `cleanupMarketplaceDirectories` activation script runs BEFORE
+   `linkGeneration` to detect and move conflicting directories to `.backup` files
+2. **Post-linkGeneration Diff Report**: `reportMarketplaceDiffs` shows what changed between the
+   backed-up directory and new Nix-managed symlink
+3. **Single Backup**: Only one backup is kept (replaces old backups to avoid clutter)
+
+**Verification**: After rebuild, check for backup files:
+
+```bash
+ls -la ~/.claude/plugins/marketplaces/*.backup
+# Review diffs shown during activation
+# Manually delete backups when satisfied
+```
+
+**Status**: ✅ RESOLVED - Activation now completes successfully past this point
 
 ---
 
