@@ -8,7 +8,7 @@ allowed-tools:
   - "Glob(**)"
   - "Grep(**)"
   - "Bash(jq:*)"
-  - "Bash(check-jsonschema:*)"
+  - "Bash(nix shell:*)"
   - "Bash(whoami:*)"
   - "Bash(date:*)"
   - "Bash(pwd:*)"
@@ -44,7 +44,7 @@ Verify Claude Code settings and test that allowed commands run without prompts.
 
 1. **Check Settings File**: Read `~/.claude/settings.json`, verify valid JSON, confirm `permissions.allow` has 100+ entries
 
-2. **Validate Schema**: Run `check-jsonschema` against `https://json.schemastore.org/claude-code-settings.json`
+2. **Validate Schema**: Run `nix shell nixpkgs#check-jsonschema -c check-jsonschema` against `https://json.schemastore.org/claude-code-settings.json`
 
 3. **Test Single Command**: Run one command from this file's allowed-tools list
 
