@@ -118,13 +118,55 @@ sudo /nix/var/nix/profiles/system/activate
 - Fixed in PR #298: Marketplace directory conflicts that blocked activation
 - This issue is separate and pre-existing
 
-## Next Steps
+## Investigation Progress
 
-- [ ] Add set -x tracing to activation scripts
-- [ ] Add explicit logging before/after ln -sfn command
-- [ ] Add final verification after ln command
-- [ ] Run test rebuild with full logging
-- [ ] Analyze captured output
-- [ ] Identify root cause
+### Completed
+
+- ✅ Added set -x tracing to preActivation
+- ✅ Added DEBUG logging to show execution flow
+- ✅ Created debugging infrastructure:
+  - `scripts/debug-activation.sh`: Diagnose current state
+  - `scripts/test-rebuild-with-logging.sh`: Capture rebuild output
+  - `scripts/analyze-rebuild-logs.sh`: Analyze log files
+- ✅ Enhanced postActivation with detailed logging
+- ✅ Spawned research agent to investigate nix-darwin source code
+- ✅ Committed debugging infrastructure to git
+
+### In Progress
+
+- 🔄 Research agent investigating nix-darwin activation flow
+  - Analyzing darwin-rebuild.sh source code
+  - Examining activation-scripts.nix
+  - Researching GitHub issues and PRs
+  - Tracing systemConfig variable usage
+
+### Next Steps
+
+- [ ] Complete research agent investigation
+- [ ] Document research findings
+- [ ] Run test rebuild manually (requires sudo password)
+- [ ] Analyze captured logs
+- [ ] Identify root cause from combined research + logs
 - [ ] Implement fix
 - [ ] Verify fix works
+- [ ] Update documentation with solution
+
+## How to Use Debugging Tools
+
+### Check Current State
+
+```bash
+./scripts/debug-activation.sh
+```
+
+### Run Test Rebuild with Logging
+
+```bash
+sudo ./scripts/test-rebuild-with-logging.sh
+```
+
+### Analyze Logs
+
+```bash
+./scripts/analyze-rebuild-logs.sh /tmp/darwin-rebuild-debug/rebuild-*.log
+```
