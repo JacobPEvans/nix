@@ -23,11 +23,11 @@ Step-by-step procedures to verify this nix-darwin configuration is functioning c
 **Core test command for any nix configuration change.**
 
 ```bash
-sudo /nix/var/nix/profiles/system/activate && sudo darwin-rebuild switch --flake .
+sudo darwin-rebuild switch --flake .
 ```
 
-> **Note**: The activation prefix ensures the current-system symlink is updated
-> before rebuilding. This prevents activation verification failures.
+> **Note**: If this fails with activation verification errors, see
+> [Troubleshooting](#troubleshooting) for recovery steps.
 
 **Prerequisites:**
 
@@ -90,7 +90,7 @@ Validates the flake structure and runs checks. **Stop and fix any warnings or er
 ### 5. Full Rebuild
 
 ```bash
-sudo /nix/var/nix/profiles/system/activate && sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
+sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
 ```
 
 Applies the configuration to the system. **Stop and fix any warnings or errors.**
@@ -138,7 +138,7 @@ ls ~/.claude/agents/
 sudo darwin-rebuild --list-generations
 sudo darwin-rebuild --rollback
 # Then switch back
-sudo /nix/var/nix/profiles/system/activate && sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
+sudo darwin-rebuild switch --flake $NIX_CONFIG_DIR
 ```
 
 ---
@@ -186,7 +186,7 @@ For maximum freshness (takes longer):
 ```bash
 nix-collect-garbage -d
 nix store gc
-sudo /nix/var/nix/profiles/system/activate && sudo darwin-rebuild switch --flake .
+sudo darwin-rebuild switch --flake .
 ```
 
 ### Step 4: Verify New Derivations

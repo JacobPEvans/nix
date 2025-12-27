@@ -183,6 +183,25 @@ in
       }
       trap cleanup INT TERM
 
+      # Debug: Show state BEFORE activation
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+      echo "🔍 PRE-ACTIVATION STATE" >&2
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+      echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')" >&2
+      echo "Target systemConfig: $systemConfig" >&2
+      echo "" >&2
+      echo "Current symlinks:" >&2
+      echo "  /nix/var/nix/profiles/system -> $(readlink /nix/var/nix/profiles/system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "  /run/current-system -> $(readlink /run/current-system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "" >&2
+      echo "Resolved paths:" >&2
+      echo "  Profile: $(readlink -f /nix/var/nix/profiles/system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "  Current: $(readlink -f /run/current-system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "" >&2
+      echo "Stat of /run:" >&2
+      ls -ld /run >&2
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+
       # Verify /run is writable (required to update /run/current-system symlink)
       if [ ! -w /run ]; then
         echo "❌ ERROR: Cannot write to /run directory" >&2
@@ -192,6 +211,21 @@ in
     '';
 
     activationScripts.postActivation.text = ''
+      # Debug: Show state AFTER activation
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+      echo "🔍 POST-ACTIVATION STATE" >&2
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+      echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')" >&2
+      echo "" >&2
+      echo "Current symlinks:" >&2
+      echo "  /nix/var/nix/profiles/system -> $(readlink /nix/var/nix/profiles/system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "  /run/current-system -> $(readlink /run/current-system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "" >&2
+      echo "Resolved paths:" >&2
+      echo "  Profile: $(readlink -f /nix/var/nix/profiles/system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "  Current: $(readlink -f /run/current-system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+
       # Verify /run/current-system points to this generation
       # This catches silent activation failures where the build succeeds but
       # the symlink update doesn't happen (permissions, interrupts, etc.)
