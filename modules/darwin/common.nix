@@ -210,44 +210,29 @@ in
       fi
     '';
 
+    # NOTE: activationScripts.postActivation runs BEFORE nix-darwin updates
+    # the /run/current-system symlink. The symlink update happens at the
+    # very end of the activate script, AFTER all user activation scripts.
+    #
+    # Therefore, we CANNOT verify the symlink here - it won't be updated yet!
+    # The debug output below just shows the state at this point in activation.
     activationScripts.postActivation.text = ''
-      # Debug: Show state AFTER activation
+      # Debug: Show state at this point in activation
+      # NOTE: /run/current-system will NOT be updated yet - that happens AFTER
+      # all activationScripts complete. This is informational only.
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-      echo "🔍 POST-ACTIVATION STATE" >&2
+      echo "🔍 ACTIVATION PROGRESS (symlink update pending)" >&2
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
       echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')" >&2
+      echo "Target systemConfig: $systemConfig" >&2
       echo "" >&2
-      echo "Current symlinks:" >&2
+      echo "Current symlinks (not yet updated):" >&2
       echo "  /nix/var/nix/profiles/system -> $(readlink /nix/var/nix/profiles/system 2>/dev/null || echo 'NOT FOUND')" >&2
       echo "  /run/current-system -> $(readlink /run/current-system 2>/dev/null || echo 'NOT FOUND')" >&2
       echo "" >&2
-      echo "Resolved paths:" >&2
-      echo "  Profile: $(readlink -f /nix/var/nix/profiles/system 2>/dev/null || echo 'NOT FOUND')" >&2
-      echo "  Current: $(readlink -f /run/current-system 2>/dev/null || echo 'NOT FOUND')" >&2
+      echo "The /run/current-system symlink will be updated after all" >&2
+      echo "activation scripts complete (this is normal nix-darwin behavior)." >&2
       echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-
-      # Verify /run/current-system points to this generation
-      # This catches silent activation failures where the build succeeds but
-      # the symlink update doesn't happen (permissions, interrupts, etc.)
-      EXPECTED="$systemConfig"
-      ACTUAL="$(readlink -f /run/current-system)"
-
-      # Using POSIX-compliant [ ] test for portability
-      if [ "$EXPECTED" != "$ACTUAL" ]; then
-        echo "❌ ERROR: Activation verification failed" >&2
-        echo "Expected: $EXPECTED" >&2
-        echo "Actual:   $ACTUAL" >&2
-        echo "" >&2
-        echo "The /run/current-system symlink was not updated." >&2
-        echo "This is a critical error - the system is in an inconsistent state." >&2
-        echo "" >&2
-        echo "To fix this, run:" >&2
-        echo "  sudo /nix/var/nix/profiles/system/activate" >&2
-        echo "" >&2
-        exit 1
-      fi
-
-      echo "✅ Activation verified: /run/current-system updated successfully" >&2
     '';
 
     # macOS system version (required for nix-darwin)
