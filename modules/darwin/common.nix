@@ -176,7 +176,7 @@ in
 
     activationScripts = {
       preActivation.text = ''
-        echo "→ Starting activation (user: $(whoami), uid: $(id -u))" >&2
+        echo "→ Starting activation (user: $(whoami), uid: $(id -u))"
 
         # Trap signals to prevent leaving system in bad state if interrupted
         cleanup() {
@@ -201,8 +201,8 @@ in
         # shellcheck disable=SC2012
         TIMESTAMPS=$(ls -ldT "$systemConfig" 2>/dev/null | awk '{print $6, $7, $8, $9}')
 
-        echo "✅ Activation complete → $systemConfig" >&2
-        echo "   Timestamp: $TIMESTAMPS" >&2
+        echo "✅ Activation complete → $systemConfig"
+        echo "   Timestamp: $TIMESTAMPS"
       '';
     };
 
