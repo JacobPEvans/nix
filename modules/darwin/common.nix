@@ -197,7 +197,11 @@ in
       # Runs after all activation scripts, just before symlink update
       # NOTE: Can't verify /run/current-system here - it updates after this script
       postActivation.text = ''
+        # Get timestamps using ls -lT (macOS format: Mon DD HH:MM:SS YYYY)
+        TIMESTAMPS=$(ls -ldT "$systemConfig" 2>/dev/null | awk '{print $6, $7, $8, $9}')
+
         echo "✅ Activation complete → $systemConfig" >&2
+        echo "   Timestamp: $TIMESTAMPS" >&2
       '';
     };
 
