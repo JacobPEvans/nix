@@ -90,40 +90,14 @@ in
       ai-assistant-instructions = {
         enabled = true;
         path = autoClaudeLocalRepoPath;
-        schedule.hours = [
-          0
-          2
-          4
-          6
-          8
-          10
-          12
-          14
-          16
-          18
-          20
-          22
-        ]; # Every 2 hours
+        schedule.hours = lib.lists.genList (i: i * 2) 12; # Every 2 hours (0, 2, 4, ..., 22)
         maxBudget = 20.0;
       };
       # nix config: enabled with odd-hour schedule (staggered to prevent concurrent runs)
       nix = {
         enabled = true;
         path = "${config.home.homeDirectory}/.config/nix";
-        schedule.hours = [
-          1
-          3
-          5
-          7
-          9
-          11
-          13
-          15
-          17
-          19
-          21
-          23
-        ]; # Every 2 hours (offset)
+        schedule.hours = lib.lists.genList (i: i * 2 + 1) 12; # Every 2 hours, offset (1, 3, 5, ..., 23)
         maxBudget = 20.0;
       };
     };
