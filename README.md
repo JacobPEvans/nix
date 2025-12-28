@@ -89,6 +89,7 @@ See [shells/README.md](shells/README.md) for all available shells.
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and solutions |
 | [CLAUDE.md](CLAUDE.md) | AI agent instructions |
 | [docs/ANTHROPIC-ECOSYSTEM.md](docs/ANTHROPIC-ECOSYSTEM.md) | Claude Code integration reference |
+| [docs/MONITORING.md](docs/MONITORING.md) | Auto-Claude monitoring and observability setup |
 
 ## Contributing
 
