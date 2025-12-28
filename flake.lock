@@ -115,11 +115,11 @@
     "claude-powerline": {
       "flake": false,
       "locked": {
-        "lastModified": 1766287678,
-        "narHash": "sha256-CclGP8GJbaR1A73On2TpBgrqkV5Dupn7fesDPSh4P8c=",
+        "lastModified": 1766893597,
+        "narHash": "sha256-PbGocvvpG0wVOA1Te2zDOAZYS6HBrbIvzVvlTdkfgeI=",
         "owner": "Owloops",
         "repo": "claude-powerline",
-        "rev": "c486f55f98b1feb9c5e25fa78b86708c3f521728",
+        "rev": "069be73f7443a196da0fc8f0bc357848e56b6995",
         "type": "github"
       },
       "original": {
