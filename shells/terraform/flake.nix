@@ -53,18 +53,11 @@
               terrascan
               tfsec
               trivy
-              infracost
 
-              # === Configuration Management ===
-              ansible
-              ansible-lint
-              molecule
-              python3
-              git
-
-              # === Cloud & Containers ===
+              # === Cloud & Development ===
               awscli2
-              docker
+              git
+              python3
 
               # === Utilities ===
               jq
@@ -74,7 +67,7 @@
             shellHook = ''
               {
                 echo "═══════════════════════════════════════════════════════════════"
-                echo "Terraform/Terragrunt & Ansible Development Environment"
+                echo "Terraform/Terragrunt Infrastructure as Code Environment"
                 echo "═══════════════════════════════════════════════════════════════"
                 echo ""
                 echo "Infrastructure as Code:"
@@ -82,13 +75,12 @@
                 echo "  - terragrunt: $(terragrunt --version 2>/dev/null | cut -d' ' -f3)"
                 echo "  - opentofu: $(tofu version 2>/dev/null | head -1)"
                 echo ""
-                echo "Configuration Management:"
-                echo "  - ansible: $(ansible --version 2>/dev/null | head -1)"
-                echo "  - molecule: $(molecule --version 2>/dev/null)"
+                echo "Security & Compliance:"
+                echo "  - checkov: $(checkov --version 2>/dev/null)"
+                echo "  - tfsec: $(tfsec --version 2>/dev/null)"
                 echo ""
-                echo "Cloud & Container:"
+                echo "Cloud:"
                 echo "  - aws-cli: $(aws --version 2>/dev/null)"
-                echo "  - docker: $(docker --version 2>/dev/null)"
                 echo ""
                 echo "Getting Started:"
                 echo "  1. Configure AWS credentials: aws configure"
