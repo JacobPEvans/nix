@@ -44,13 +44,14 @@ let
     # ========================================================================
     # Official Anthropic Marketplaces
     # ========================================================================
-    "claude-code" = {
+    # Keys must be full GitHub paths (owner/repo) for correct transformation
+    "anthropics/claude-code" = {
       source = {
         type = "github";
         url = "anthropics/claude-code";
       };
     };
-    "claude-plugins-official" = {
+    "anthropics/claude-plugins-official" = {
       source = {
         type = "github";
         url = "anthropics/claude-plugins-official";
@@ -60,19 +61,19 @@ let
     # ========================================================================
     # Community Marketplaces
     # ========================================================================
-    "cc-marketplace" = {
+    "ananddtyagi/cc-marketplace" = {
       source = {
         type = "github";
         url = "ananddtyagi/cc-marketplace";
       };
     };
-    "bills-claude-skills" = {
+    "BillChirico/bills-claude-skills" = {
       source = {
         type = "github";
         url = "BillChirico/bills-claude-skills";
       };
     };
-    "superpowers-marketplace" = {
+    "obra/superpowers-marketplace" = {
       source = {
         type = "github";
         url = "obra/superpowers-marketplace";
@@ -82,19 +83,19 @@ let
     # ========================================================================
     # Infrastructure & DevOps Marketplaces
     # ========================================================================
-    "lunar-claude" = {
+    "basher83/lunar-claude" = {
       source = {
         type = "github";
         url = "basher83/lunar-claude";
       };
     };
-    "claude-code-plugins-plus" = {
+    "jeremylongshore/claude-code-plugins-plus" = {
       source = {
         type = "github";
         url = "jeremylongshore/claude-code-plugins-plus";
       };
     };
-    "agents" = {
+    "wshobson/agents" = {
       source = {
         type = "github";
         url = "wshobson/agents";
