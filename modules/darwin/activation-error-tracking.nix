@@ -19,7 +19,8 @@
 {
   # Post-activation script that wraps home-manager activation
   # Captures exit codes and allows script to continue
-  system.activationScripts.postActivation.text = lib.mkAfter ''
+  # Uses mkBefore to ensure functions are available to other activation scripts
+  system.activationScripts.postActivation.text = lib.mkBefore ''
     # ====================================================================
     # Activation Error Tracking & Resilience
     # ====================================================================
@@ -35,15 +36,15 @@
       local phase_name="$1"
       local exit_code="$2"
       # shellcheck disable=SC2034
-      local phase_duration=$(($(date '+%s') - PHASE_START_TIME))
+      local elapsed_time=$(($(date '+%s') - PHASE_START_TIME))
 
       if [ "$exit_code" -ne 0 ]; then
         TOTAL_PHASES_FAILED=$((TOTAL_PHASES_FAILED + 1))
         ACTIVATION_PHASES_FAILED="''${ACTIVATION_PHASES_FAILED}
-        - $phase_name (exit $exit_code, duration: $${phase_duration}s)"
-        echo "[$(date '+%H:%M:%S')] [WARN] Activation phase '$phase_name' returned exit code $exit_code (duration: $${phase_duration}s)" >&2
+        - $phase_name (exit $exit_code, elapsed: $${elapsed_time}s)"
+        echo "[$(date '+%H:%M:%S')] [WARN] Activation phase '$phase_name' returned exit code $exit_code (elapsed: $${elapsed_time}s)" >&2
       else
-        echo "[$(date '+%H:%M:%S')] [DEBUG] Activation phase '$phase_name' completed successfully (duration: $${phase_duration}s)" >&2
+        echo "[$(date '+%H:%M:%S')] [DEBUG] Activation phase '$phase_name' completed successfully (elapsed: $${elapsed_time}s)" >&2
       fi
     }
 
@@ -53,8 +54,8 @@
       echo "[$(date '+%H:%M:%S')] [INFO] Activation Complete" >&2
       echo "[$(date '+%H:%M:%S')] [INFO] ============================================" >&2
 
-      if [ "$TOTAL_PHASES_FAILED" -gt 0 ]; then
-        echo "[$(date '+%H:%M:%S')] [WARN] $TOTAL_PHASES_FAILED activation phase(s) had non-zero exit codes:" >&2
+      if [ "''${TOTAL_PHASES_FAILED}" -gt 0 ]; then
+        echo "[$(date '+%H:%M:%S')] [WARN] ''${TOTAL_PHASES_FAILED} activation phase(s) had non-zero exit codes:" >&2
         echo "''${ACTIVATION_PHASES_FAILED}" >&2
         echo "[$(date '+%H:%M:%S')] [INFO] Note: Some phases may succeed despite returning non-zero exit codes" >&2
         echo "[$(date '+%H:%M:%S')] [INFO] Check /run/current-system symlink to verify if activation actually succeeded" >&2

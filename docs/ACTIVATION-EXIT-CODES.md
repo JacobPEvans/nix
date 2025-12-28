@@ -38,7 +38,7 @@ Check if the system was actually updated:
 ```bash
 # Check if /run/current-system was updated
 readlink /run/current-system
-stat /run/current-system | grep Modify
+ls -l /run/current-system
 
 # Compare with expected generation
 nix flake show --allow-dirty | grep darwinConfigurations
