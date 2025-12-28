@@ -65,7 +65,6 @@
               # === Cloud & Containers ===
               awscli2
               docker
-              proxmox-backup-client
 
               # === Utilities ===
               jq
