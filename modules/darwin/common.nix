@@ -1,10 +1,20 @@
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  llm-agents,
+  ...
+}:
 
 let
   userConfig = import ../../lib/user-config.nix;
 
   # Universal packages (pre-commit, linters) shared across all systems
   commonPackages = import ../common/packages.nix { inherit pkgs; };
+
+  # LLM Agents packages from numtide/llm-agents.nix flake
+  # Daily-updated packages with binary cache for faster builds
+  # https://github.com/numtide/llm-agents.nix
+  llmAgentsPkgs = llm-agents.packages.${pkgs.system};
 in
 {
   imports = [
@@ -75,11 +85,24 @@ in
       # ========================================================================
       # Development tools
       # ========================================================================
-      claude-code # Anthropic's agentic coding CLI
-      claude-monitor # Real-time Claude Code usage monitor
-      gemini-cli # Google's Gemini CLI
-      opencode # Provider-agnostic AI coding agent
       gh # GitHub CLI
+    ])
+    # ========================================================================
+    # AI Coding Agents (from numtide/llm-agents.nix)
+    # Daily-updated packages with binary cache
+    # https://github.com/numtide/llm-agents.nix
+    # ========================================================================
+    ++ [
+      llmAgentsPkgs.claude-code # Anthropic's agentic coding CLI
+      llmAgentsPkgs.crush # Charmbracelet's AI coding agent (successor to OpenCode)
+      llmAgentsPkgs.gemini-cli # Google's Gemini CLI
+      llmAgentsPkgs.copilot-cli # GitHub Copilot CLI
+      llmAgentsPkgs.goose-cli # Block's open-source AI agent
+      # llmAgentsPkgs.codex # OpenAI Codex agent (enable if needed)
+      # llmAgentsPkgs.qwen-code # Alibaba's Qwen3-Coder (enable if needed)
+    ]
+    ++ (with pkgs; [
+      claude-monitor # Real-time Claude Code usage monitor (nixpkgs)
 
       mas # Mac App Store CLI (search: mas search <app>, install: mas install <id>)
       nodejs # Node.js LTS (nixpkgs default tracks current LTS)

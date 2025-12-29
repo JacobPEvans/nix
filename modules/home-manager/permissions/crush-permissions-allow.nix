@@ -1,11 +1,11 @@
-# OpenCode Auto-Approved Commands (ALLOW List)
+# Crush Auto-Approved Commands (ALLOW List)
 #
 # Uses unified permission definitions from ai-cli/common/permissions.nix
-# with OpenCode-specific formatting via formatters.nix.
+# with Crush-specific formatting via formatters.nix.
 #
 # SINGLE SOURCE OF TRUTH:
 # Command definitions are in ai-cli/common/permissions.nix
-# This file only applies OpenCode-specific formatting.
+# This file only applies Crush-specific formatting.
 
 {
   config,
@@ -21,8 +21,8 @@ let
 in
 {
   # Export allowedCommands list (auto-approved commands)
-  # OpenCode config format TBD - currently passes through raw commands
-  allowedCommands = formatters.opencode.formatShellCommands (
+  # Crush uses shell_allowlist in permissions config
+  allowedCommands = formatters.crush.formatShellCommands (
     formatters.utils.flattenCommands permissions.allow
   );
 }
