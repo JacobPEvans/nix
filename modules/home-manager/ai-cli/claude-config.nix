@@ -90,14 +90,21 @@ in
       ai-assistant-instructions = {
         enabled = true;
         path = autoClaudeLocalRepoPath;
-        schedule.hours = lib.lists.genList (i: i * 2) 12; # Every 2 hours (0, 2, 4, ..., 22)
+        schedule.hours = lib.lists.genList (i: i * 3) 8; # Every 3 hours (0, 3, 6, 9, 12, 15, 18, 21)
         maxBudget = 20.0;
       };
-      # nix config: enabled with odd-hour schedule (staggered to prevent concurrent runs)
+      # nix config: enabled with staggered schedule (offset 1, 4, 7, ... to prevent concurrent runs)
       nix = {
         enabled = true;
         path = "${config.home.homeDirectory}/.config/nix";
-        schedule.hours = lib.lists.genList (i: i * 2 + 1) 12; # Every 2 hours, offset (1, 3, 5, ..., 23)
+        schedule.hours = lib.lists.genList (i: i * 3 + 1) 8; # Every 3 hours, offset (1, 4, 7, 10, 13, 16, 19, 22)
+        maxBudget = 20.0;
+      };
+      # terraform-proxmox: enabled with staggered schedule (offset 2 to prevent concurrent runs)
+      terraform-proxmox = {
+        enabled = true;
+        path = "${config.home.homeDirectory}/.config/terraform-proxmox";
+        schedule.hours = lib.lists.genList (i: i * 3 + 2) 8; # Every 3 hours, offset (2, 5, 8, 11, 14, 17, 20, 23)
         maxBudget = 20.0;
       };
     };
