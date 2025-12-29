@@ -115,6 +115,7 @@ Each agent has its own configuration:
 
 ## Related Documentation
 
+- [Autonomous Agents](AUTONOMOUS-AGENTS.md) - OpenHands, Ellipsis, Copilot Agent
 - [Crush AI Agent](CRUSH.md) - Detailed Crush configuration
 - [Anthropic Ecosystem](ANTHROPIC-ECOSYSTEM.md) - Claude Code ecosystem
 - [Permissions](PERMISSIONS.md) - Unified permission system
