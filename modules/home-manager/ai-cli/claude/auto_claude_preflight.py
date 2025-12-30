@@ -203,6 +203,25 @@ def check_git_status(target_dir: str) -> dict:
     return result
 
 
+def check_issue_limits(target_dir: str, force_run: bool = False) -> dict:
+    """Block if >= 50 ai-created issues exist."""
+    if force_run:
+        return {"ok": True, "count": 0, "message": "Bypassed (force)"}
+
+    try:
+        result = subprocess.run(
+            ["gh", "issue", "list", "--state", "open", "--label", "ai-created", "--json", "number"],
+            cwd=target_dir, capture_output=True, text=True, check=True,
+        )
+        count = len(json.loads(result.stdout))
+        if count >= 50:
+            return {"ok": False, "count": count, "message": f"Blocked: {count} ai-created issues (limit: 50)"}
+        return {"ok": True, "count": count, "message": f"OK: {count} ai-created issues"}
+    except Exception:
+        # Don't block on gh errors - repo might not have issues
+        return {"ok": True, "count": -1, "message": "Warning: gh check failed"}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Auto-Claude preflight checks")
     parser.add_argument("command", choices=["check-control", "resolve-channel", "check-git", "all"])
@@ -246,6 +265,7 @@ def main():
             "control": check_control_file(force_run=args.force),
             "channel": resolve_slack_channel(args.target_dir),
             "git": check_git_status(args.target_dir),
+            "issues": check_issue_limits(args.target_dir, force_run=args.force),
         }
 
         # Determine overall status
@@ -255,6 +275,9 @@ def main():
         elif not results["git"]["ok"]:
             results["status"] = "error"
             results["reason"] = results["git"]["message"]
+        elif not results["issues"]["ok"]:
+            results["status"] = "error"
+            results["reason"] = results["issues"]["message"]
         else:
             results["status"] = "ok"
             results["reason"] = None
