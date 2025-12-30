@@ -6,7 +6,6 @@ Tests for keychain_error_handler module.
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
 from keychain_error_handler import emit_keychain_error_event
 

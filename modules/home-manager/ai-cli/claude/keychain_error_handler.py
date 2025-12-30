@@ -55,20 +55,24 @@ def main():
     args = parser.parse_args()
 
     if args.command == "emit":
-        events_log = Path.home() / ".claude/logs/events.jsonl"
-        events_log.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            events_log = Path.home() / ".claude/logs/events.jsonl"
+            events_log.parent.mkdir(parents=True, exist_ok=True)
 
-        event = emit_keychain_error_event(
-            events_log,
-            args.run_id,
-            args.repo,
-            args.service,
-            args.account,
-            args.exit_code,
-            args.error_message,
-        )
-        print(f"Keychain error event emitted: {event['timestamp']}")
-        return 0
+            event = emit_keychain_error_event(
+                events_log,
+                args.run_id,
+                args.repo,
+                args.service,
+                args.account,
+                args.exit_code,
+                args.error_message,
+            )
+            print(f"Keychain error event emitted: {event['timestamp']}")
+            return 0
+        except (OSError, IOError) as e:
+            print(f"Failed to emit keychain error event: {e}", file=sys.stderr)
+            return 1
 
     return 1
 
