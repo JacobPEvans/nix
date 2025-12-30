@@ -82,10 +82,11 @@ These limits are NON-NEGOTIABLE. Check them before any action.
    Check: gh pr list --author @me --state open --json number | jq length
    If >= 10: Do NOT create new PRs. Focus on resolving existing ones.
 
-2. MAX 50 OPEN ISSUES
-   Check: gh issue list --state open --json number | jq length
-   If >= 50: Do NOT create new issues. Skip issue creation steps entirely.
-   Instead: Log a warning event and proceed to next priority task.
+2. MAX 50 AI-CREATED ISSUES (HARD ENFORCED)
+   The preflight check BLOCKS execution if >= 50 ai-created issues exist.
+   Do NOT create issues if approaching this limit.
+
+   Issue titles MUST use conventional commit format: feat|fix|docs|chore|ci|refactor|test|perf
 
 3. MAX 1 AUTO-CLAUDE COMMENT PER ISSUE/PR PER RUN
    Before commenting on any issue or PR, check if auto-claude has already commented:
