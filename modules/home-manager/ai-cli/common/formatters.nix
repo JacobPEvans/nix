@@ -7,7 +7,7 @@
 # - Claude Code: Bash(cmd:*) for shell, Read(**) for file tools
 # - Gemini CLI: ShellTool(cmd) for shell, ReadFileTool for file tools
 # - Copilot CLI: shell(cmd) patterns for runtime flags
-# - OpenCode: TBD (placeholder for future)
+# - Crush: shell_allowlist for permissions config
 
 { lib }:
 
@@ -176,13 +176,17 @@ in
   };
 
   # ============================================================================
-  # OPENCODE FORMATTER (Placeholder)
+  # CRUSH FORMATTER
   # ============================================================================
-  # Format: TBD - will be implemented when OpenCode integration is added
+  # Format: Direct command strings for shell_allowlist in crush.json permissions
+  # Crush uses simple command strings without special formatting
+  # Reference: https://github.com/charmbracelet/crush
 
-  opencode = {
-    # Placeholder - format will be determined during OpenCode integration
+  crush = {
+    # Format a single shell command for Crush (passthrough)
     formatShellCommand = cmd: cmd;
+
+    # Format a list of shell commands (passthrough)
     formatShellCommands = cmds: cmds;
   };
 

@@ -26,7 +26,6 @@ _:
     "monitoring-observability-specialist@cc-marketplace" = true;
     "pr-issue-resolve@cc-marketplace" = true;
     "python-expert@cc-marketplace" = true;
-    "sugar@cc-marketplace" = true;
 
     # ========================================================================
     # Bills Claude Skills
