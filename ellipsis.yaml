@@ -1,0 +1,59 @@
+# Ellipsis AI Code Review Configuration
+# https://docs.ellipsis.dev/
+#
+# Ellipsis automatically reviews every PR, flagging issues and suggesting fixes.
+# Tag @ellipsis-dev in comments to request AI-powered fixes.
+#
+# PREREQUISITE: Install Ellipsis GitHub App at https://ellipsis.dev/
+# This file only takes effect after the app is installed.
+
+version: 1.0
+
+# Custom style guide rules (enforced on all PRs)
+# These are natural language rules that Ellipsis will check
+rules:
+  # Nix-specific rules
+  - "All Nix files must follow nixfmt-rfc-style formatting"
+  - "Prefer declarative configuration over imperative shell scripts"
+  - "Use lib.mkIf for conditional configuration, not if-then-else"
+  - "Avoid hardcoded paths; use config.home.homeDirectory or similar"
+
+  # Code organization
+  - "Each module should be under 200 lines; split larger files"
+  - "Comments should explain 'why', not 'what'"
+  - "Keep related configuration together in logical modules"
+
+  # Security
+  - "Never commit secrets, API keys, or credentials"
+  - "Use environment variables or secret managers for sensitive data"
+  - "Prefer nix store paths over hardcoded system paths"
+
+  # AI CLI specific
+  - "AI CLI configurations should use the unified permission system"
+  - "Prefer llm-agents.nix packages over nixpkgs for AI tools"
+
+# Files and directories to ignore during review
+ignore:
+  - "*.lock"
+  - "flake.lock"
+  - "result"
+  - "result-*"
+  - ".direnv/"
+  - ".git/"
+
+# Review behavior settings
+review:
+  # Don't auto-approve PRs (require human review)
+  auto_approve: false
+
+  # Request changes for critical issues
+  request_changes_on_errors: true
+
+  # Comment on all issues, not just critical ones
+  comment_on_all: true
+
+# Paths that require extra scrutiny
+sensitive_paths:
+  - "flake.nix"
+  - "modules/darwin/security.nix"
+  - ".github/workflows/"

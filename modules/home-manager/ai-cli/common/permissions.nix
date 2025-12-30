@@ -13,7 +13,7 @@
 # - Claude: Bash(cmd:*), Read(**), etc.
 # - Gemini: ShellTool(cmd), ReadFileTool, etc.
 # - Copilot: shell(cmd) patterns (runtime flags)
-# - OpenCode: TBD
+# - Crush: shell_allowlist patterns
 
 {
   lib,
