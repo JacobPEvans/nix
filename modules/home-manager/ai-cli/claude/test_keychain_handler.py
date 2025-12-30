@@ -61,6 +61,12 @@ def test_emit_keychain_error_event_no_account():
         assert event["account"] == "unknown"
         assert event["exit_code"] == 127
 
+        # Verify event was written to log
+        assert events_log.exists()
+        with open(events_log) as f:
+            logged = json.loads(f.read().strip())
+            assert logged == event
+
 
 if __name__ == "__main__":
     test_emit_keychain_error_event()

@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Optional
@@ -56,7 +57,7 @@ def main():
 
     if args.command == "emit":
         try:
-            events_log = Path.home() / ".claude/logs/events.jsonl"
+            events_log = Path(os.environ.get("CLAUDE_EVENTS_LOG", str(Path.home() / ".claude/logs/events.jsonl")))
             events_log.parent.mkdir(parents=True, exist_ok=True)
 
             event = emit_keychain_error_event(
@@ -73,8 +74,6 @@ def main():
         except (OSError, IOError) as e:
             print(f"Failed to emit keychain error event: {e}", file=sys.stderr)
             return 1
-
-    return 1
 
 
 if __name__ == "__main__":
