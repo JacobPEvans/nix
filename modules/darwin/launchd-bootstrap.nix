@@ -17,7 +17,7 @@
 #
 # Once nix-darwin fixes #1255 upstream, this module can be removed.
 #
-# See: docs/NIX-BOOT-FAILURE.md for full documentation
+# See: docs/boot-failure/ for full documentation
 
 {
   config,
@@ -44,13 +44,13 @@
         if ! /bin/launchctl print system/"$label" >/dev/null 2>&1; then
           echo "[$(date '+%H:%M:%S')] [INFO] Bootstrapping $label..."
           if /bin/launchctl bootstrap system "$plist" 2>/dev/null; then
-            ((bootstrap_count++))
+            bootstrap_count=$((bootstrap_count + 1))
             echo "[$(date '+%H:%M:%S')] [INFO] ✓ Successfully bootstrapped $label"
           else
             echo "[$(date '+%H:%M:%S')] [WARN] Failed to bootstrap $label (may already be partially loaded)" >&2
           fi
         else
-          ((already_loaded++))
+          already_loaded=$((already_loaded + 1))
           echo "[$(date '+%H:%M:%S')] [DEBUG] $label already loaded"
         fi
       fi
