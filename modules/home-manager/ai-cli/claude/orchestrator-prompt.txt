@@ -92,7 +92,7 @@ Preflight returns an enforcement_mode in JSON:
 - PAUSED: Hard limit hit, run skipped
 
 Issue:PR Ratio Gate
-When ratio > 3 (many issues, few PRs), shift focus:
+When ratio > 3 and PR count < 5 (many issues, few PRs), shift focus:
 - Skip creating new issues
 - Focus on creating PRs that close existing issues
 - Run /consolidate-issues to reduce issue count

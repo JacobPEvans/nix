@@ -532,9 +532,9 @@ def blocks_cross_issue_update(
 
     # Add issues if provided
     if issues:
-        issues_text = ", ".join(f"#{escape_slack_markdown(str(i))}" for i in issues[:10])
-        if len(issues) > 10:
-            issues_text += f" _...and {len(issues) - 10} more_"
+        issues_text = ", ".join(f"#{escape_slack_markdown(str(i))}" for i in issues[:MAX_DISPLAY_ITEMS])
+        if len(issues) > MAX_DISPLAY_ITEMS:
+            issues_text += f" _...and {len(issues) - MAX_DISPLAY_ITEMS} more_"
         blocks.append({
             "type": "section",
             "text": {"type": "mrkdwn", "text": f"*Issues:* {issues_text}"},
@@ -542,9 +542,9 @@ def blocks_cross_issue_update(
 
     # Add PRs if provided
     if prs:
-        prs_text = ", ".join(f"#{escape_slack_markdown(str(p))}" for p in prs[:10])
-        if len(prs) > 10:
-            prs_text += f" _...and {len(prs) - 10} more_"
+        prs_text = ", ".join(f"#{escape_slack_markdown(str(p))}" for p in prs[:MAX_DISPLAY_ITEMS])
+        if len(prs) > MAX_DISPLAY_ITEMS:
+            prs_text += f" _...and {len(prs) - MAX_DISPLAY_ITEMS} more_"
         blocks.append({
             "type": "section",
             "text": {"type": "mrkdwn", "text": f"*PRs:* {prs_text}"},
@@ -571,16 +571,16 @@ def cmd_run_skipped(args):
 def cmd_session_summary(args):
     """Handle session_summary event - posts to Slack thread, NOT GitHub."""
     token = get_slack_token()
-    findings = args.findings.split("|") if args.findings else []
-    recommendations = args.recommendations.split("|") if args.recommendations else []
+    findings = [f.strip() for f in args.findings.split("|")] if args.findings else []
+    recommendations = [r.strip() for r in args.recommendations.split("|")] if args.recommendations else []
     stats = {}
-    if args.total_issues:
+    if args.total_issues is not None:
         stats["total_issues"] = args.total_issues
-    if args.ai_created:
+    if args.ai_created is not None:
         stats["ai_created"] = args.ai_created
-    if args.pr_count:
+    if args.pr_count is not None:
         stats["pr_count"] = args.pr_count
-    if args.ratio:
+    if args.ratio is not None:
         stats["ratio"] = args.ratio
 
     blocks, text = blocks_session_summary(findings, recommendations, args.mode, stats if stats else None)
