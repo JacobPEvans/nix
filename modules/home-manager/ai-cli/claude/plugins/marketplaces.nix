@@ -3,7 +3,7 @@
 # Defines available plugin marketplaces for Claude Code.
 # Plugins are fetched on-demand when enabled.
 #
-# IMPORTANT: Marketplace URL Format
+# IMPORTANT: Marketplace URL Format and Plugin References
 # ========================================================================
 # INPUT FORMAT (what we define here):
 #   type: "github"     (for GitHub repositories)
@@ -13,10 +13,17 @@
 #   source: "github"
 #   repo: "marketplace-key"
 #
+# MARKETPLACE DISPLAY NAMES:
+# - Marketplace key in this file: "owner/repo" format (e.g., "wakatime/claude-code-wakatime")
+# - Display name in Claude Code: repo name only (e.g., "claude-code-wakatime")
+#   This is extracted by getMarketplaceName = lib.last (lib.splitString "/" name)
+# - Plugin references use: "plugin-name@display-name" (e.g., "claude-code-wakatime@claude-code-wakatime")
+#   NOT "plugin-name@owner" - this is a common mistake!
+#
 # WHY THIS WORKS:
 # - The toClaudeMarketplaceFormat function (lib/claude-registry.nix)
 #   converts both "github" and "git" types to "source: github"
-# - The marketplace key becomes the repo value
+# - The marketplace key becomes the repo value in settings.json
 # - This ensures Claude Code can locate and fetch the marketplace
 # ========================================================================
 
@@ -93,6 +100,16 @@ let
       source = {
         type = "github";
         url = "wshobson/agents";
+      };
+    };
+
+    # ========================================================================
+    # Time Tracking & Monitoring Marketplaces
+    # ========================================================================
+    "wakatime/claude-code-wakatime" = {
+      source = {
+        type = "github";
+        url = "wakatime/claude-code-wakatime";
       };
     };
   };

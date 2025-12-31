@@ -62,12 +62,43 @@ in
       };
     };
 
-    # Activation script for directory setup
-    home.activation.claudeSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      # Create local marketplace directory for hybrid mode
-      ${lib.optionalString cfg.plugins.allowRuntimeInstall ''
-        mkdir -p "${config.home.homeDirectory}/.claude/plugins/marketplaces/local"
-      ''}
-    '';
+    # Activation scripts for directory and config setup
+    home.activation = {
+      # Claude setup - create local marketplace directory with marketplace.json
+      claudeSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        # Create local marketplace directory for hybrid mode
+        ${lib.optionalString cfg.plugins.allowRuntimeInstall ''
+                    MARKETPLACE_DIR="${config.home.homeDirectory}/.claude/plugins/marketplaces/local"
+                    mkdir -p "$MARKETPLACE_DIR/.claude-plugin"
+
+                    # Create marketplace.json if it doesn't exist
+                    if [ ! -f "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" ]; then
+                      $DRY_RUN_CMD cat > "$MARKETPLACE_DIR/.claude-plugin/marketplace.json" <<'EOF'
+          {"id":"local","plugins":[]}
+          EOF
+                    fi
+        ''}
+      '';
+
+      # WakaTime config file - created once with placeholder API key
+      # User must edit ~/.wakatime.cfg and replace waka_YOUR-API-KEY-HERE with real key
+      # See: https://wakatime.com/settings/account
+      wakatimeConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+                WAKATIME_CFG="$HOME/.wakatime.cfg"
+
+                if [ ! -f "$WAKATIME_CFG" ]; then
+                  $DRY_RUN_CMD cat > "$WAKATIME_CFG" <<'EOF'
+        [settings]
+        api_key = waka_YOUR-API-KEY-HERE
+        EOF
+                  $DRY_RUN_CMD chmod 600 "$WAKATIME_CFG"
+                  echo "Created $WAKATIME_CFG with placeholder API key"
+                  echo "Edit this file and replace waka_YOUR-API-KEY-HERE with your real key"
+                  echo "Get your API key from: https://wakatime.com/settings/account"
+                else
+                  echo "WakaTime config already exists at $WAKATIME_CFG (not overwriting)"
+                fi
+      '';
+    };
   };
 }
