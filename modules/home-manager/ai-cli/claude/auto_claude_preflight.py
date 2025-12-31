@@ -312,18 +312,149 @@ def check_issue_limits(target_dir: str, force_run: bool = False) -> dict:
             cwd=target_dir, capture_output=True, text=True, check=True,
         )
         count = len(json.loads(result.stdout))
-        if count >= 50:
+        if count >= 25:
             # Still return ok=True to allow auto-claude to continue, but signal to skip issues
             return {
                 "ok": True,
                 "count": count,
                 "skip_issue_creation": True,
-                "message": f"Issue limit reached ({count}/50). Skipping issue creation."
+                "message": f"AI-created issue limit reached ({count}/25). Skipping issue creation."
             }
         return {"ok": True, "count": count, "skip_issue_creation": False, "message": f"OK: {count} ai-created issues"}
     except Exception as e:
         # Don't block on gh errors, but log the exception for debugging
         return {"ok": True, "count": -1, "skip_issue_creation": False, "message": f"Warning: gh issue check failed: {e}"}
+
+
+def check_issue_totals(target_dir: str, force_run: bool = False) -> dict:
+    """Check hard limits: 50 total issues max, 25 ai-created max.
+
+    Returns enforcement mode:
+    - NORMAL: All limits OK, proceed normally
+    - CONSOLIDATION: AI-created limit hit, focus on consolidation
+    - PAUSED: Total limit hit, skip entire run
+    """
+    if force_run:
+        return {
+            "ok": True,
+            "total_issues": 0,
+            "ai_created": 0,
+            "enforcement_mode": "NORMAL",
+            "message": "Bypassed (force)",
+        }
+
+    try:
+        # Count total open issues
+        total_result = subprocess.run(
+            ["gh", "issue", "list", "--state", "open", "--json", "number"],
+            cwd=target_dir, capture_output=True, text=True, check=True,
+        )
+        total_count = len(json.loads(total_result.stdout))
+
+        # Count ai-created issues
+        ai_result = subprocess.run(
+            ["gh", "issue", "list", "--state", "open", "--label", "ai-created", "--json", "number"],
+            cwd=target_dir, capture_output=True, text=True, check=True,
+        )
+        ai_count = len(json.loads(ai_result.stdout))
+
+        # Determine enforcement mode
+        if total_count >= 50:
+            return {
+                "ok": False,  # HARD STOP
+                "total_issues": total_count,
+                "ai_created": ai_count,
+                "enforcement_mode": "PAUSED",
+                "message": f"HARD LIMIT: Total issues ({total_count}/50) exceeded. Run paused.",
+            }
+        elif ai_count >= 25:
+            return {
+                "ok": True,
+                "total_issues": total_count,
+                "ai_created": ai_count,
+                "enforcement_mode": "CONSOLIDATION",
+                "message": f"AI-created limit ({ai_count}/25) hit. Entering CONSOLIDATION mode.",
+            }
+        else:
+            return {
+                "ok": True,
+                "total_issues": total_count,
+                "ai_created": ai_count,
+                "enforcement_mode": "NORMAL",
+                "message": f"OK: {total_count} total, {ai_count} ai-created",
+            }
+
+    except Exception as e:
+        # Don't block on gh errors
+        return {
+            "ok": True,
+            "total_issues": -1,
+            "ai_created": -1,
+            "enforcement_mode": "NORMAL",
+            "message": f"Warning: Issue count check failed: {e}",
+        }
+
+
+def check_issue_pr_ratio(target_dir: str) -> dict:
+    """Calculate issue:PR ratio for mode decision.
+
+    Returns mode recommendation:
+    - NORMAL: Ratio OK, proceed normally
+    - CONSOLIDATION: Ratio > 3, focus on consolidation before new work
+    - PR_CREATION: Ratio > 5 with few PRs, focus only on creating PRs
+    - PR_FOCUS: 10+ open PRs, focus only on PR resolution (existing behavior)
+    """
+    try:
+        # Count open issues (excluding ai-created for ratio calculation)
+        issue_result = subprocess.run(
+            ["gh", "issue", "list", "--state", "open", "--json", "number"],
+            cwd=target_dir, capture_output=True, text=True, check=True,
+        )
+        issue_count = len(json.loads(issue_result.stdout))
+
+        # Count open PRs authored by auto-claude
+        pr_result = subprocess.run(
+            ["gh", "pr", "list", "--author", "@me", "--state", "open", "--json", "number"],
+            cwd=target_dir, capture_output=True, text=True, check=True,
+        )
+        pr_count = len(json.loads(pr_result.stdout))
+
+        # Calculate ratio
+        ratio = issue_count / max(pr_count, 1)
+
+        # Determine mode
+        if pr_count >= 10:
+            mode = "PR_FOCUS"
+            message = f"PR backlog high ({pr_count} PRs). Focus on PR resolution only."
+        elif ratio > 5 and pr_count < 3:
+            mode = "PR_CREATION"
+            message = f"Ratio critical ({ratio:.1f}:1). Skip issues, create PRs to fix existing issues."
+        elif ratio > 3 and pr_count < 5:
+            mode = "CONSOLIDATION"
+            message = f"Ratio high ({ratio:.1f}:1). Run consolidation before new work."
+        else:
+            mode = "NORMAL"
+            message = f"Ratio OK ({ratio:.1f}:1, {issue_count} issues, {pr_count} PRs)"
+
+        return {
+            "ok": True,
+            "issue_count": issue_count,
+            "pr_count": pr_count,
+            "ratio": round(ratio, 2),
+            "mode": mode,
+            "message": message,
+        }
+
+    except Exception as e:
+        # Don't block on errors
+        return {
+            "ok": True,
+            "issue_count": -1,
+            "pr_count": -1,
+            "ratio": -1,
+            "mode": "NORMAL",
+            "message": f"Warning: Ratio check failed: {e}",
+        }
 
 
 def main():
@@ -371,27 +502,52 @@ def main():
             "channel": resolve_slack_channel(args.target_dir),
             "git": check_git_status(args.target_dir),
             "issues": check_issue_limits(args.target_dir, force_run=args.force),
+            "totals": check_issue_totals(args.target_dir, force_run=args.force),
+            "ratio": check_issue_pr_ratio(args.target_dir),
         }
 
         # Determine overall status
+        # Priority: control file > hard limits > git status > soft limits
         if not results["control"]["should_run"]:
             results["status"] = "skip"
             results["reason"] = results["control"]["reason"]
+        elif not results["totals"]["ok"]:
+            # HARD LIMIT: Total issues >= 50, skip entire run
+            results["status"] = "skip"
+            results["reason"] = results["totals"]["message"]
         elif not results["git"]["ok"]:
             results["status"] = "error"
             results["reason"] = results["git"]["message"]
         else:
             results["status"] = "ok"
             results["reason"] = None
-            # Note: issues check always returns ok=True, may set skip_issue_creation flag
+
+        # Determine enforcement mode (highest priority mode wins)
+        # PR_FOCUS > PR_CREATION > CONSOLIDATION > NORMAL
+        totals_mode = results["totals"].get("enforcement_mode", "NORMAL")
+        ratio_mode = results["ratio"].get("mode", "NORMAL")
+
+        mode_priority = {"PR_FOCUS": 4, "PR_CREATION": 3, "CONSOLIDATION": 2, "PAUSED": 5, "NORMAL": 1}
+        if mode_priority.get(totals_mode, 1) >= mode_priority.get(ratio_mode, 1):
+            results["enforcement_mode"] = totals_mode
+        else:
+            results["enforcement_mode"] = ratio_mode
+
+        # If PAUSED, override status to skip
+        if results["enforcement_mode"] == "PAUSED":
+            results["status"] = "skip"
+            results["reason"] = results["totals"]["message"]
 
         if args.json:
             print(json.dumps(results))
         else:
             print(f"Status: {results['status']}")
+            print(f"Enforcement Mode: {results['enforcement_mode']}")
             if results["reason"]:
                 print(f"Reason: {results['reason']}")
             print(f"Channel: {results['channel'].get('channel') or 'none'}")
+            print(f"Issues: {results['totals'].get('total_issues', '?')} total, {results['totals'].get('ai_created', '?')} ai-created")
+            print(f"Ratio: {results['ratio'].get('ratio', '?')}:1 ({results['ratio'].get('issue_count', '?')} issues, {results['ratio'].get('pr_count', '?')} PRs)")
 
         if results["status"] == "skip":
             sys.exit(2)
