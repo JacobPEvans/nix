@@ -310,7 +310,7 @@ This repository uses tools from nixpkgs. For details on each tool:
 - **Homepage:** <https://github.com/lycheeverse/lychee>
 - **Language:** Rust (fast, async)
 - **Purpose:** Validates links in markdown and HTML
-- **When to use:** Before pushing (manual stage)
+- **When to use:** Runs automatically on every commit
 
 ```bash
 # Check all markdown files
@@ -379,12 +379,11 @@ git commit -m "fix: address pre-commit issues"
 git push
 ```
 
-### 2. Run Manual Checks Before Pushing
+### 2. Run All Checks Before Pushing
 
 ```bash
 # Before git push origin branch
-pre-commit run --all-files           # Automatic checks
-pre-commit run --hook-stage manual   # Content quality (slower)
+pre-commit run --all-files
 ```
 
 ### 3. Don't Skip Hooks Without Reason

@@ -87,13 +87,10 @@ git push origin your-branch
 Before pushing, ensure all checks pass:
 
 ```bash
-# Run all automatic checks
+# Run all checks on all files
 pre-commit run --all-files
 
-# Run content quality checks (slower, manual stage)
-pre-commit run --hook-stage manual
-
-# Both passed? Safe to push
+# All passed? Safe to push
 git push
 ```
 
