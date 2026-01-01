@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-TEST_DIR="$(cd "$(dirname "$(readlink -f "$0" 2>/dev/null || echo "$0")")" && pwd)"
+TEST_DIR="$(cd "$(dirname "$0")" && pwd)"
 TEST_PATTERN="${1:-*.bats}"
 
 echo "Running shell script tests..."

@@ -149,7 +149,7 @@ Test files are stored in `tests/shell/` with the `.bats` extension. Each test fi
 Basic BATS test structure:
 
 ```bats
-#\!/usr/bin/env bats
+#!/usr/bin/env bats
 # Descriptive comment about what these tests cover
 
 @test "descriptive test name" {

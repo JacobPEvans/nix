@@ -1,4 +1,4 @@
-#\!/usr/bin/env bats
+#!/usr/bin/env bats
 # Basic BATS framework functionality tests
 
 @test "BATS assertion true" {
