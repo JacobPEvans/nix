@@ -1,4 +1,4 @@
-#\!/usr/bin/env bash
+#!/usr/bin/env bash
 # Shell script test runner using BATS
 # Usage: ./tests/run-shell-tests.sh [test-pattern]
 
@@ -12,8 +12,8 @@ echo "Test directory: $TEST_DIR"
 echo "Pattern: $TEST_PATTERN"
 echo ""
 
-if \! command -v bats &>/dev/null; then
-  echo "Error: bats not found. Install with: brew install bats-core"
+if ! command -v bats &>/dev/null; then
+  echo "Error: bats not found. Please enter the nix-shell or rebuild your environment to make it available."
   exit 1
 fi
 
