@@ -25,46 +25,62 @@ let
 
   # Script that checks for and recovers from activation failures
   activationRecoveryScript = pkgs.writeShellScript "nix-activation-recovery" ''
-    #!/bin/bash
-    set -euo pipefail
+        #!/bin/bash
+        set -euo pipefail
 
-    LOG_FILE="${logFile}"
-    mkdir -p "$(dirname "$LOG_FILE")"
+        LOG_FILE="${logFile}"
+        mkdir -p "$(dirname "$LOG_FILE")"
 
-    log() {
-      local level="$1"
-      local msg="$2"
-      echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $msg" >> "$LOG_FILE"
-    }
+        log() {
+          local level="$1"
+          local msg="$2"
+          echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $msg" >> "$LOG_FILE"
+        }
 
-    # Check if activation is needed
-    if [ -L /run/current-system ]; then
-      log "INFO" "/run/current-system exists, no recovery needed"
-      exit 0
-    fi
+        # Check if activation is needed
+        if [ -L /run/current-system ]; then
+          log "INFO" "/run/current-system exists, no recovery needed"
+          exit 0
+        fi
 
-    log "WARN" "/run/current-system missing - boot activation failed"
-    log "INFO" "Attempting recovery activation..."
+        log "WARN" "/run/current-system missing - boot activation failed"
+        log "INFO" "Attempting recovery activation..."
 
-    # Run activation
-    if sudo /nix/var/nix/profiles/system/activate >> "$LOG_FILE" 2>&1; then
-      log "INFO" "Recovery activation completed successfully"
+        # First attempt: direct sudo (works if permission already granted)
+        if sudo /nix/var/nix/profiles/system/activate >> "$LOG_FILE" 2>&1; then
+          log "INFO" "Recovery activation completed successfully (direct)"
 
-      # Verify the symlink was created
-      if [ -L /run/current-system ]; then
-        log "INFO" "/run/current-system now exists"
+          # Verify the symlink was created
+          if [ -L /run/current-system ]; then
+            log "INFO" "/run/current-system now exists"
 
-        # Send notification to user
-        osascript -e 'display notification "Nix environment recovered successfully" with title "Nix Activation" subtitle "Boot recovery completed"' 2>/dev/null || true
-      else
-        log "ERROR" "/run/current-system still missing after activation"
-        osascript -e 'display notification "Recovery may have failed - check logs" with title "Nix Activation" subtitle "Warning"' 2>/dev/null || true
-      fi
-    else
-      local exit_code=$?
-      log "ERROR" "Recovery activation failed with exit code $exit_code"
-      osascript -e 'display notification "Activation recovery failed - manual intervention needed" with title "Nix Activation" subtitle "Error"' 2>/dev/null || true
-    fi
+            # Send notification to user
+            osascript -e 'display notification "Nix environment recovered successfully" with title "Nix Activation" subtitle "Boot recovery completed"' 2>/dev/null || true
+          else
+            log "ERROR" "/run/current-system still missing after activation"
+            osascript -e 'display notification "Recovery may have failed - check logs" with title "Nix Activation" subtitle "Warning"' 2>/dev/null || true
+          fi
+        else
+          local exit_code=$?
+          log "WARN" "Direct activation failed (exit $exit_code), trying via Terminal.app"
+
+          # Fallback: Open Terminal.app and run activation there
+          # Terminal.app can properly prompt for App Management permission
+          osascript <<'APPLESCRIPT' 2>/dev/null
+            tell application "Terminal"
+              activate
+              do script "echo '🔧 Nix Activation Recovery' && sudo /nix/var/nix/profiles/system/activate && echo '✅ Done! You can close this window.' || echo '❌ Failed - check the error above'"
+            end tell
+    APPLESCRIPT
+
+          if [ $? -eq 0 ]; then
+            log "INFO" "Opened Terminal for interactive activation"
+            osascript -e 'display notification "Activation requires permission - check Terminal window" with title "Nix Activation" subtitle "Action needed"' 2>/dev/null || true
+          else
+            log "ERROR" "Failed to open Terminal for recovery"
+            osascript -e 'display notification "Activation recovery failed - run nix-recover manually" with title "Nix Activation" subtitle "Error"' 2>/dev/null || true
+          fi
+        fi
   '';
 in
 {
