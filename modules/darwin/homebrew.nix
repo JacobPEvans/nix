@@ -19,7 +19,7 @@ _:
     ];
     brews = [
       # CLI tools (only if not available in nixpkgs)
-      "ccusage" # Claude Code usage analyzer (not in nixpkgs)
+      # ccusage moved to nix (npm overlay) - see overlays/npm-packages.nix
     ];
     casks = [
       # GUI applications (only if not available in nixpkgs)
