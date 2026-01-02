@@ -33,7 +33,7 @@
       "fileMatch": ["^modules/home-manager/ai-cli/ai-tools\\.nix$"],
       "matchStrings": [
         // Pattern: bunx --bun @package@version OR bunx --bun package@version
-        "bunx\\s+(?:--bun\\s+)?@?(?<depName>[a-zA-Z0-9/_@-]+)@(?<currentValue>[0-9.]+)"
+        "bunx\\s+(?:--bun\\s+)?(?<depName>(?:@[a-zA-Z0-9_.-]+\\/)?[a-zA-Z0-9_.-]+)@(?<currentValue>[0-9.]+)"
       ],
       "datasourceTemplate": "npm",
       "versioningTemplate": "npm"
