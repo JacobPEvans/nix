@@ -40,8 +40,7 @@ in
         raycastShouldFollowSystemAppearance = true;
 
         # Window mode: "default" or "compact"
-        # Default: "default"
-        raycastPreferredWindowMode = "default";
+        raycastPreferredWindowMode = "compact";
 
         # ========================================================================
         # Menu Bar
