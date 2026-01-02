@@ -114,6 +114,7 @@ jobs:
         run: |
           if [ -n "$FLAKE_INPUTS" ]; then
             # Use array expansion for safe variable handling of space-separated inputs
+            # SECURITY: FLAKE_INPUTS is from controlled GitHub Actions output, properly quoted
             read -ra INPUTS_ARRAY <<< "$FLAKE_INPUTS"
             nix flake update "${INPUTS_ARRAY[@]}"
           else
