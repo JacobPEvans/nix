@@ -50,7 +50,7 @@ _:
     # ========================================================================
     # WSHobson Agents - Security (Removed - large plugins rarely used)
     # ========================================================================
-    # "security-scanning@claude-code-workflows" = true;  # 26k+ tokens, includes threat-mitigation-mapping
+    # "security-scanning@claude-code-workflows" = true; # 26k tokens, includes threat-mitigation-mapping
     # "security-compliance@claude-code-workflows" = true;
     # "backend-api-security@claude-code-workflows" = true;
 

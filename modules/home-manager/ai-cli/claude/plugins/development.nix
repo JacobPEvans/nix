@@ -52,7 +52,7 @@ _:
     # Documentation & Architecture
     # ========================================================================
     "code-documentation@claude-code-workflows" = true;
-    # "documentation-generation@claude-code-workflows" = true;  # LARGE (24k tokens for openapi-spec-generation)
+    # "documentation-generation@claude-code-workflows" = true; # LARGE (24k tokens), includes openapi-spec-generation
 
     # ========================================================================
     # API Development
@@ -78,7 +78,7 @@ _:
     # Language Support
     # ========================================================================
     # "python-development@claude-code-workflows" = true;  # Keeping python-expert@cc-marketplace instead
-    # "javascript-typescript@claude-code-workflows" = true;  # LARGE (25k tokens), remove unless heavily using JS/TS
+    # "javascript-typescript@claude-code-workflows" = true; # Removed - LARGE (25k tokens), re-enable only if heavily using JS/TS
     "systems-programming@claude-code-workflows" = true;
 
     # ========================================================================
