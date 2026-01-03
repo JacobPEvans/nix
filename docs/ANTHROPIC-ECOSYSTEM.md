@@ -102,7 +102,7 @@ settings.json (merged configuration)
 
 ## Plugins
 
-### Enabled Plugins (13)
+### Enabled Plugins (12)
 
 All plugins are from the `anthropics/claude-code` marketplace:
 
