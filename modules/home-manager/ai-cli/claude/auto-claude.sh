@@ -42,7 +42,18 @@ get_keychain_secret() {
     echo "Warning: 'security' command not found. Cannot retrieve secrets from keychain." >&2
     return 1
   fi
-  security find-generic-password -a "$KEYCHAIN_ACCOUNT" -s "$service_name" -w "$AUTOMATION_KEYCHAIN" 2>/dev/null
+
+  # Capture both stdout and stderr to detect actual errors
+  local output exit_code
+  output=$(security find-generic-password -a "$KEYCHAIN_ACCOUNT" -s "$service_name" -w "$AUTOMATION_KEYCHAIN" 2>&1) || {
+    exit_code=$?
+    # Only log if it's a real error (not just "item not found" which is expected for optional secrets)
+    if [[ $exit_code -ne 44 ]]; then  # 44 is "item not found" error code
+      echo "Error: Failed to retrieve keychain secret for service '$service_name' (exit code: $exit_code)" >&2
+    fi
+    return $exit_code
+  }
+  echo "$output"
 }
 
 # Get BWS access token (required for Slack notifier to authenticate with Bitwarden)
