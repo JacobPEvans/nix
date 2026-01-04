@@ -63,6 +63,22 @@ if [[ -z "$SLACK_CHANNEL" ]] && [[ -f "$AUTOMATION_KEYCHAIN" ]]; then
   SLACK_CHANNEL=$(get_keychain_secret "$KEYCHAIN_SERVICE") || true
 fi
 
+# --- SSH AGENT SETUP FOR GIT OPERATIONS ---
+# LaunchD agents don't inherit the user's SSH agent
+# Start a new agent and add keys from macOS Keychain if available
+if [[ -z "${SSH_AUTH_SOCK:-}" ]]; then
+  eval "$(ssh-agent -s)" >/dev/null 2>&1 || true
+  # Add keys from Keychain (requires AddKeysToAgent and UseKeychain in SSH config)
+  ssh-add --apple-use-keychain 2>/dev/null || true
+fi
+
+# --- GITHUB HTTPS FALLBACK ---
+# If SSH agent has no identities, configure git to fail fast on SSH
+# gh CLI will use the token from ~/.config/gh/hosts.yml for API operations
+if ! ssh-add -l >/dev/null 2>&1; then
+  export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+fi
+
 # --- INPUT VALIDATION ---
 if [[ ! -d "$TARGET_DIR" ]]; then
   echo "Error: Directory $TARGET_DIR does not exist." >&2
