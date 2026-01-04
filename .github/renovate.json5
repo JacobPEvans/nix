@@ -20,6 +20,11 @@
   "assignees": ["@JacobPEvans"],
   "reviewers": ["@JacobPEvans"],
 
+  // Global automerge defaults (inherited by all packageRules except where overridden)
+  "automerge": true,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+
   // Nix flake support (native manager)
   "nix": {
     "enabled": true
@@ -47,9 +52,9 @@
 
   // Package grouping and scheduling strategy
   "packageRules": [
-    // GROUP 1: Critical infrastructure (Mon/Thu before 3am)
+    // GROUP 1: Critical infrastructure (Daily 7am with automerge)
     {
-      "description": "Critical system inputs - twice weekly updates",
+      "description": "Critical system inputs - daily updates at 7am",
       "matchDatasources": ["github-tags", "github-releases"],
       "matchPackageNames": [
         "nixpkgs",
@@ -58,14 +63,13 @@
         "ai-assistant-instructions"
       ],
       "groupName": "critical-infrastructure",
-      "schedule": ["before 3am on Monday", "before 3am on Thursday"],
-      "automerge": false, // Always require human review for critical
-      "minimumReleaseAge": "1 day" // Wait 1 day for bug reports
+      "schedule": ["after 7am every day"],
+      "minimumReleaseAge": "1 day" // Wait 1 day for bug reports before merging
     },
 
-    // GROUP 2: AI tools (Sun/Wed/Fri after 10pm)
+    // GROUP 2: AI tools (Daily 7am)
     {
-      "description": "AI-focused flake inputs - frequent updates",
+      "description": "AI-focused flake inputs - daily updates at 7am",
       "matchPackagePatterns": [
         "claude-code-plugins",
         "agent-os",
@@ -74,23 +78,26 @@
         "anthropic-skills"
       ],
       "groupName": "ai-tools",
-      "schedule": ["after 10pm on Sunday", "after 10pm on Wednesday", "after 10pm on Friday"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash",
-      "platformAutomerge": true
+      "schedule": ["after 7am every day"]
     },
 
-    // GROUP 3: npm packages (bunx wrappers) - Weekly Monday updates
+    // GROUP 3: npm packages (bunx wrappers) - Weekly Monday 7am
     {
-      "description": "Bunx wrapper npm packages - weekly updates",
+      "description": "Bunx wrapper npm packages - weekly updates at 7am Monday",
       "matchDatasources": ["npm"],
       "matchFileNames": ["modules/home-manager/ai-cli/ai-tools.nix"],
       "groupName": "npm-wrappers",
-      "schedule": ["after 10pm on Monday"],
-      "automerge": true,
-      "automergeType": "pr",
-      "minimumReleaseAge": "3 days" // Let npm packages stabilize
+      "schedule": ["after 7am on Monday"],
+      "minimumReleaseAge": "3 days" // Let npm packages stabilize before merging
+    },
+
+    // GROUP 4: GitHub Actions - Weekly Monday 7am
+    {
+      "description": "GitHub Actions updates - weekly at 7am Monday",
+      "matchManagers": ["github-actions"],
+      "groupName": "github-actions",
+      "schedule": ["after 7am on Monday"],
+      "automergeRequireAllStatusChecks": true
     },
 
     // SPECIAL: Node.js LTS tracking (no latest/current versions)
@@ -110,21 +117,7 @@
       "enabled": false // Disabled: Node.js managed via nixpkgs flake, not direct npm/github-releases
     },
 
-    // Auto-merge strategy: patch + minor only
-    {
-      "description": "Auto-merge patch updates (0.0.X)",
-      "matchUpdateTypes": ["patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
-    },
-    {
-      "description": "Auto-merge minor updates (0.X.0)",
-      "matchUpdateTypes": ["minor"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
-    },
+    // Override for major updates (require human review)
     {
       "description": "Never auto-merge major updates (X.0.0) - require human review",
       "matchUpdateTypes": ["major"],
@@ -140,12 +133,12 @@
   "commitBody": "Co-Authored-By: Renovate Bot <bot@renovateapp.com>",
 
   // PR configuration
-  "prConcurrentLimit": 3, // Max 3 PRs open at once
+  "prConcurrentLimit": 3, // Max 3 PRs open at once (default: 0 = unlimited)
   "prCreation": "immediate", // Create PR as soon as update detected
-  "prHourlyLimit": 2, // Max 2 new PRs per hour (prevent spam)
+  "prHourlyLimit": 1, // Max 1 new PR per hour (prevent spam)
 
   // Branch naming
-  "branchPrefix": "renovate/",
+  "branchPrefix": "chore/renovate/",
   "branchConcurrentLimit": 5,
 
   // Dependency dashboard (GitHub issue)
@@ -154,9 +147,24 @@
   "dependencyDashboardHeader": "This issue tracks pending dependency updates managed by Renovate Bot.",
   "dependencyDashboardFooter": "For manual updates, use: `nix flake update` or trigger the deps-update-flake.yml workflow.",
 
-  // Post-update commands (run after updates)
-  // Note: Nix flake repos don't use Go modules or npm lock files, so no post-update commands needed
-  "postUpdateOptions": [],
+  // Post-upgrade tasks (run after updates)
+  "postUpgradeTasks": {
+    "commands": [
+      "nix flake check --no-build"
+    ],
+    "fileFilters": [
+      "flake.lock"
+    ],
+    "executionMode": "branch"
+  },
+
+  // Vulnerability alerts
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "automerge": true,
+    "automergeRequireAllStatusChecks": true
+  },
 
   // Ignore patterns
   "ignoreDeps": [
