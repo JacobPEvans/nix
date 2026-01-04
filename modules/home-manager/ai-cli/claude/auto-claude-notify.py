@@ -20,6 +20,7 @@ Secrets:
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -34,6 +35,46 @@ import bws_helper
 
 # Display limits for Slack messages (prevents overly long messages)
 MAX_DISPLAY_ITEMS = 10
+
+
+def validate_slack_channel_id(channel: str) -> bool:
+    """
+    Validate Slack channel ID format.
+
+    Valid Slack channel IDs:
+    - Public channels: Start with 'C' followed by alphanumeric characters (8+ chars total)
+    - Private channels/groups: Start with 'G' followed by alphanumeric characters (8+ chars total)
+    - Direct messages: Start with 'D' followed by alphanumeric characters (8+ chars total)
+    - User groups: Start with 'S' followed by alphanumeric characters (8+ chars total)
+
+    Args:
+        channel: The channel ID to validate
+
+    Returns:
+        True if valid, False otherwise
+    """
+    # Slack channel IDs must start with C, D, G, or S and contain only alphanumeric characters
+    # Minimum 8 characters total (1 prefix + 7+ alphanumeric)
+    # Supports both uppercase and mixed case IDs
+    pattern = r'^[CDGS][A-Za-z0-9]{7,}$'
+    return bool(re.match(pattern, channel))
+
+
+def check_channel_and_handle_error(channel: str) -> Optional[int]:
+    """
+    Validate Slack channel ID and print error message if invalid.
+
+    Args:
+        channel: The channel ID to validate
+
+    Returns:
+        1 if invalid (with error message printed), None if valid
+    """
+    if not validate_slack_channel_id(channel):
+        print(f"Error: Invalid Slack channel ID format: {channel}", file=sys.stderr)
+        print("Channel ID must start with C, D, G, or S followed by alphanumeric characters", file=sys.stderr)
+        return 1
+    return None
 
 
 def escape_slack_markdown(text: str) -> str:
@@ -335,6 +376,10 @@ def parse_log_file(log_path: str) -> dict:
 
 def cmd_run_started(args):
     """Handle run_started event."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     blocks, text = blocks_run_started(args.repo, args.budget, args.run_id)
     ts = post_message(token, args.channel, blocks, text)
@@ -346,6 +391,10 @@ def cmd_run_started(args):
 
 def cmd_task_started(args):
     """Handle task_started event."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     blocks, text = blocks_task_started(args.task, args.agent)
     result = post_message(token, args.channel, blocks, text, thread_ts=args.thread_ts)
@@ -354,6 +403,10 @@ def cmd_task_started(args):
 
 def cmd_task_completed(args):
     """Handle task_completed event."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     blocks, text = blocks_task_completed(args.task, args.pr, args.cost, args.duration)
     result = post_message(token, args.channel, blocks, text, thread_ts=args.thread_ts)
@@ -362,6 +415,10 @@ def cmd_task_completed(args):
 
 def cmd_task_blocked(args):
     """Handle task_blocked event."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     blocks, text = blocks_task_blocked(args.task, args.reason)
     result = post_message(token, args.channel, blocks, text, thread_ts=args.thread_ts)
@@ -370,6 +427,10 @@ def cmd_task_blocked(args):
 
 def cmd_run_completed(args):
     """Handle run_completed event."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
 
     # Parse log file for summary data
@@ -562,6 +623,10 @@ def blocks_cross_issue_update(
 
 def cmd_run_skipped(args):
     """Handle run_skipped event."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     blocks, text = blocks_run_skipped(args.repo, args.reason)
     result = post_message(token, args.channel, blocks, text)
@@ -570,6 +635,10 @@ def cmd_run_skipped(args):
 
 def cmd_session_summary(args):
     """Handle session_summary event - posts to Slack thread, NOT GitHub."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     findings = [f.strip() for f in args.findings.split("|")] if args.findings else []
     recommendations = [r.strip() for r in args.recommendations.split("|")] if args.recommendations else []
@@ -590,6 +659,10 @@ def cmd_session_summary(args):
 
 def cmd_cross_issue_update(args):
     """Handle cross_issue_update event - posts to Slack thread, NOT GitHub."""
+    error = check_channel_and_handle_error(args.channel)
+    if error is not None:
+        return error
+
     token = get_slack_token()
     issues = args.issues.split(",") if args.issues else []
     prs = args.prs.split(",") if args.prs else []
