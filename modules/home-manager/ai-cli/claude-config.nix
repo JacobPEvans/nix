@@ -193,31 +193,45 @@ in
   commands = {
     # All commands from Nix store (flake inputs) for reproducibility
     fromFlakeInputs =
-      # Commands from agentsmd (in .claude/commands/)
-      (map (name: {
-        inherit name;
-        source = "${ai-assistant-instructions}/.claude/commands/${name}.md";
-      }) agentsMdCommands)
-      ++
-        # Commands from claude-cookbooks
-        (map (name: {
-          inherit name;
-          source = "${claude-cookbooks}/.claude/commands/${name}.md";
-        }) cookbookCommands);
+      lib.concatMap
+        (
+          set:
+          map (name: {
+            inherit name;
+            source = "${set.path}/${name}.md";
+          }) set.names
+        )
+        [
+          {
+            path = "${ai-assistant-instructions}/.claude/commands";
+            names = agentsMdCommands;
+          }
+          {
+            path = "${claude-cookbooks}/.claude/commands";
+            names = cookbookCommands;
+          }
+        ];
   };
 
   agents.fromFlakeInputs =
-    # Agents from ai-assistant-instructions (agentsmd)
-    (map (name: {
-      inherit name;
-      source = "${ai-assistant-instructions}/agentsmd/agents/${name}.md";
-    }) agentsMdAgents)
-    ++
-      # Agents from claude-cookbooks
-      (map (name: {
-        inherit name;
-        source = "${claude-cookbooks}/.claude/agents/${name}.md";
-      }) cookbookAgents);
+    lib.concatMap
+      (
+        set:
+        map (name: {
+          inherit name;
+          source = "${set.path}/${name}.md";
+        }) set.names
+      )
+      [
+        {
+          path = "${ai-assistant-instructions}/agentsmd/agents";
+          names = agentsMdAgents;
+        }
+        {
+          path = "${claude-cookbooks}/.claude/agents";
+          names = cookbookAgents;
+        }
+      ];
 
   settings = {
     # Extended thinking enabled with token budget controlled via env vars
