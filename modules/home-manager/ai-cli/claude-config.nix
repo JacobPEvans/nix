@@ -58,6 +58,10 @@ let
   # Auto-discovers all .md files in .claude/commands/
   cookbookCommands = discoverCommands "${claude-cookbooks}/.claude/commands";
 
+  # Agents from ai-assistant-instructions (agentsmd)
+  # Auto-discovers all .md files in agentsmd/agents/
+  agentsMdAgents = discoverCommands "${ai-assistant-instructions}/agentsmd/agents";
+
   # Agents from claude-cookbooks
   # Auto-discovers all .md files in .claude/agents/
   cookbookAgents = discoverCommands "${claude-cookbooks}/.claude/agents";
@@ -189,23 +193,45 @@ in
   commands = {
     # All commands from Nix store (flake inputs) for reproducibility
     fromFlakeInputs =
-      # Commands from agentsmd (in .claude/commands/)
-      (map (name: {
-        inherit name;
-        source = "${ai-assistant-instructions}/.claude/commands/${name}.md";
-      }) agentsMdCommands)
-      ++
-        # Commands from claude-cookbooks
-        (map (name: {
-          inherit name;
-          source = "${claude-cookbooks}/.claude/commands/${name}.md";
-        }) cookbookCommands);
+      lib.concatMap
+        (
+          set:
+          map (name: {
+            inherit name;
+            source = "${set.path}/${name}.md";
+          }) set.names
+        )
+        [
+          {
+            path = "${ai-assistant-instructions}/.claude/commands";
+            names = agentsMdCommands;
+          }
+          {
+            path = "${claude-cookbooks}/.claude/commands";
+            names = cookbookCommands;
+          }
+        ];
   };
 
-  agents.fromFlakeInputs = map (name: {
-    inherit name;
-    source = "${claude-cookbooks}/.claude/agents/${name}.md";
-  }) cookbookAgents;
+  agents.fromFlakeInputs =
+    lib.concatMap
+      (
+        set:
+        map (name: {
+          inherit name;
+          source = "${set.path}/${name}.md";
+        }) set.names
+      )
+      [
+        {
+          path = "${ai-assistant-instructions}/agentsmd/agents";
+          names = agentsMdAgents;
+        }
+        {
+          path = "${claude-cookbooks}/.claude/agents";
+          names = cookbookAgents;
+        }
+      ];
 
   settings = {
     # Extended thinking enabled with token budget controlled via env vars
