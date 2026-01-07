@@ -37,4 +37,25 @@
     ${pkgs.lib.getExe pkgs.deadnix} -L --fail .
     touch $out
   '';
+
+  # Lint shell scripts with shellcheck
+  # Catches common bugs: unquoted variables, undefined vars, useless use of cat, etc.
+  # Excludes .git directories and nix store paths
+  # --severity=warning: Only fail on warning/error level (not info style suggestions)
+  # SC1091: Exclude "not following" errors for external sources (can't resolve in Nix sandbox)
+  # Excludes zsh scripts (shellcheck only supports sh/bash/dash/ksh)
+  # TODO: Fix info-level issues (SC2086 quoting) in shell scripts for stricter checking
+  shellcheck = pkgs.runCommand "check-shellcheck" { } ''
+    cd ${src}
+    find . -name "*.sh" -not -path "./.git/*" -not -path "./result/*" | while read -r script; do
+      # Skip zsh scripts (shellcheck doesn't support them)
+      if head -1 "$script" | grep -q "zsh"; then
+        echo "Skipping zsh script: $script"
+        continue
+      fi
+      echo "Checking $script..."
+      ${pkgs.lib.getExe pkgs.shellcheck} --severity=warning --exclude=SC1091 "$script"
+    done
+    touch $out
+  '';
 }

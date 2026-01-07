@@ -5,6 +5,11 @@
 #
 # NOTE: Uses toClaudeMarketplaceFormat from lib/claude-registry.nix as
 # SINGLE SOURCE OF TRUTH for marketplace format transformation.
+#
+# VALIDATION: Environment variable names are validated at build time against
+# POSIX convention (^[A-Z_][A-Z0-9_]*$). Full JSON Schema validation against
+# https://json.schemastore.org/claude-code-settings.json is available via
+# `nix flake check` but requires network access.
 {
   config,
   lib,
@@ -30,6 +35,12 @@ let
     // lib.optionalAttrs cfg.apiKeyHelper.enable {
       API_KEY_HELPER = "${homeDir}/${cfg.apiKeyHelper.scriptPath}";
     };
+
+  # Validate POSIX environment variable names
+  # POSIX requires: starts with letter or underscore, followed by letters, digits, or underscores
+  # We enforce uppercase for convention: ^[A-Z_][A-Z0-9_]*$
+  isValidEnvVarName = name: builtins.match "^[A-Z_][A-Z0-9_]*$" name != null;
+  invalidEnvVars = lib.filterAttrs (name: _: !isValidEnvVarName name) cfg.settings.env;
 
   # Build the settings object
   settings = {
@@ -83,6 +94,22 @@ let
             "${homeDir}/.claude/statusline-command.sh";
       };
     }
+  )
+
+  # Sandbox configuration (Dec 2025 feature)
+  # Only include if explicitly configured (enabled or excludedCommands specified)
+  // (
+    let
+      hasSandboxConfig = cfg.settings.sandbox.enabled || cfg.settings.sandbox.excludedCommands != [ ];
+    in
+    lib.optionalAttrs hasSandboxConfig {
+      sandbox = {
+        inherit (cfg.settings.sandbox) enabled autoAllowBashIfSandboxed;
+      }
+      // lib.optionalAttrs (cfg.settings.sandbox.excludedCommands != [ ]) {
+        inherit (cfg.settings.sandbox) excludedCommands;
+      };
+    }
   );
 
   # Pretty-print JSON
@@ -111,6 +138,20 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
+    # Validate environment variable names before generating settings.json
+    assertions = [
+      {
+        assertion = invalidEnvVars == { };
+        message = ''
+          Invalid environment variable names in programs.claude.settings.env:
+            ${lib.concatStringsSep ", " (builtins.attrNames invalidEnvVars)}
+
+          Environment variable names must match POSIX convention: ^[A-Z_][A-Z0-9_]*$
+          (uppercase letters, digits, and underscores only; must start with letter or underscore)
+        '';
+      }
+    ];
+
     home.file = {
       ".claude/settings.json".source = settingsJson;
     }

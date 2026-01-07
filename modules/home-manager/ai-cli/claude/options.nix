@@ -261,6 +261,37 @@ in
         default = "https://json.schemastore.org/claude-code-settings.json";
         description = "JSON schema URL for settings validation";
       };
+
+      # Sandbox configuration (Dec 2025 feature)
+      # Provides filesystem/network isolation for untrusted codebases
+      sandbox = {
+        enabled = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Enable sandbox mode for filesystem/network isolation.
+            Useful when working in untrusted codebases.
+          '';
+        };
+        autoAllowBashIfSandboxed = mkOption {
+          type = types.bool;
+          default = true;
+          description = ''
+            Automatically allow bash commands when sandboxed.
+            Safe because sandbox prevents destructive operations.
+          '';
+        };
+        excludedCommands = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Commands to exclude from sandbox restrictions";
+          example = [
+            "git"
+            "nix"
+            "darwin-rebuild"
+          ];
+        };
+      };
     };
 
     # Status Line (supports claude-code-statusline)

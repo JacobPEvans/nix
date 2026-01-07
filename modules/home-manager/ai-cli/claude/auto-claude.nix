@@ -3,6 +3,8 @@
 # Configures launchd agents to run Claude autonomously on git repositories
 # at scheduled times. Uses the apiKeyHelper for headless authentication.
 # Sends rich Slack notifications via Python notifier.
+#
+# Options defined in: auto-claude/options.nix
 {
   config,
   lib,
@@ -40,107 +42,29 @@ let
         Minute = time.minute or 0;
       };
 
-  # Get schedule times (deprecated fallback logic removed)
-  getScheduleTimes = schedule: schedule.times;
+  # Normalize schedule settings (supports single hour, list of hours, or list of times)
+  getScheduleTimes =
+    schedule:
+    let
+      timesList = schedule.times;
+      hoursList = schedule.hours;
+      hourOpt = schedule.hour;
+    in
+    if timesList != [ ] then
+      timesList
+    else if hoursList != [ ] then
+      hoursList
+    else if hourOpt != null then
+      [ hourOpt ]
+    else
+      [ ];
 
   # Filter to only enabled repositories
   enabledRepos = lib.filterAttrs (_: r: r.enabled) cfg.autoClaude.repositories;
 
 in
 {
-  options.programs.claude.autoClaude = {
-    enable = lib.mkEnableOption "Auto-Claude scheduled maintenance";
-
-    repositories = lib.mkOption {
-      type = lib.types.attrsOf (
-        lib.types.submodule {
-          options = {
-            path = lib.mkOption {
-              type = lib.types.str;
-              description = "Absolute path to the git repository";
-            };
-
-            schedule = lib.mkOption {
-              type = lib.types.submodule {
-                options = {
-                  times = lib.mkOption {
-                    type = lib.types.listOf (
-                      lib.types.submodule {
-                        options = {
-                          hour = lib.mkOption {
-                            type = lib.types.ints.between 0 23;
-                            description = "Hour of day (0-23)";
-                          };
-                          minute = lib.mkOption {
-                            type = lib.types.ints.between 0 59;
-                            default = 0;
-                            description = "Minute of hour (0-59)";
-                          };
-                        };
-                      }
-                    );
-                    default = [ ];
-                    description = ''
-                      List of times to run each day. Each time has hour (0-23) and minute (0-59).
-                      Required field - must have at least one scheduled time when repository is enabled.
-
-                      Example:
-                        times = [
-                          { hour = 9; minute = 30; }   # 9:30 AM
-                          { hour = 14; minute = 0; }   # 2:00 PM
-                          { hour = 18; minute = 30; }  # 6:30 PM
-                        ];
-                    '';
-                  };
-                };
-              };
-              description = "When to run the maintenance task";
-            };
-
-            maxBudget = lib.mkOption {
-              type = lib.types.float;
-              default = 50.0;
-              description = ''
-                Maximum cost per run in USD. Uses Haiku model exclusively.
-
-                IMPORTANT: This default is set to $50.0 and uses Claude Haiku exclusively.
-                Auto-claude enforces Haiku-only operation via environment variables,
-                settings.json, and explicit --model haiku flag for defense-in-depth.
-
-                With the default once-daily schedule, this means up to $50/day per repository.
-                Haiku provides cost-effective operation while maintaining quality output.
-              '';
-            };
-
-            model = lib.mkOption {
-              type = lib.types.str;
-              default = "haiku";
-              description = ''
-                Claude model to use for auto-claude runs.
-
-                Strongly recommended: "haiku" - cost-effective, excellent for autonomous tasks
-                Alternatives: "sonnet", "opus" (significantly higher cost)
-              '';
-            };
-
-            slackChannel = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              default = null;
-              description = "Slack channel ID for notifications (e.g., C0123456789)";
-            };
-
-            enabled = lib.mkOption {
-              type = lib.types.bool;
-              default = true;
-              description = "Whether this repository's schedule is active";
-            };
-          };
-        }
-      );
-      default = { };
-      description = "Repositories to run auto-claude on";
-    };
-  };
+  imports = [ ./auto-claude/options.nix ];
 
   config = lib.mkIf (cfg.enable && cfg.autoClaude.enable) {
     # Ensure each enabled repository has at least one scheduled time
@@ -288,6 +212,11 @@ in
             # GitHub CLI config directory for headless authentication
             # gh will use the token from ~/.config/gh/hosts.yml
             GH_CONFIG_DIR = "${homeDir}/.config/gh";
+          }
+          # API key helper for headless Claude authentication
+          # Must be passed to launchd environment, not just settings.json
+          // lib.optionalAttrs cfg.apiKeyHelper.enable {
+            API_KEY_HELPER = "${homeDir}/${cfg.apiKeyHelper.scriptPath}";
           };
         };
       }

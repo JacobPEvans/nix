@@ -61,8 +61,9 @@ if [ "$(id -u)" -eq 0 ]; then
       echo "   ❌ VERIFICATION FAILED: Symlink points to $UPDATED_PATH"
     fi
   else
+    exit_code=$?
     echo "   ❌ FAILED: Could not update symlink"
-    echo "   Error: $?"
+    echo "   Error: $exit_code"
   fi
 else
   echo "   ⚠️  SKIPPED: Not running as root (re-run with sudo to test)"
