@@ -151,7 +151,7 @@ in
       in
       {
         assertion = (!repoCfg.enabled) || (timesList != [ ]);
-        message = "programs.claude.autoClaude.repositories.${name} must set schedule.times, schedule.hours, or schedule.hour when enabled";
+        message = "programs.claude.autoClaude.repositories.${name} must set schedule.times when enabled";
       }
     ) enabledRepos;
 
