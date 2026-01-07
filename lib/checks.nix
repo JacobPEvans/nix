@@ -50,6 +50,7 @@
     cd ${src}
     find . -name "*.sh" -not -path "./.git/*" -not -path "./result/*" -print0 | \
     xargs -0 bash -c '
+      set -e
       for script in "$@"; do
         # Skip zsh scripts (shellcheck does not support them)
         if head -1 "$script" | grep -q "zsh"; then
