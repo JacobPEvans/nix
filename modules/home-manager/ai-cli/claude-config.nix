@@ -94,7 +94,8 @@ in
   };
 
   # Auto-Claude: Scheduled autonomous maintenance
-  # ENABLED - Uses Haiku model for cost-efficiency (set via ANTHROPIC_MODEL env var)
+  # ENABLED - Uses Haiku model for cost-efficiency (via per-repo CLAUDE_MODEL env var)
+  # Interactive sessions use Sonnet (via ANTHROPIC_MODEL), autoClaude overrides to Haiku
   # Resource limits: max 10 PRs, max 50 issues, max 1 analysis per item per run
   autoClaude = {
     enable = true;
@@ -251,24 +252,30 @@ in
     # See: https://code.claude.com/docs/en/settings
     # See: https://code.claude.com/docs/en/model-config
     env = {
-      # Model selection: Haiku is default for cost-efficiency and speed.
-      # Override with /model command in interactive sessions if needed.
-      ANTHROPIC_MODEL = "haiku"; # Default model for all sessions and auto-claude.
-      CLAUDE_CODE_SUBAGENT_MODEL = "claude-haiku-4-5-20251001"; # Force haiku for sub-agents.
-      # ANTHROPIC_DEFAULT_OPUS_MODEL = "";
-      # ANTHROPIC_DEFAULT_SONNET_MODEL = "";
-      # ANTHROPIC_DEFAULT_HAIKU_MODEL = "";
+      # Model selection: Sonnet is default for interactive sessions (better reasoning).
+      # Use `opusplan` alias for complex tasks (Opus for planning, Sonnet for execution).
+      # Auto-claude background jobs use their own CLAUDE_MODEL env var (haiku).
+      ANTHROPIC_MODEL = "sonnet";
+      CLAUDE_CODE_SUBAGENT_MODEL = "claude-haiku-4-5-20251001"; # Cost control for subagents
 
-      # Token budgets
+      # Explicit model versions (Jan 2026) - pin to known working versions
+      ANTHROPIC_DEFAULT_OPUS_MODEL = "claude-opus-4-5-20251101";
+      ANTHROPIC_DEFAULT_SONNET_MODEL = "claude-sonnet-4-5-20250929";
+      ANTHROPIC_DEFAULT_HAIKU_MODEL = "claude-haiku-4-5-20251001";
+
+      # Extended thinking (enabled via alwaysThinkingEnabled setting)
+      # Note: reduces prompt caching efficiency
       MAX_THINKING_TOKENS = "16384";
-      CLAUDE_CODE_MAX_OUTPUT_TOKENS = "16384";
-      BASH_MAX_OUTPUT_LENGTH = "65536";
-      MAX_MCP_OUTPUT_TOKENS = "25000";
-      SLASH_COMMAND_TOOL_CHAR_BUDGET = "16000";
 
-      # Timeouts
-      BASH_DEFAULT_TIMEOUT_MS = "300000";
-      BASH_MAX_TIMEOUT_MS = "600000";
+      # DEFAULT VALUES - do not remove, reference only
+      # These are commented out because they match upstream defaults.
+      # Kept for reference in case adjustments are needed in the future.
+      # CLAUDE_CODE_MAX_OUTPUT_TOKENS = "16384";
+      # BASH_MAX_OUTPUT_LENGTH = "65536";
+      # MAX_MCP_OUTPUT_TOKENS = "25000";
+      # SLASH_COMMAND_TOOL_CHAR_BUDGET = "16000";
+      # BASH_DEFAULT_TIMEOUT_MS = "300000";  # 5 minutes
+      # BASH_MAX_TIMEOUT_MS = "600000";  # 10 minutes
     };
 
     # Permissions from unified ai-assistant-instructions system
@@ -286,6 +293,19 @@ in
       "~/.claude/"
       "~/.config/"
     ];
+
+    # Sandbox configuration (Dec 2025 feature)
+    # Provides filesystem/network isolation when working in untrusted codebases.
+    # Currently disabled - enable when reviewing external code or untrusted repos.
+    sandbox = {
+      enabled = false;
+      autoAllowBashIfSandboxed = true; # Safe because sandbox prevents destructive ops
+      excludedCommands = [
+        "git"
+        "nix"
+        "darwin-rebuild"
+      ];
+    };
   };
 
   # MCPs disabled - token cost too high for context window
