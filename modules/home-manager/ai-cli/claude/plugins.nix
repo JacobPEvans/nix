@@ -92,7 +92,7 @@ in
                   # Show directory structure comparison
                   # diff exit codes: 0=identical, 1=different, 2+=error
                   diff_output=$(diff -r "$BACKUP" "${path}" 2>&1 | head -20)
-                  diff_exit=${PIPESTATUS [ 0 ]}
+                  diff_exit=''${PIPESTATUS[0]}
 
                   if [ $diff_exit -eq 0 ]; then
                     echo "[$(date '+%H:%M:%S')] [INFO]   Directories are identical"
