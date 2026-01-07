@@ -40,7 +40,7 @@ let
   # POSIX requires: starts with letter or underscore, followed by letters, digits, or underscores
   # We enforce uppercase for convention: ^[A-Z_][A-Z0-9_]*$
   isValidEnvVarName = name: builtins.match "^[A-Z_][A-Z0-9_]*$" name != null;
-  invalidEnvVars = lib.filterAttrs (name: _: !isValidEnvVarName name) cfg.settings.env;
+  invalidEnvVars = lib.filterAttrs (name: _: !isValidEnvVarName name) envAttrs;
 
   # Build the settings object
   settings = {
@@ -97,20 +97,15 @@ let
   )
 
   # Sandbox configuration (Dec 2025 feature)
-  # Only include if explicitly configured (enabled or excludedCommands specified)
-  // (
-    let
-      hasSandboxConfig = cfg.settings.sandbox.enabled || cfg.settings.sandbox.excludedCommands != [ ];
-    in
-    lib.optionalAttrs hasSandboxConfig {
-      sandbox = {
-        inherit (cfg.settings.sandbox) enabled autoAllowBashIfSandboxed;
-      }
-      // lib.optionalAttrs (cfg.settings.sandbox.excludedCommands != [ ]) {
-        inherit (cfg.settings.sandbox) excludedCommands;
-      };
+  # Only include when sandbox is actually enabled to avoid confusing disabled state with configuration
+  // lib.optionalAttrs cfg.settings.sandbox.enabled {
+    sandbox = {
+      inherit (cfg.settings.sandbox) enabled autoAllowBashIfSandboxed;
     }
-  );
+    // lib.optionalAttrs (cfg.settings.sandbox.excludedCommands != [ ]) {
+      inherit (cfg.settings.sandbox) excludedCommands;
+    };
+  };
 
   # Pretty-print JSON
   settingsJson =

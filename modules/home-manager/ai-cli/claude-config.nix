@@ -263,13 +263,12 @@ in
       ANTHROPIC_DEFAULT_SONNET_MODEL = "claude-sonnet-4-5-20250929";
       ANTHROPIC_DEFAULT_HAIKU_MODEL = "claude-haiku-4-5-20251001";
 
-      # Extended thinking (enabled via alwaysThinkingEnabled setting)
-      # Note: reduces prompt caching efficiency
-      MAX_THINKING_TOKENS = "16384";
-
       # DEFAULT VALUES - do not remove, reference only
       # These are commented out because they match upstream defaults.
       # Kept for reference in case adjustments are needed in the future.
+      # Extended thinking (enabled via alwaysThinkingEnabled setting)
+      # Note: reduces prompt caching efficiency
+      # MAX_THINKING_TOKENS = "16384";
       # CLAUDE_CODE_MAX_OUTPUT_TOKENS = "16384";
       # BASH_MAX_OUTPUT_LENGTH = "65536";
       # MAX_MCP_OUTPUT_TOKENS = "25000";
