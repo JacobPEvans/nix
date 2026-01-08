@@ -95,24 +95,28 @@ in
       #   * Treat all errors as warnings, not fatal failures
       #   * Must reach /run/current-system symlink update (the critical phase)
       if ${pkgs.duti}/bin/duti "$DUTI_CONFIG" 2>/dev/null; then
-        echo "Successfully registered ${toString (lib.length (lib.attrNames cfg.customMappings))} file extension(s)"
+        echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] Successfully registered ${toString (lib.length (lib.attrNames cfg.customMappings))} file extension(s)"
 
         # Rebuild Launch Services database to ensure changes take effect
         # Note: lsregister can fail on some systems (permission/sandbox issues), but file mappings still work.
         # Again using if/then/else to continue activation on failure (not || exit pattern)
-        if /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user 2>/tmp/lsregister-error.log >/dev/null; then
-          echo "Launch Services database rebuilt successfully"
+        # Use mktemp for secure temporary file creation to prevent symlink attacks
+        LS_ERROR_LOG=$(mktemp)
+        if /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user 2>"$LS_ERROR_LOG" >/dev/null; then
+          echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] Launch Services database rebuilt successfully"
         else
-          LS_ERROR=$(cat /tmp/lsregister-error.log 2>/dev/null || echo "(error details unavailable)")
-          echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to rebuild Launch Services database" >&2
-          if [ -s /tmp/lsregister-error.log ]; then
+          if [ -s "$LS_ERROR_LOG" ]; then
+            LS_ERROR=$(cat "$LS_ERROR_LOG" 2>/dev/null)
+            echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to rebuild Launch Services database" >&2
             echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] Error: $LS_ERROR" >&2
+          else
+            echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to rebuild Launch Services database" >&2
           fi
           echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] File mappings still applied but cache may be stale" >&2
           echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] To manually rebuild after activation, run:" >&2
           echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping]   /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user" >&2
-          rm -f /tmp/lsregister-error.log
         fi
+        rm -f "$LS_ERROR_LOG"
       else
         echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to apply file extension mappings" >&2
       fi
