@@ -131,7 +131,6 @@ in
         "Read"
         "Edit"
         "Write"
-        "MultiEdit" # Multi-file editing for complex refactoring
         "NotebookEdit" # Jupyter notebook editing
         "Glob"
         "Grep"
