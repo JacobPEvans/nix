@@ -99,16 +99,19 @@ in
 
         # Rebuild Launch Services database to ensure changes take effect
         # Note: lsregister can fail on some systems (permission/sandbox issues), but file mappings still work.
-        # Capture stderr to help diagnose issues.
         # Again using if/then/else to continue activation on failure (not || exit pattern)
-        LS_ERROR=$(/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user 2>&1 >/dev/null)
-        if [ $? -eq 0 ]; then
+        if /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user 2>/tmp/lsregister-error.log >/dev/null; then
           echo "Launch Services database rebuilt successfully"
         else
-          echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to rebuild Launch Services database (error: $LS_ERROR)" >&2
+          LS_ERROR=$(cat /tmp/lsregister-error.log 2>/dev/null || echo "(error details unavailable)")
+          echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to rebuild Launch Services database" >&2
+          if [ -s /tmp/lsregister-error.log ]; then
+            echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] Error: $LS_ERROR" >&2
+          fi
           echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] File mappings still applied but cache may be stale" >&2
           echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping] To manually rebuild after activation, run:" >&2
           echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] [FileMapping]   /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user" >&2
+          rm -f /tmp/lsregister-error.log
         fi
       else
         echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] [FileMapping] Failed to apply file extension mappings" >&2
