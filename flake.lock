@@ -168,7 +168,7 @@
         "type": "github"
       }
     },
-    "claude-skills-marketplace": {
+    "claude-skills": {
       "flake": false,
       "locked": {
         "lastModified": 1767299208,
@@ -368,7 +368,7 @@
         "claude-cookbooks": "claude-cookbooks",
         "claude-plugins-official": "claude-plugins-official",
         "claude-powerline": "claude-powerline",
-        "claude-skills-marketplace": "claude-skills-marketplace",
+        "claude-skills": "claude-skills",
         "darwin": "darwin",
         "home-manager": "home-manager",
         "jacobpevans-cc-plugins": "jacobpevans-cc-plugins",

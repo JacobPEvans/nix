@@ -114,7 +114,7 @@
     };
 
     # Claude Skills Marketplace - 174 production-ready skills
-    claude-skills-marketplace = {
+    claude-skills = {
       url = "github:secondsky/claude-skills";
       flake = false;
     };
@@ -155,7 +155,7 @@
       superpowers-marketplace,
       jacobpevans-cc-plugins,
       claude-code-workflows,
-      claude-skills-marketplace,
+      claude-skills,
       llm-agents,
       ...
     }:
@@ -214,7 +214,7 @@
           superpowers-marketplace
           jacobpevans-cc-plugins
           claude-code-workflows
-          claude-skills-marketplace
+          claude-skills
           llm-agents
           ;
       };
