@@ -5,9 +5,10 @@
 #
 # Version Pinning:
 # Claude Code is pinned to 2.1.3 to ensure consistent versions across rebuilds.
-# To update: 1. Change version in this comment and Brewfile
-#            2. Run: brew update && brew upgrade claude-code
-#            3. Run: darwin-rebuild switch --flake .
+# To update: 1. Update `version` in Brewfile.lock.json
+#            2. Run: brew update && brew bundle install
+#            3. Commit the updated Brewfile.lock.json
+#            4. Run: darwin-rebuild switch --flake .
 
 _:
 
