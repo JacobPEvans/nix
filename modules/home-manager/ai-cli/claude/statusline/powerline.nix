@@ -52,7 +52,7 @@ let
               "block": { "enabled": true, "type": "weighted", "burnType": "both" },
               "session": { "enabled": true, "type": "tokens", "costSource": "calculated" },
               "today": { "enabled": true, "type": "breakdown" },
-              "metrics": { "enabled": false },
+              "metrics": { "enabled": true },
               "version": { "enabled": false }
             }
           }
