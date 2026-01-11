@@ -4,6 +4,7 @@
 # Uses bunx at runtime for simplicity - no build-time hashes to maintain.
 #
 # Repository: https://github.com/Owloops/claude-powerline
+# Configuration: ./claude-powerline.json
 {
   config,
   lib,
@@ -14,59 +15,8 @@
 let
   cfg = config.programs.claudeStatusline;
 
-  # JSON config written manually to preserve segment order
-  # (Nix attrsets sort alphabetically when converted via builtins.toJSON)
-  configJson = ''
-    {
-      "theme": "rose-pine",
-      "style": "capsule",
-      "charset": "unicode",
-      "autoWrap": false,
-      "display": {
-        "lines": [
-          {
-            "segments": {
-              "model": { "enabled": true },
-              "context": { "enabled": true, "showPercentageOnly": false }
-            }
-          },
-          {
-            "segments": {
-              "git": {
-                "enabled": true,
-                "showRepoName": true,
-                "showWorktree": true,
-                "showBranch": true,
-                "showBehind": true,
-                "showClean": true,
-                "showChanges": true,
-                "showSha": false,
-                "showUpstream": false,
-                "showStash": false
-              },
-              "directory": { "enabled": true, "style": "fish" }
-            }
-          },
-          {
-            "segments": {
-              "block": { "enabled": true, "type": "weighted", "burnType": "both" },
-              "session": { "enabled": true, "type": "tokens", "costSource": "calculated" },
-              "today": { "enabled": true, "type": "breakdown" },
-              "metrics": { "enabled": true },
-              "version": { "enabled": false }
-            }
-          }
-        ]
-      },
-      "budget": {
-        "block": { "amount": 100, "type": "tokens", "warningThreshold": 80 },
-        "session": { "amount": 25, "warningThreshold": 80 },
-        "today": { "amount": 200, "warningThreshold": 80 }
-      }
-    }
-  '';
-
-  configFile = pkgs.writeText "claude-powerline.json" configJson;
+  # JSON config in separate file to preserve segment order and enable IDE validation
+  configFile = ./claude-powerline.json;
 
 in
 {
