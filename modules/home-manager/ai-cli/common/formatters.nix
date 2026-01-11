@@ -93,6 +93,15 @@ in
       in
       (getClaudeDenyPermissions permissions) ++ shellDenied;
 
+    # Format all ask commands (require user confirmation)
+    # These commands will prompt the user for approval before execution
+    formatAsk =
+      permissions:
+      let
+        allCommands = flattenCommands permissions.ask;
+      in
+      map (cmd: "Bash(${cmd}:*)") allCommands;
+
     # Export helpers for external use
     getToolPermissions = getClaudeToolPermissions;
     getDenyPermissions = getClaudeDenyPermissions;

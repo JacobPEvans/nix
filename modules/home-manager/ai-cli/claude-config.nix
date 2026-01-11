@@ -287,7 +287,7 @@ in
     permissions = {
       allow = formatters.claude.formatAllowed permissions;
       deny = formatters.claude.formatDenied permissions;
-      ask = [ ]; # No ask permissions defined yet
+      ask = formatters.claude.formatAsk permissions;
     };
 
     # Additional directories accessible to Claude Code without prompts
