@@ -33,6 +33,7 @@ in
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [
     (import ../../overlays/python-packages.nix)
+    (import ../../overlays/macos-apps.nix)
   ];
 
   # --- User Configuration ---
