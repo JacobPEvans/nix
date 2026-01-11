@@ -27,7 +27,7 @@ let
           {
             "segments": {
               "model": { "enabled": true },
-              "context": { "enabled": true, "showPercentageOnly": true }
+              "context": { "enabled": true, "showPercentageOnly": false }
             }
           },
           {
@@ -35,23 +35,23 @@ let
               "git": {
                 "enabled": true,
                 "showRepoName": true,
+                "showWorktree": true,
                 "showBranch": true,
                 "showBehind": true,
                 "showClean": true,
                 "showChanges": true,
                 "showSha": false,
                 "showUpstream": false,
-                "showWorktree": false,
                 "showStash": false
               },
-              "directory": { "enabled": false }
+              "directory": { "enabled": true, "style": "fish" }
             }
           },
           {
             "segments": {
-              "session": { "enabled": true, "type": "tokens" },
               "today": { "enabled": true, "type": "breakdown" },
-              "block": { "enabled": false },
+              "block": { "enabled": false, "type": "weighted", "burnType": "both" },
+              "session": { "enabled": true, "type": "tokens", "costSource": "calculated" },
               "metrics": { "enabled": false },
               "version": { "enabled": false }
             }
@@ -59,8 +59,9 @@ let
         ]
       },
       "budget": {
-        "session": { "amount": 10.0, "type": "tokens", "warningThreshold": 80 },
-        "today": { "amount": 25.0, "type": "tokens", "warningThreshold": 80 }
+        "today": { "amount": 100, "warningThreshold": 80 },
+        "session": { "amount": 20, "warningThreshold": 80 },
+        "block": { "amount": 50, "type": "cost", "warningThreshold": 80 }
       }
     }
   '';
