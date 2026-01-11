@@ -83,6 +83,7 @@
         antigravity # Google's AI-powered IDE (Gemini 3)
         code-cursor # Cursor AI IDE (VS Code fork)
         chatgpt # OpenAI ChatGPT desktop app
+        claudebar # Menu bar app for AI coding assistant quota monitoring
 
         # Communication
         zoom-us # Video conferencing - needs camera/mic TCC permissions
