@@ -1,7 +1,7 @@
 # Claude Statusline Module
 #
-# Declarative statusline theme selection for Claude Code.
-# Provides a unified interface for managing statusline themes and configuration.
+# Multi-line statusline for Claude Code using @owloops/claude-powerline.
+# Uses bunx at runtime for simplicity - no build-time hashes to maintain.
 #
 # This module follows NixOS module patterns:
 # - Options defined in options.nix
@@ -9,10 +9,10 @@
 # - Config logic uses lib.mkIf for conditional activation
 #
 # Usage:
-#   programs.claudeStatusline = {
-#     enable = true;
-#     powerline.style = "dracula";  # default, minimal, rainbow, gruvbox, dracula, nord
-#   };
+#   programs.claudeStatusline.enable = true;
+#
+# Configuration is hardcoded to Rose Pine theme with capsule style.
+# See powerline.nix for the full configuration.
 {
   config,
   lib,
