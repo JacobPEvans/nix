@@ -40,11 +40,14 @@ _:
     "plugin-dev@claude-plugins-official" = true;
     "hookify@claude-plugins-official" = true;
 
-    # GitHub Integration (essential)
-    "github@claude-plugins-official" = true;
+    # GitHub Integration - DISABLED (use gh CLI instead)
+    "github@claude-plugins-official" = false;
 
-    # Slack Integration (user requested restore)
-    "slack@claude-plugins-official" = true;
+    # Slack Integration - DISABLED (not needed)
+    "slack@claude-plugins-official" = false;
+
+    # Context7 - up-to-date library documentation
+    "context7@claude-plugins-official" = true;
 
     # Greptile - DISABLED due to context bloat (MCP integration consumes tokens)
     # Keep visible for potential future use

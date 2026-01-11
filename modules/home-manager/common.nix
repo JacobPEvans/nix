@@ -220,6 +220,10 @@ in
         export PATH="$HOME/.npm-packages/bin:$PATH"
         export NODE_PATH="$HOME/.npm-packages/lib/node_modules"
 
+        # Context7 API key for higher rate limits (from macOS Keychain)
+        export CONTEXT7_API_KEY="$(security find-generic-password \
+          -s "CONTEXT7_API_KEY" -a "jevans" -w 2>/dev/null || echo "")"
+
         # Claude statusline SSH detection (disabled - enhanced statusline unavailable)
         # source ${./zsh/claude-statusline-switch.zsh}
 
