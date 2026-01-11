@@ -31,10 +31,10 @@ All AI CLI tools use a Nix-managed permission system with the following philosop
 
 **Nix-managed** (`ai-assistant-instructions` flake input):
 
-- `allow.json` - Auto-approved commands (323+ command patterns)
-- `ask.json` - Commands requiring user confirmation
-- `deny.json` - Permanently blocked (catastrophic operations)
-- Located in `.claude/permissions/` within the flake input
+- `allow/` directory - Auto-approved commands (300+ patterns)
+- `ask/` directory - Commands requiring user confirmation (100+ patterns)
+- `deny/` directory - Permanently blocked (catastrophic operations)
+- Located in `agentsmd/permissions/` within the flake input
 - Compiled into `~/.claude/settings.json` (read-only, Nix-managed)
 
 **User-managed** (`~/.claude/settings.local.json`):
@@ -42,6 +42,69 @@ All AI CLI tools use a Nix-managed permission system with the following philosop
 - NOT managed by Nix (intentionally writable)
 - Claude writes here on "accept indefinitely"
 - Machine-local only
+
+### Three-Tier Permission Hierarchy
+
+Claude Code evaluates permissions in this order (most restrictive first):
+
+1. **Deny** (highest priority) - Permanently blocked commands
+   - Example: `git commit --no-verify`, `rm -rf /`, package installs
+   - Never executes, no prompt shown
+
+2. **Ask** (middle tier) - Require user confirmation
+   - Example: `git merge`, `git reset`, `docker exec`, `kubectl delete`
+   - User prompted each time (or can "accept indefinitely" for local override)
+
+3. **Allow** (lowest priority) - Auto-approved commands
+   - Example: `git status`, `docker ps`, `kubectl get`
+   - Executes silently without prompts
+
+### Permission Format and Transformation
+
+**CRITICAL**: Source permission files use tool-agnostic format without wildcards.
+The Nix formatter automatically adds wildcards when generating tool-specific output.
+
+**Source format** (in `ai-assistant-instructions`):
+
+```json
+{
+  "commands": [
+    "git",
+    "docker",
+    "git merge",
+    "npm run"
+  ]
+}
+```
+
+**Generated format** (in `~/.claude/settings.json`):
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(docker:*)"
+    ],
+    "ask": [
+      "Bash(git merge:*)"
+    ]
+  }
+}
+```
+
+**Transformation examples**:
+
+- Source: `"git"` → Output: `"Bash(git:*)"`
+- Source: `"git merge"` → Output: `"Bash(git merge:*)"`
+
+**WRONG** (do NOT use `:*` in source files):
+
+- Source: `"git:*"` → Output: `"Bash(git:*:*)"` ✗ (invalid double wildcard)
+
+The validation script (`validate-permissions.sh`) rejects patterns ending with
+`:*` to prevent double-wildcard issues. Pre-commit and CI hooks also validate
+the generated output contains no `:*:*` patterns.
 
 ### Directory Access
 
