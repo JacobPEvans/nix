@@ -84,5 +84,15 @@ in
     [profile splunk]
     region = ${defaultRegion}
     output = ${defaultOutput}
+
+    # Terraform with Bedrock
+    [profile terraform-bedrock]
+    region = ${defaultRegion}
+    output = ${defaultOutput}
+
+    # IAM user profile
+    [profile iam-user]
+    region = ${defaultRegion}
+    output = ${defaultOutput}
   '';
 }
