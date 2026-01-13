@@ -17,10 +17,10 @@ _:
 {
   enabledPlugins = {
     # ========================================================================
-    # Autonomous Iteration (DISABLED - plugin removed from marketplace)
+    # Autonomous Iteration
     # ========================================================================
-    # Ralph-wiggum was removed from claude-plugins-official
-    # If restored upstream, re-enable here
-    "ralph-wiggum@claude-plugins-official" = false;
+    # ralph-loop: autonomous iteration loops with file/git history preservation
+    # Commands: /ralph-loop, /cancel-ralph
+    "ralph-loop@claude-plugins-official" = true;
   };
 }
