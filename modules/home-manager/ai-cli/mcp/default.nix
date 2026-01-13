@@ -3,9 +3,11 @@
 # Strategy: Avoid runtime npm/npx/bunx entirely
 # All MCP servers are either:
 # 1. Native nixpkgs packages (terraform-mcp-server, github-mcp-server, etc.)
-# 2. Fetched and cached from GitHub (Anthropic & community MCP servers)
+# 2. Fetched and cached from GitHub (official MCP servers from modelcontextprotocol)
 #
 # No runtime dependency installation - everything is deterministic and cached.
+#
+# Official MCP Servers: https://github.com/modelcontextprotocol/servers
 
 {
   config,
@@ -29,29 +31,9 @@ let
     // lib.optionalAttrs (!enabled) { enable = false; }
     // lib.optionalAttrs enabled { enable = true; };
 
-  # Helper to fetch MCP server from Anthropic official repo
-  anthropicServer =
-    {
-      name,
-      hash,
-    }:
-    mkServer {
-      command = "${pkgs.nodejs}/bin/node";
-      args = [
-        "${
-          pkgs.fetchFromGitHub {
-            owner = "anthropics";
-            repo = "mcp-servers";
-            rev = "main";
-            sparseCheckout = [ "src/${name}" ];
-            sha256 = hash;
-          }
-        }/src/${name}/dist/index.js"
-      ];
-    };
-
-  # Helper to fetch MCP server from modelcontextprotocol community repo
-  communityServer =
+  # Helper to fetch MCP server from official modelcontextprotocol repo
+  # This is Anthropic's official MCP servers repository
+  officialServer =
     {
       name,
       hash,
@@ -77,32 +59,53 @@ in
   # These are then merged into the programs.claude.mcpServers setting
   mcpServers = {
     # ================================================================
-    # Tier 1: Essential Utilities
+    # Official Anthropic MCP Servers (modelcontextprotocol/servers)
+    # ALL enabled by default
     # ================================================================
 
-    # Filesystem - Secure file system access
-    filesystem =
-      (anthropicServer {
-        name = "filesystem";
-        hash = lib.fakeHash; # TODO: Replace with actual hash from: nix hash path /path/to/fetched/repo
-      })
-      // {
-        enable = true;
-      };
-
-    # Sequential Thinking - Multi-step reasoning
-    sequential-thinking =
-      (anthropicServer {
-        name = "sequential-thinking";
+    # Everything - Reference/test server with prompts, resources, and tools
+    everything =
+      (officialServer {
+        name = "everything";
         hash = lib.fakeHash;
       })
       // {
         enable = true;
       };
 
-    # Memory - Persistent context across sessions
+    # Fetch - Web content fetching and conversion for efficient LLM usage
+    fetch =
+      (officialServer {
+        name = "fetch";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+      };
+
+    # Filesystem - Secure file operations with configurable access controls
+    filesystem =
+      (officialServer {
+        name = "filesystem";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+      };
+
+    # Git - Tools for git repository manipulation
+    git =
+      (officialServer {
+        name = "git";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+      };
+
+    # Memory - Knowledge graph-based persistent context
     memory =
-      (anthropicServer {
+      (officialServer {
         name = "memory";
         hash = lib.fakeHash;
       })
@@ -110,14 +113,20 @@ in
         enable = true;
       };
 
-    # ================================================================
-    # Browser Automation
-    # ================================================================
+    # Sequential Thinking - Problem-solving through thought sequences
+    sequentialthinking =
+      (officialServer {
+        name = "sequentialthinking";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+      };
 
-    # Playwright - Browser automation and testing
-    playwright =
-      (anthropicServer {
-        name = "playwright";
+    # Time - Timezone conversion utilities
+    time =
+      (officialServer {
+        name = "time";
         hash = lib.fakeHash;
       })
       // {
@@ -125,7 +134,7 @@ in
       };
 
     # ================================================================
-    # Infrastructure & DevOps (Native nixpkgs)
+    # Infrastructure & DevOps (Native nixpkgs packages)
     # ================================================================
 
     # Terraform - Available in nixpkgs as native package
@@ -136,26 +145,89 @@ in
 
     # GitHub - Available in nixpkgs as native package
     github = mkServer {
-      enabled = false;
+      enabled = true;
       command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
       env = {
         GITHUB_PERSONAL_ACCESS_TOKEN = "";
       };
     };
 
-    # Docker - Available in nixpkgs
+    # Docker - Container management via docker CLI
     docker = mkServer {
-      enabled = false;
+      enabled = true;
       command = "${pkgs.docker}/bin/docker";
     };
 
     # ================================================================
-    # Database
+    # Search (from official MCP servers repo)
+    # ================================================================
+
+    # Exa - AI-focused semantic search
+    exa =
+      (officialServer {
+        name = "exa";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+        env = {
+          EXA_API_KEY = "";
+        };
+      };
+
+    # Firecrawl - Web scraping for LLMs
+    firecrawl =
+      (officialServer {
+        name = "firecrawl";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+        env = {
+          FIRECRAWL_API_KEY = "";
+        };
+      };
+
+    # ================================================================
+    # Cloud Services (from official MCP servers repo)
+    # ================================================================
+
+    # Cloudflare - Workers, KV, R2, D1 management
+    cloudflare =
+      (officialServer {
+        name = "cloudflare";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+        env = {
+          CLOUDFLARE_API_TOKEN = "";
+          CLOUDFLARE_ACCOUNT_ID = "";
+        };
+      };
+
+    # AWS - Multi-service AWS integration
+    aws =
+      (officialServer {
+        name = "aws-kb-retrieval-server";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = true;
+        env = {
+          AWS_ACCESS_KEY_ID = "";
+          AWS_SECRET_ACCESS_KEY = "";
+          AWS_REGION = "us-east-1";
+        };
+      };
+
+    # ================================================================
+    # Database (disabled by default - require setup)
     # ================================================================
 
     # PostgreSQL - Database queries with natural language
     postgresql =
-      (anthropicServer {
+      (officialServer {
         name = "postgres";
         hash = lib.fakeHash;
       })
@@ -166,27 +238,26 @@ in
         };
       };
 
-    # Supabase - Database + auth + edge functions
-    supabase =
-      (anthropicServer {
-        name = "supabase";
+    # SQLite - Local database queries
+    sqlite =
+      (officialServer {
+        name = "sqlite";
         hash = lib.fakeHash;
       })
       // {
         enable = false;
         env = {
-          SUPABASE_URL = "";
-          SUPABASE_KEY = "";
+          SQLITE_DB_PATH = "";
         };
       };
 
     # ================================================================
-    # Search (Community servers)
+    # Additional Official Servers (disabled - specialized use cases)
     # ================================================================
 
     # Brave Search - Web search capabilities
     brave-search =
-      (communityServer {
+      (officialServer {
         name = "brave-search";
         hash = lib.fakeHash;
       })
@@ -197,62 +268,66 @@ in
         };
       };
 
-    # Exa - AI-focused semantic search
-    exa =
-      (communityServer {
-        name = "exa";
+    # Google Drive - Google Drive file access
+    gdrive =
+      (officialServer {
+        name = "gdrive";
         hash = lib.fakeHash;
       })
       // {
         enable = false;
         env = {
-          EXA_API_KEY = "";
+          GDRIVE_CREDENTIALS = "";
         };
       };
 
-    # Firecrawl - Web scraping for LLMs
-    firecrawl =
-      (communityServer {
-        name = "firecrawl";
+    # Google Maps - Location and mapping services
+    google-maps =
+      (officialServer {
+        name = "google-maps";
         hash = lib.fakeHash;
       })
       // {
         enable = false;
         env = {
-          FIRECRAWL_API_KEY = "";
+          GOOGLE_MAPS_API_KEY = "";
         };
       };
 
-    # ================================================================
-    # Cloud Services
-    # ================================================================
+    # Puppeteer - Browser automation (alternative to Playwright)
+    puppeteer =
+      (officialServer {
+        name = "puppeteer";
+        hash = lib.fakeHash;
+      })
+      // {
+        enable = false;
+      };
 
-    # Cloudflare - Workers, KV, R2, D1 management
-    cloudflare =
-      (anthropicServer {
-        name = "cloudflare";
+    # Slack - Team communication integration
+    slack =
+      (officialServer {
+        name = "slack";
         hash = lib.fakeHash;
       })
       // {
         enable = false;
         env = {
-          CLOUDFLARE_API_TOKEN = "";
-          CLOUDFLARE_ACCOUNT_ID = "";
+          SLACK_BOT_TOKEN = "";
+          SLACK_TEAM_ID = "";
         };
       };
 
-    # AWS - Multi-service AWS integration
-    aws =
-      (anthropicServer {
-        name = "aws";
+    # Sentry - Error tracking and monitoring
+    sentry =
+      (officialServer {
+        name = "sentry";
         hash = lib.fakeHash;
       })
       // {
         enable = false;
         env = {
-          AWS_ACCESS_KEY_ID = "";
-          AWS_SECRET_ACCESS_KEY = "";
-          AWS_REGION = "us-east-1";
+          SENTRY_AUTH_TOKEN = "";
         };
       };
   };
