@@ -53,6 +53,11 @@
 #   chatgpt: chatgpt-cli@3.3.0
 #     - Status: Not in nixpkgs
 #
+# HOMEBREW PACKAGES (from modules/darwin/homebrew.nix):
+#   block-goose-cli: Block's AI agent (nixpkgs v1.16.1 is 34 days old, homebrew has LATEST v1.19.1)
+#     - Status: Using homebrew - nixpkgs >30 days old, homebrew actively maintained with same-day releases
+#     - Verified: Jan 13, 2026 (homebrew formula checked directly)
+#
 # OTHER TOOLS (installed via other methods):
 #   aider: Via pipx (Python package, not available in nixpkgs)
 #
