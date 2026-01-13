@@ -32,29 +32,26 @@ let
       inherit enabled command args;
     };
 
-  # Helper to fetch MCP server from official modelcontextprotocol repo
-  # This is Anthropic's official MCP servers repository
+  # Fetch the entire official MCP servers repository once
   # Pinned to commit: 861c11b786b3efbc87eb2e878a4039d33846a031 (2026-01-13)
+  # Single fetch for all servers to avoid sparseCheckout hash non-determinism
+  mcpServersRepo = pkgs.fetchFromGitHub {
+    owner = "modelcontextprotocol";
+    repo = "servers";
+    rev = "861c11b786b3efbc87eb2e878a4039d33846a031";
+    sha256 = lib.fakeHash;
+  };
+
+  # Helper to create server definition from the fetched repo
   officialServerDef =
     {
       name,
-      hash,
       enabled ? false,
     }:
     mkServerDef {
       inherit enabled;
       command = "${pkgs.nodejs}/bin/node";
-      args = [
-        "${
-          pkgs.fetchFromGitHub {
-            owner = "modelcontextprotocol";
-            repo = "servers";
-            rev = "861c11b786b3efbc87eb2e878a4039d33846a031";
-            sparseCheckout = [ "src/${name}" ];
-            sha256 = hash;
-          }
-        }/src/${name}/dist/index.js"
-      ];
+      args = [ "${mcpServersRepo}/src/${name}/dist/index.js" ];
     };
 
   # All server definitions with enable flags
@@ -68,49 +65,42 @@ let
     # Everything - Reference/test server with prompts, resources, and tools
     everything = officialServerDef {
       name = "everything";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
     # Fetch - Web content fetching and conversion for efficient LLM usage
     fetch = officialServerDef {
       name = "fetch";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
     # Filesystem - Secure file operations with configurable access controls
     filesystem = officialServerDef {
       name = "filesystem";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
     # Git - Tools for git repository manipulation
     git = officialServerDef {
       name = "git";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
     # Memory - Knowledge graph-based persistent context
     memory = officialServerDef {
       name = "memory";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
     # Sequential Thinking - Problem-solving through thought sequences
     sequentialthinking = officialServerDef {
       name = "sequentialthinking";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
     # Time - Timezone conversion utilities
     time = officialServerDef {
       name = "time";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
@@ -145,7 +135,6 @@ let
     # Requires: EXA_API_KEY env var
     exa = officialServerDef {
       name = "exa";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
@@ -153,7 +142,6 @@ let
     # Requires: FIRECRAWL_API_KEY env var
     firecrawl = officialServerDef {
       name = "firecrawl";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
@@ -165,7 +153,6 @@ let
     # Requires: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID env vars
     cloudflare = officialServerDef {
       name = "cloudflare";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
@@ -173,7 +160,6 @@ let
     # Requires: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION env vars
     aws = officialServerDef {
       name = "aws-kb-retrieval-server";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = true;
     };
 
@@ -185,7 +171,6 @@ let
     # Requires: DATABASE_URL env var
     postgresql = officialServerDef {
       name = "postgres";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
@@ -193,7 +178,6 @@ let
     # Requires: SQLITE_DB_PATH env var
     sqlite = officialServerDef {
       name = "sqlite";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
@@ -205,7 +189,6 @@ let
     # Requires: BRAVE_API_KEY env var
     brave-search = officialServerDef {
       name = "brave-search";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
@@ -213,7 +196,6 @@ let
     # Requires: GDRIVE_CREDENTIALS env var
     gdrive = officialServerDef {
       name = "gdrive";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
@@ -221,14 +203,12 @@ let
     # Requires: GOOGLE_MAPS_API_KEY env var
     google-maps = officialServerDef {
       name = "google-maps";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
     # Puppeteer - Browser automation (alternative to Playwright)
     puppeteer = officialServerDef {
       name = "puppeteer";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
@@ -236,7 +216,6 @@ let
     # Requires: SLACK_BOT_TOKEN, SLACK_TEAM_ID env vars
     slack = officialServerDef {
       name = "slack";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
 
@@ -244,7 +223,6 @@ let
     # Requires: SENTRY_AUTH_TOKEN env var
     sentry = officialServerDef {
       name = "sentry";
-      hash = "sha256-QfKoCpeSzg+RkF1vdsWxKaaa7cbJxBh//78JRnpyStA=";
       enabled = false;
     };
   };
