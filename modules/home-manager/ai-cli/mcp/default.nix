@@ -20,27 +20,28 @@
 }:
 
 let
-  # Helper to create MCP server config entry
-  mkServer =
+  # Helper to create MCP server definition with enable flag
+  # The enable flag is used for filtering, not passed to programs.claude
+  mkServerDef =
     {
       enabled ? false,
       command,
       args ? [ ],
     }:
     {
-      inherit command args;
-    }
-    // lib.optionalAttrs (!enabled) { enable = false; }
-    // lib.optionalAttrs enabled { enable = true; };
+      inherit enabled command args;
+    };
 
   # Helper to fetch MCP server from official modelcontextprotocol repo
   # This is Anthropic's official MCP servers repository
-  officialServer =
+  officialServerDef =
     {
       name,
       hash,
+      enabled ? false,
     }:
-    mkServer {
+    mkServerDef {
+      inherit enabled;
       command = "${pkgs.nodejs}/bin/node";
       args = [
         "${
@@ -55,105 +56,82 @@ let
       ];
     };
 
-in
-{
-  # Export mcpServers for use in claude-config.nix
-  # These are then merged into the programs.claude.mcpServers setting
-  mcpServers = {
+  # All server definitions with enable flags
+  # To enable/disable a server, change its `enabled` attribute
+  allServers = {
     # ================================================================
     # Official Anthropic MCP Servers (modelcontextprotocol/servers)
     # ALL enabled by default
     # ================================================================
 
     # Everything - Reference/test server with prompts, resources, and tools
-    everything =
-      (officialServer {
-        name = "everything";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    everything = officialServerDef {
+      name = "everything";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Fetch - Web content fetching and conversion for efficient LLM usage
-    fetch =
-      (officialServer {
-        name = "fetch";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    fetch = officialServerDef {
+      name = "fetch";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Filesystem - Secure file operations with configurable access controls
-    filesystem =
-      (officialServer {
-        name = "filesystem";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    filesystem = officialServerDef {
+      name = "filesystem";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Git - Tools for git repository manipulation
-    git =
-      (officialServer {
-        name = "git";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    git = officialServerDef {
+      name = "git";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Memory - Knowledge graph-based persistent context
-    memory =
-      (officialServer {
-        name = "memory";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    memory = officialServerDef {
+      name = "memory";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Sequential Thinking - Problem-solving through thought sequences
-    sequentialthinking =
-      (officialServer {
-        name = "sequentialthinking";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    sequentialthinking = officialServerDef {
+      name = "sequentialthinking";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Time - Timezone conversion utilities
-    time =
-      (officialServer {
-        name = "time";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    time = officialServerDef {
+      name = "time";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # ================================================================
     # Infrastructure & DevOps (Native nixpkgs packages)
     # ================================================================
 
     # Terraform - Available in nixpkgs as native package
-    terraform = mkServer {
+    terraform = mkServerDef {
       enabled = true;
       command = "${pkgs.terraform-mcp-server}/bin/terraform-mcp-server";
     };
 
     # GitHub - Available in nixpkgs as native package
     # Requires: GITHUB_PERSONAL_ACCESS_TOKEN env var
-    github = mkServer {
+    github = mkServerDef {
       enabled = true;
       command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
     };
 
     # Docker - Container management via docker CLI
-    docker = mkServer {
+    docker = mkServerDef {
       enabled = true;
       command = "${pkgs.docker}/bin/docker";
     };
@@ -164,25 +142,19 @@ in
 
     # Exa - AI-focused semantic search
     # Requires: EXA_API_KEY env var
-    exa =
-      (officialServer {
-        name = "exa";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    exa = officialServerDef {
+      name = "exa";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # Firecrawl - Web scraping for LLMs
     # Requires: FIRECRAWL_API_KEY env var
-    firecrawl =
-      (officialServer {
-        name = "firecrawl";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    firecrawl = officialServerDef {
+      name = "firecrawl";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # ================================================================
     # Cloud Services (from official MCP servers repo)
@@ -190,25 +162,19 @@ in
 
     # Cloudflare - Workers, KV, R2, D1 management
     # Requires: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID env vars
-    cloudflare =
-      (officialServer {
-        name = "cloudflare";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    cloudflare = officialServerDef {
+      name = "cloudflare";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # AWS - Multi-service AWS integration
     # Requires: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION env vars
-    aws =
-      (officialServer {
-        name = "aws-kb-retrieval-server";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = true;
-      };
+    aws = officialServerDef {
+      name = "aws-kb-retrieval-server";
+      hash = lib.fakeHash;
+      enabled = true;
+    };
 
     # ================================================================
     # Database (disabled by default - require setup)
@@ -216,25 +182,19 @@ in
 
     # PostgreSQL - Database queries with natural language
     # Requires: DATABASE_URL env var
-    postgresql =
-      (officialServer {
-        name = "postgres";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    postgresql = officialServerDef {
+      name = "postgres";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # SQLite - Local database queries
     # Requires: SQLITE_DB_PATH env var
-    sqlite =
-      (officialServer {
-        name = "sqlite";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    sqlite = officialServerDef {
+      name = "sqlite";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # ================================================================
     # Additional Official Servers (disabled - specialized use cases)
@@ -242,67 +202,62 @@ in
 
     # Brave Search - Web search capabilities
     # Requires: BRAVE_API_KEY env var
-    brave-search =
-      (officialServer {
-        name = "brave-search";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    brave-search = officialServerDef {
+      name = "brave-search";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # Google Drive - Google Drive file access
     # Requires: GDRIVE_CREDENTIALS env var
-    gdrive =
-      (officialServer {
-        name = "gdrive";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    gdrive = officialServerDef {
+      name = "gdrive";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # Google Maps - Location and mapping services
     # Requires: GOOGLE_MAPS_API_KEY env var
-    google-maps =
-      (officialServer {
-        name = "google-maps";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    google-maps = officialServerDef {
+      name = "google-maps";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # Puppeteer - Browser automation (alternative to Playwright)
-    puppeteer =
-      (officialServer {
-        name = "puppeteer";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    puppeteer = officialServerDef {
+      name = "puppeteer";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # Slack - Team communication integration
     # Requires: SLACK_BOT_TOKEN, SLACK_TEAM_ID env vars
-    slack =
-      (officialServer {
-        name = "slack";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    slack = officialServerDef {
+      name = "slack";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
 
     # Sentry - Error tracking and monitoring
     # Requires: SENTRY_AUTH_TOKEN env var
-    sentry =
-      (officialServer {
-        name = "sentry";
-        hash = lib.fakeHash;
-      })
-      // {
-        enable = false;
-      };
+    sentry = officialServerDef {
+      name = "sentry";
+      hash = lib.fakeHash;
+      enabled = false;
+    };
   };
+
+  # Filter to only enabled servers and remove the `enabled` attribute
+  # This is what gets passed to programs.claude.mcpServers
+  enabledServers = lib.filterAttrs (_: v: v.enabled) allServers;
+  mcpServersForClaude = lib.mapAttrs (_: v: {
+    inherit (v) command args;
+  }) enabledServers;
+
+in
+{
+  # Export mcpServers for use in claude-config.nix
+  # These are filtered to only enabled servers and formatted for programs.claude
+  mcpServers = mcpServersForClaude;
 }
