@@ -68,49 +68,49 @@ let
     # Everything - Reference/test server with prompts, resources, and tools
     everything = officialServerDef {
       name = "everything";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
     # Fetch - Web content fetching and conversion for efficient LLM usage
     fetch = officialServerDef {
       name = "fetch";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
     # Filesystem - Secure file operations with configurable access controls
     filesystem = officialServerDef {
       name = "filesystem";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
     # Git - Tools for git repository manipulation
     git = officialServerDef {
       name = "git";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
     # Memory - Knowledge graph-based persistent context
     memory = officialServerDef {
       name = "memory";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
     # Sequential Thinking - Problem-solving through thought sequences
     sequentialthinking = officialServerDef {
       name = "sequentialthinking";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
     # Time - Timezone conversion utilities
     time = officialServerDef {
       name = "time";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
@@ -145,7 +145,7 @@ let
     # Requires: EXA_API_KEY env var
     exa = officialServerDef {
       name = "exa";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
@@ -153,7 +153,7 @@ let
     # Requires: FIRECRAWL_API_KEY env var
     firecrawl = officialServerDef {
       name = "firecrawl";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
@@ -165,7 +165,7 @@ let
     # Requires: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID env vars
     cloudflare = officialServerDef {
       name = "cloudflare";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
@@ -173,7 +173,7 @@ let
     # Requires: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION env vars
     aws = officialServerDef {
       name = "aws-kb-retrieval-server";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = true;
     };
 
@@ -185,7 +185,7 @@ let
     # Requires: DATABASE_URL env var
     postgresql = officialServerDef {
       name = "postgres";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
@@ -193,7 +193,7 @@ let
     # Requires: SQLITE_DB_PATH env var
     sqlite = officialServerDef {
       name = "sqlite";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
@@ -205,7 +205,7 @@ let
     # Requires: BRAVE_API_KEY env var
     brave-search = officialServerDef {
       name = "brave-search";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
@@ -213,7 +213,7 @@ let
     # Requires: GDRIVE_CREDENTIALS env var
     gdrive = officialServerDef {
       name = "gdrive";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
@@ -221,14 +221,14 @@ let
     # Requires: GOOGLE_MAPS_API_KEY env var
     google-maps = officialServerDef {
       name = "google-maps";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
     # Puppeteer - Browser automation (alternative to Playwright)
     puppeteer = officialServerDef {
       name = "puppeteer";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
@@ -236,7 +236,7 @@ let
     # Requires: SLACK_BOT_TOKEN, SLACK_TEAM_ID env vars
     slack = officialServerDef {
       name = "slack";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
 
@@ -244,7 +244,7 @@ let
     # Requires: SENTRY_AUTH_TOKEN env var
     sentry = officialServerDef {
       name = "sentry";
-      hash = lib.fakeHash;
+      hash = "sha256-lgPsnAAWHrTZvPJyJU51BDpHVC5rXKmpJXTnmp8D1T8=";
       enabled = false;
     };
   };
