@@ -25,13 +25,9 @@ _:
       # CLI tools (only if not available in nixpkgs)
       "ccusage" # Claude Code usage analyzer - not in nixpkgs
 
-      # Block Goose AI agent - open-source extensible AI agent
-      # Source: https://github.com/block/goose
-      # Homebrew version: 1.19.1 (Jan 7, 2026) ← LATEST! Actively maintained
-      # Why homebrew: nixpkgs has 'goose-cli' at v1.16.1 (Dec 10, 2025, 34 days old)
-      #               Nixpkgs >30 days old, using homebrew per package hierarchy
-      #               Homebrew has latest version (updated same-day as upstream releases)
-      # Note: Homebrew package is 'block-goose-cli' to avoid conflict with nixpkgs 'goose' (database migration tool)
+      # Block Goose AI agent (https://github.com/block/goose)
+      # - Using homebrew as nixpkgs version was >30 days old at time of addition; homebrew actively maintained
+      # - Named 'block-goose-cli' to avoid conflict with nixpkgs 'goose' (database migration tool)
       "block-goose-cli"
     ];
     casks = [
