@@ -44,8 +44,7 @@ _:
     # Language Servers & Developer Tools
     "pyright-lsp@claude-plugins-official" = true;
 
-    # Workflow & Examples
-    "example-plugin@claude-plugins-official" = true;
+    # Workflow
     "ralph-loop@claude-plugins-official" = true;
 
     # External plugins (GitHub, Slack, Context7, etc.) moved to external.nix
