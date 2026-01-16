@@ -166,6 +166,22 @@ let
         url = claudeSkillsUrl;
       };
     };
+
+    # --- Additional Community Marketplaces ---
+    # Curated collection of Claude Code plugins
+    "awesome-claude-code-plugins" = {
+      source = {
+        type = "github";
+        url = "ccplugins/awesome-claude-code-plugins";
+      };
+    };
+    # Multi-model AI integrations (OpenAI, Gemini) and notifications
+    "cc-dev-tools" = {
+      source = {
+        type = "github";
+        url = "Lucklyric/cc-dev-tools";
+      };
+    };
   };
 
   # Validate all marketplaces at evaluation time
