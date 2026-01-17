@@ -87,13 +87,18 @@ with pkgs;
   pyright # Type checker for Python language
 
   # Python interpreters: Multiple versions for different use cases
-  # - python3 (3.13): Default, latest features (system-wide)
-  # - python312: General development, backwards compatibility testing
-  # - python39: Splunk development, Python 3.9 compatibility
-  # Available as: python3, python3.12, python3.9 (via nix symlinks)
-  # Use `uv venv --python X.Y` to create project-specific virtualenvs
+  # Available system-wide via Nix (nixpkgs-25.11):
+  #   - python3 (3.13): Default, latest features
+  #   - python312: General development, backwards compatibility testing
+  #   - python310: Older compatibility testing
+  #
+  # For Python 3.9 (Splunk, EOL versions not in nixpkgs):
+  #   Use `uv` which downloads interpreters on-demand from python-build-standalone:
+  #     uv venv --python 3.9 .venv-splunk
+  #     uv run --python 3.9 pytest tests/
+  #   Cached in ~/.cache/uv/, not system-installed
   python312 # Python 3.12: General development and testing
-  python39 # Python 3.9: Splunk development and older compatibility
+  python310 # Python 3.10: Older compatibility testing
 
   # ==========================================================================
   # Python Environment
