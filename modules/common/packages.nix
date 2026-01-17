@@ -83,8 +83,17 @@ with pkgs;
   # Python Tools
   # ==========================================================================
   # Fast Python package installer and management tools.
-  uv # Extremely fast Python package installer and resolver
+  uv # Extremely fast Python package installer and resolver (supports all versions)
   pyright # Type checker for Python language
+
+  # Python interpreters: Multiple versions for different use cases
+  # - python3 (3.13): Default, latest features (system-wide)
+  # - python312: General development, backwards compatibility testing
+  # - python39: Splunk development, Python 3.9 compatibility
+  # Available as: python3, python3.12, python3.9 (via nix symlinks)
+  # Use `uv venv --python X.Y` to create project-specific virtualenvs
+  python312 # Python 3.12: General development and testing
+  python39 # Python 3.9: Splunk development and older compatibility
 
   # ==========================================================================
   # Python Environment
