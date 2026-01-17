@@ -7,7 +7,8 @@
 # Available via Nix (nixpkgs-25.11): 3.10, 3.11, 3.12, 3.13
 # For EOL versions (3.9): Use `uv` which downloads on-demand (see below)
 #
-# Used by: modules/common/packages.nix, shells/*/flake.nix
+# Intended to be imported by Nix modules and dev shells to share Python versions
+# and reusable package sets.
 #
 # Design goals:
 # - DRY: Define each Python version and package set once
@@ -60,10 +61,13 @@
         virtualenv # Virtual environment tool
         setuptools # Build system
         pytest # Testing framework
+        pytest-asyncio # Async test support
+        pytest-cov # Coverage plugin for pytest
+        coverage # Code coverage measurement
         ruff # Fast Python linter and formatter
         mypy # Static type checker
         black # Code formatter
-        coverage # Code coverage measurement
+        ipython # Enhanced interactive shell
       ];
 
     # Data science stack: analytical tools
@@ -78,9 +82,4 @@
         jupyter # Interactive notebooks
       ];
   };
-
-  # Helper function: Create Python environment with specified packages
-  # Syntax: withPackages(pythonVersion, packageSet)
-  # Example: withPackages(versions.py312, packageSets.full-dev)
-  withPackages = python: packages: python.withPackages packages;
 }

@@ -33,22 +33,21 @@
       ];
       forAllSystems =
         f: nixpkgs.lib.genAttrs systems (system: f { pkgs = import nixpkgs { inherit system; }; });
+      envs = { pkgs }: import ../../lib/python-environments.nix { inherit pkgs; };
     in
     {
       devShells = forAllSystems (
         { pkgs }:
+        let
+          pythonEnvs = envs { inherit pkgs; };
+        in
         {
           default = pkgs.mkShell {
             name = "python310-dev";
 
             buildInputs = with pkgs; [
               # Python 3.10 with minimal tools for project-specific installation
-              (python310.withPackages (
-                ps: with ps; [
-                  pip # Python package installer
-                  virtualenv # Virtual environment tool
-                ]
-              ))
+              (pythonEnvs.versions.py310.withPackages pythonEnvs.packageSets.minimal)
             ];
 
             shellHook = ''
