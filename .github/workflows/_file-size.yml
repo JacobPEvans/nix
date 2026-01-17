@@ -10,6 +10,9 @@ on:
     # No inputs - config is read from file-size-config.sh
     # This prevents drift between pre-commit and CI
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Check
