@@ -6,7 +6,7 @@ This repository uses automated daily flake updates via GitHub Actions workflow (
 
 ## Update Schedule
 
-- **Daily (Mon-Thu)**: AI-focused inputs only
+- **Daily (except Tue/Fri)**: AI-focused inputs only
 - **Tuesday & Friday**: All flake inputs (including darwin, home-manager, system packages)
 - **Manual trigger**: `workflow_dispatch` with optional `update_all` flag
 - **Triggered sync**: `repository_dispatch` for `ai-assistant-instructions` only (fast path)
