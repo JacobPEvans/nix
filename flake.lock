@@ -131,11 +131,11 @@
     "claude-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1768659906,
-        "narHash": "sha256-RP1CtaSfF4E2JHbY2FMvp3m4xeKnS8nKAWhmL6Udtts=",
+        "lastModified": 1768760789,
+        "narHash": "sha256-WDbk7Fkab6osz/xcXGvDxQ68N7Yic5vc4qB1XDtT2Bg=",
         "owner": "secondsky",
         "repo": "claude-skills",
-        "rev": "ac87c78de10ec0b07ff224fd22703c8d790268e5",
+        "rev": "00430d3d9eff1cefc4ce9a1ea8eadc65f5ccccf9",
         "type": "github"
       },
       "original": {
@@ -226,11 +226,11 @@
     "jacobpevans-cc-plugins": {
       "flake": false,
       "locked": {
-        "lastModified": 1768058643,
-        "narHash": "sha256-Z/50J3y50HhCE4IhWZGafiVu6qvu7v7Ac1lelCX4jIw=",
+        "lastModified": 1768707659,
+        "narHash": "sha256-zlRO1CP6feaS/x18hQqFj4VJWLzADYFXj6NHUf25nGY=",
         "owner": "JacobPEvans",
         "repo": "claude-code-plugins",
-        "rev": "a45ac3bd8f2bd54cb00de6d29954ba03adfb2983",
+        "rev": "18a39a5d6bd9a125f961bd01ef138f5d26566cea",
         "type": "github"
       },
       "original": {
