@@ -202,7 +202,7 @@ in
   commands = {
     # All commands from Nix store (flake inputs) for reproducibility
     fromFlakeInputs =
-      (mkSourceEntries "${ai-assistant-instructions}/.claude/commands" aiCommands)
+      (mkSourceEntries "${ai-assistant-instructions}/agentsmd/commands" aiCommands)
       ++ (mkSourceEntries "${claude-cookbooks}/.claude/commands" cbCommands);
   };
 
