@@ -16,7 +16,8 @@ Loop iteration: {{LOOP_NUMBER}}
 
 - [ ] Read `scored-issues.json`
 - [ ] Sort by category priority, then score (descending)
-- [ ] For top issue, check: `gh pr list --search "fixes #${ISSUE_NUMBER}"`
+- [ ] Extract top issue number: `ISSUE_NUMBER=$(jq -r '.[0].number' scored-issues.json)`
+- [ ] For top issue, check: `gh pr list --search "fixes #$ISSUE_NUMBER"`
 - [ ] If PR exists, skip to next issue
 - [ ] Write selected issue to `selected-issue.json`
 

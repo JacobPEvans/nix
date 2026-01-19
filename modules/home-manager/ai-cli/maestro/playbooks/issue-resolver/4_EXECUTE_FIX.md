@@ -15,14 +15,15 @@ Target repository: $MAESTRO_CURRENT_REPO
 ## Tasks
 
 - [ ] Read issue details from `selected-issue.json`
+- [ ] Extract issue number: `ISSUE_NUMBER=$(jq -r '.number' selected-issue.json)`
 - [ ] Create worktree: Run `/init-worktree` command with descriptive branch name
 - [ ] Analyze issue requirements thoroughly
 - [ ] Implement the fix following repository conventions
 - [ ] Add or update tests as appropriate
 - [ ] Run linting and tests: repository-specific commands
-- [ ] Commit with message: `fix: <description>\n\nFixes #${ISSUE_NUMBER}`
+- [ ] Commit with message: `fix: <description>\n\nFixes #$ISSUE_NUMBER`
 - [ ] Push branch to origin
-- [ ] Create draft PR: `gh pr create --fill --draft --body "Fixes #${ISSUE_NUMBER}"`
+- [ ] Create draft PR: `gh pr create --fill --draft --body "Fixes #$ISSUE_NUMBER"`
 - [ ] Write PR details to `pr-created.json`
 
 ## Commit Message Format

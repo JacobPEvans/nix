@@ -57,8 +57,31 @@ in
     home.file = lib.mkMerge [
       {
         ".local/bin/maestro-cli" = {
-          source = ./maestro-cli-wrapper.sh;
           executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            # Maestro CLI Wrapper
+            #
+            # Invokes Maestro Electron app in CLI mode for automated playbook execution.
+            # The Maestro app supports headless CLI commands for scheduled automation.
+            #
+            # Usage: maestro-cli <args...>  # passes all arguments to Maestro CLI
+
+            set -euo pipefail
+
+            # Path to Maestro Electron app
+            MAESTRO_APP="${cfg.appPath}"
+
+            # Verify Maestro is installed
+            if [ ! -x "$MAESTRO_APP" ]; then
+              echo "Error: Maestro not found at $MAESTRO_APP" >&2
+              echo "Please install Maestro from: https://www.maestro.app" >&2
+              exit 1
+            fi
+
+            # Pass all arguments to Maestro CLI
+            exec "$MAESTRO_APP" "$@"
+          '';
         };
       }
       (lib.mkIf cfg.issueResolver.enable issueResolverPlaybooks)
@@ -87,7 +110,7 @@ in
           StandardErrorPath = "${homeDir}/.maestro/logs/issue-resolver-stderr.log";
           EnvironmentVariables = {
             HOME = homeDir;
-            PATH = "/opt/homebrew/bin:/etc/profiles/per-user/${config.home.username}/bin:/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/usr/bin:/bin";
+            PATH = "${config.home.profileDirectory}/bin:/run/current-system/sw/bin:/usr/bin:/bin";
             GH_CONFIG_DIR = "${homeDir}/.config/gh";
             # Target repository for playbook
             MAESTRO_CURRENT_REPO = cfg.issueResolver.targetRepository;

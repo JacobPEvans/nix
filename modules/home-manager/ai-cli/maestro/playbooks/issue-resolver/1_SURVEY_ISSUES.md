@@ -4,12 +4,13 @@ Fetch and categorize open issues from the target repository.
 
 ## Context
 
-Loop iteration: {{LOOP_NUMBER}}
-Target repository: $MAESTRO_CURRENT_REPO
+Loop iteration: Record the current iteration number here (replaces {{LOOP_NUMBER}})
+Target repository: $MAESTRO_CURRENT_REPO (must be set before running this playbook; when running manually, export `MAESTRO_CURRENT_REPO=/path/to/repo`)
 
 ## Setup
 
-- [ ] Change to target repository: `cd $MAESTRO_CURRENT_REPO`
+- [ ] Ensure `MAESTRO_CURRENT_REPO` is set: `: "${MAESTRO_CURRENT_REPO:?MAESTRO_CURRENT_REPO is not set}"`
+- [ ] Change to target repository: `cd "$MAESTRO_CURRENT_REPO"`
 - [ ] Verify git status: `git status`
 
 ## Tasks

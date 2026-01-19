@@ -9,10 +9,11 @@ Loop iteration: {{LOOP_NUMBER}}
 ## Tasks
 
 - [ ] Read `pr-created.json` (if exists)
-- [ ] Verify PR exists: `gh pr view ${PR_NUMBER} --json state`
+- [ ] Extract PR number: `PR_NUMBER=$(jq -r '.pr_number' pr-created.json)`
+- [ ] Verify PR exists: `gh pr view "$PR_NUMBER" --json state`
 - [ ] If PR state is `OPEN` or `MERGED`, mark success
 - [ ] Clean up temporary files: `issues.json`, `scored-issues.json`, `selected-issue.json`, `pr-created.json`
-- [ ] Write run summary to `LOOP_{{LOOP_NUMBER}}_SUMMARY.json`
+- [ ] Write run summary with current iteration number in filename
 
 ## Run Summary
 
