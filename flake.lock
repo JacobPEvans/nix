@@ -19,11 +19,11 @@
     "ai-assistant-instructions": {
       "flake": false,
       "locked": {
-        "lastModified": 1768706613,
-        "narHash": "sha256-LQaFOpNSDIfRpuFiAKnemo9KW5zybgOOwP7/5PBUEuU=",
+        "lastModified": 1768871324,
+        "narHash": "sha256-rqgyztNjOxK4X84DTRsCL4ve0/TC5FKE2P70B7xuum0=",
         "owner": "JacobPEvans",
         "repo": "ai-assistant-instructions",
-        "rev": "fb0b68d1694175232bbd5180ed35cf7bea71c362",
+        "rev": "de5f47bb33a5685780d6134afe0824ecda369bdb",
         "type": "github"
       },
       "original": {
@@ -83,11 +83,11 @@
     "claude-code-workflows": {
       "flake": false,
       "locked": {
-        "lastModified": 1768666752,
-        "narHash": "sha256-MSCb4RfeI+Fom7kAf422Sr3QYec+pu4bON7+p0+T3Kw=",
+        "lastModified": 1768860507,
+        "narHash": "sha256-yYyxvCO3F5UBi6K/n6XcsukV61tO8eBz3UvdMQL9UwI=",
         "owner": "wshobson",
         "repo": "agents",
-        "rev": "e827cc713a0bcb4d1033cf81768290e91c8761d2",
+        "rev": "1135ac606247648d9e4724f027280d4114282858",
         "type": "github"
       },
       "original": {
