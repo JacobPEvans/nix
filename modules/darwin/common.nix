@@ -24,7 +24,6 @@ in
     ./boot-activation.nix # Creates /run/current-system at boot
     ./auto-recovery.nix
     ./security.nix
-    ./terminal.nix
     ./trackpad.nix
     ./system-ui.nix
     ./activation-error-tracking.nix
@@ -106,7 +105,6 @@ in
   programs = {
     zsh.enable = true;
     raycast.enable = true;
-    terminal.enable = true;
   };
 
   # --- Nix Configuration (Determinate Nix compatibility) ---
