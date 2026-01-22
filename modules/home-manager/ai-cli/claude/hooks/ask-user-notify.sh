@@ -52,14 +52,15 @@ if [[ -z "$SLACK_CHANNEL" ]]; then
 fi
 
 # Call auto-claude-notify.py with user_input_needed event
-# Script should be in the same directory as this hook (or in PATH)
-NOTIFY_SCRIPT="${HOME}/.local/share/home-manager/ai-cli/claude/auto-claude-notify.py"
-if [[ -f "$NOTIFY_SCRIPT" ]]; then
-  python3 "$NOTIFY_SCRIPT" user_input_needed \
+# Script is deployed by home-manager to ~/.claude/scripts/
+NOTIFY_SCRIPT="${HOME}/.claude/scripts/auto-claude-notify.py"
+if [[ -x "$NOTIFY_SCRIPT" ]]; then
+  if ! "$NOTIFY_SCRIPT" user_input_needed \
     --session "$SESSION_INFO" \
     --question "$QUESTION" \
-    --channel "$SLACK_CHANNEL" \
-    2>/dev/null || true  # Don't fail Claude Code if notification fails
+    --channel "$SLACK_CHANNEL" >&2; then
+    echo "Warning: Notification script failed to send message." >&2
+  fi
 fi
 
 exit 0

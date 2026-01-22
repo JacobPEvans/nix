@@ -161,9 +161,7 @@ let
       ) hookMapping;
 
       # Merge all non-null hook files
-      mergedHookFiles = lib.foldl' (acc: hookAttr: if hookAttr == { } then acc else acc // hookAttr) { } (
-        builtins.attrValues allHookFiles
-      );
+      mergedHookFiles = lib.mkMerge (builtins.attrValues allHookFiles);
     in
     mergedHookFiles;
 

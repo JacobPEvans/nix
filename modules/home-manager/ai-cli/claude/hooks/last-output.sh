@@ -41,13 +41,13 @@ case "${TOOL_NAME:-}" in
   "Write"|"Edit")
     # For file writes/edits, show the file path
     FILE_PATH=$(echo "${TOOL_INPUT:-}" | jq -r '.file_path // .filePath // "unknown"' 2>/dev/null || echo "unknown")
-    SUMMARY="${TOOL_NAME,,}: $(basename "$FILE_PATH")"
+    SUMMARY="$(echo "${TOOL_NAME}" | tr '[:upper:]' '[:lower:]'): $(basename "$FILE_PATH")"
     ;;
 
   "Grep"|"Glob")
     # For searches, show the pattern
     PATTERN=$(echo "${TOOL_INPUT:-}" | jq -r '.pattern // "unknown"' 2>/dev/null || echo "unknown")
-    SUMMARY="${TOOL_NAME,,}: ${PATTERN:0:50}"
+    SUMMARY="$(echo "${TOOL_NAME}" | tr '[:upper:]' '[:lower:]'): ${PATTERN:0:50}"
     ;;
 
   *)
@@ -69,7 +69,8 @@ echo "$OUTPUT" >> "$LOG_FILE"
 
 # Keep log file size under control (last 100 lines)
 if [[ -f "$LOG_FILE" ]]; then
-  tail -n 100 "$LOG_FILE" > "${LOG_FILE}.tmp" && mv "${LOG_FILE}.tmp" "$LOG_FILE"
+  TMP_LOG=$(mktemp "${LOG_FILE}.XXXXXXXXXX")
+  tail -n 100 "$LOG_FILE" > "$TMP_LOG" && mv "$TMP_LOG" "$LOG_FILE"
 fi
 
 exit 0
