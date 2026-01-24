@@ -12,10 +12,15 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nix-config.url = "path:../..";
   };
 
   outputs =
-    { nixpkgs, ... }:
+    {
+      nixpkgs,
+      nix-config,
+      ...
+    }:
     let
       systems = [
         "aarch64-darwin"
@@ -38,6 +43,9 @@
     {
       devShells = forAllSystems (
         { pkgs }:
+        let
+          pythonEnvs = import "${nix-config}/lib/python-environments.nix" { inherit pkgs; };
+        in
         {
           default = pkgs.mkShell {
             buildInputs = with pkgs; [
@@ -48,14 +56,7 @@
               ansible
               ansible-lint
               molecule
-              (python3.withPackages (
-                ps: with ps; [
-                  paramiko # SSH library for Ansible connections
-                  jsondiff # JSON comparison for config validation
-                  pyyaml # YAML processing
-                  jinja2 # Template engine
-                ]
-              ))
+              (python3.withPackages pythonEnvs.packageSets.ansible)
 
               # === Development ===
               git
