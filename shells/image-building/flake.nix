@@ -48,7 +48,14 @@
               ansible
               ansible-lint
               molecule
-              python3
+              (python3.withPackages (
+                ps: with ps; [
+                  paramiko # SSH library for Ansible connections
+                  jsondiff # JSON comparison for config validation
+                  pyyaml # YAML processing
+                  jinja2 # Template engine
+                ]
+              ))
 
               # === Development ===
               git
