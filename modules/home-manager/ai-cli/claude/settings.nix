@@ -160,8 +160,9 @@ let
         hookName: fileName: lib.nameValuePair hookName (mkHookFile hookName fileName cfg.hooks.${hookName})
       ) hookMapping;
 
-      # Merge all non-null hook files
-      mergedHookFiles = lib.mkMerge (builtins.attrValues allHookFiles);
+      # Merge all non-null hook files into a single attrset
+      # Note: lib.mkMerge is for option values, not attrsets. Use foldl' for regular merging.
+      mergedHookFiles = lib.foldl' (a: b: a // b) { } (builtins.attrValues allHookFiles);
     in
     mergedHookFiles;
 
