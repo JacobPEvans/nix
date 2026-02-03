@@ -13,9 +13,9 @@ fi
 # Known false positives: Same name, different apps, or intentional overrides
 # Format: "package-name:reason"
 EXCLUSIONS=(
-  "shortwave:Different apps - nixpkgs=radio client, homebrew=email client"
+  "claude:Not available for aarch64-darwin (only x86_64-linux)"
   "claude-code:Intentionally using homebrew due to recent nixpkgs version instability"
-  "claude:Not in nixpkgs for Darwin"
+  "shortwave:Different apps - nixpkgs=radio client, homebrew=email client"
 )
 
 HOMEBREW_FILE="modules/darwin/homebrew.nix"
