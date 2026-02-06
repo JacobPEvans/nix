@@ -94,9 +94,12 @@ in
     # scriptPath default: .local/bin/claude-api-key-helper
   };
 
+  # Agent teams display mode (direct settings.json property)
+  teammateMode = "auto";
+
   # Auto-Claude: Scheduled autonomous maintenance
   # ENABLED - Uses Haiku model for cost-efficiency (via per-repo CLAUDE_MODEL env var)
-  # Interactive sessions use Sonnet (via ANTHROPIC_MODEL), autoClaude overrides to Haiku
+  # Interactive sessions use the default model, autoClaude overrides to Haiku
   # Resource limits: max 10 PRs, max 50 issues, max 1 analysis per item per run
   autoClaude = {
     enable = true;
