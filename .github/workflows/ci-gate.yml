@@ -95,10 +95,6 @@ jobs:
     needs: changes
     if: needs.changes.outputs.nix == 'true' && needs.changes.outputs.is-deps-only == 'false'
     uses: ./.github/workflows/_nix-build.yml
-    with:
-      # Performance: Skip cache upload on PRs to speed up completion
-      # Cache is uploaded on push to main via ci-nix.yml
-      use-gha-cache: 'disabled'
 
   nix-validate:
     name: Nix Validate
