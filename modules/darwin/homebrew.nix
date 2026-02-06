@@ -12,7 +12,7 @@
 # Our configuration:
 #   - onActivation.autoUpdate = false  → Keeps rebuilds fast (no 45MB index download)
 #   - onActivation.upgrade = true      → Packages updated when you run darwin-rebuild
-#   - Passive auto-update: Enabled     → 5-min trigger on command invocation
+#   - Passive auto-update: Enabled     → >5 minutes trigger on command invocation
 #
 # == How Packages Get Updated ==
 #
@@ -23,7 +23,7 @@
 # == Why Renovate Can't Help ==
 #
 # nix-darwin homebrew config contains only package names, not versions.
-# Homebrew itself doesn't support version pinning for formulas/casks.
+# Homebrew lacks declarative version pinning within configuration files.
 # Renovate's homebrew manager only works with Ruby Formula files.
 #
 # NOTE: nix-darwin does NOT support version pinning for individual homebrew packages.
@@ -38,7 +38,7 @@ _:
     enable = true;
     onActivation = {
       # Don't download 45MB index on every rebuild - keeps rebuilds fast and deterministic.
-      # Homebrew's passive auto-update still works (triggers on command invocation after 5min).
+      # Homebrew's passive auto-update still works (triggers on command invocation after >5 minutes).
       autoUpdate = false;
       cleanup = "none"; # Don't remove manually installed packages
       # Upgrade packages to latest available when darwin-rebuild switch runs.

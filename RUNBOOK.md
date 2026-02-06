@@ -195,7 +195,7 @@ certain brew commands. There is no background daemon.
 |--------|---------|--------------|
 | darwin-rebuild | `sudo darwin-rebuild switch --flake .` | Upgrades all packages (primary method) |
 | Manual update | `brew update && brew upgrade` | Immediate update when needed |
-| Passive auto-update | Running `brew install/upgrade/etc` | Index updated if >5min stale |
+| Passive auto-update | Running `brew install/upgrade/etc` | Index updated if >5 minutes stale |
 
 **Our configuration** in `modules/darwin/homebrew.nix`:
 
@@ -228,7 +228,7 @@ sudo darwin-rebuild switch --flake ~/.config/nix
 Renovate cannot automatically update homebrew packages because:
 
 1. nix-darwin's `homebrew.brews/casks` contain only package names, not versions
-2. Homebrew doesn't support version pinning for standard formulas/casks
+2. Homebrew lacks declarative version pinning within configuration files
 3. Renovate's homebrew manager only works with Ruby Formula files
 
 The `darwin-rebuild switch` workflow is the correct approach for keeping homebrew packages current.
