@@ -39,7 +39,7 @@ in
           echo "$(date '+%Y-%m-%d %H:%M:%S') [ERROR] Failed to remove Nix symlink at $MARKETPLACES" >&2
           exit 1
         fi
-        echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Removed Nix-managed symlink for known_marketplaces.json (now Claude-managed)" >&2
+        echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Removed Nix-managed symlink for known_marketplaces.json (now Claude-managed)"
       fi
     '';
   };
