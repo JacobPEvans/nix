@@ -59,7 +59,7 @@
                 echo ""
                 echo "Utilities:"
                 echo "  - jq: $(jq --version 2>/dev/null | cut -d'-' -f2)"
-                echo "  - yq: $(yq --version 2>/dev/null | cut -d' ' -f4)"
+                echo "  - yq: $(yq --version 2>/dev/null | cut -d' ' -f2)"
                 echo ""
                 echo "Getting Started:"
                 echo "  1. Enter PowerShell: pwsh"
