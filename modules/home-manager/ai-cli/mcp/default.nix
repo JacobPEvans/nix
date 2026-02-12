@@ -150,6 +150,23 @@ let
     };
 
     # ================================================================
+    # Obsidian - NOT IMPLEMENTED
+    # ================================================================
+    # Decision: Not moving forward with REST API approach since official Obsidian CLI will be released soon.
+    # Using Claude Skills plugins for Obsidian integration instead (see plugins/community.nix).
+    #
+    # mcp-obsidian = mkServer {
+    #   enabled = false;
+    #   command = "uvx";
+    #   args = [ "mcp-obsidian" ];
+    #   env = {
+    #     OBSIDIAN_API_KEY = "";
+    #     OBSIDIAN_HOST = "127.0.0.1";
+    #     OBSIDIAN_PORT = "27124";
+    #   };
+    # };
+
+    # ================================================================
     # Database (disabled by default)
     # ================================================================
 
