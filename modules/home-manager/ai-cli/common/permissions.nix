@@ -71,6 +71,11 @@ in
   # Commands that require explicit user confirmation
   ask = lib.flatten (lib.mapAttrsToList (_: v: v.commands or [ ]) askJsons);
 
+  # MCP tool permissions (non-shell, bare identifiers like mcp__plugin_*)
+  mcpAllow = lib.flatten (lib.mapAttrsToList (_: v: v.mcp or [ ]) allowJsons);
+  mcpDeny = lib.flatten (lib.mapAttrsToList (_: v: v.mcp or [ ]) denyJsons);
+  mcpAsk = lib.flatten (lib.mapAttrsToList (_: v: v.mcp or [ ]) askJsons);
+
   # WebFetch domains
   webfetchDomains =
     if builtins.pathExists domainsFile then

@@ -71,7 +71,7 @@ in
     # Format a list of shell commands
     formatShellCommands = cmds: map (cmd: "Bash(${cmd}:*)") cmds;
 
-    # Format all allowed commands from permissions (shell + tool-specific)
+    # Format all allowed commands from permissions (shell + tool-specific + MCP)
     # Note: Tool-specific permissions are placed before shell permissions.
     # This ordering matches formatDenied and ensures consistent evaluation by Claude Code.
     formatAllowed =
@@ -79,10 +79,11 @@ in
       let
         allCommands = flattenCommands permissions.allow;
         shellPermissions = map (cmd: "Bash(${cmd}:*)") allCommands;
+        mcpPermissions = permissions.mcpAllow or [ ];
       in
-      (getClaudeToolPermissions permissions) ++ shellPermissions;
+      (getClaudeToolPermissions permissions) ++ mcpPermissions ++ shellPermissions;
 
-    # Format all denied commands (shell + tool-specific)
+    # Format all denied commands (shell + tool-specific + MCP)
     # Note: Tool-specific permissions are placed before shell permissions.
     # This ordering matches formatAllowed and ensures consistent evaluation by Claude Code.
     formatDenied =
@@ -90,8 +91,9 @@ in
       let
         allCommands = flattenCommands permissions.deny;
         shellDenied = map (cmd: "Bash(${cmd}:*)") allCommands;
+        mcpPermissions = permissions.mcpDeny or [ ];
       in
-      (getClaudeDenyPermissions permissions) ++ shellDenied;
+      (getClaudeDenyPermissions permissions) ++ mcpPermissions ++ shellDenied;
 
     # Format all ask commands (require user confirmation)
     # These commands will prompt the user for approval before execution
@@ -99,8 +101,10 @@ in
       permissions:
       let
         allCommands = flattenCommands permissions.ask;
+        shellPermissions = map (cmd: "Bash(${cmd}:*)") allCommands;
+        mcpPermissions = permissions.mcpAsk or [ ];
       in
-      map (cmd: "Bash(${cmd}:*)") allCommands;
+      mcpPermissions ++ shellPermissions;
 
     # Export helpers for external use
     getToolPermissions = getClaudeToolPermissions;
