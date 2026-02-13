@@ -15,10 +15,15 @@ let
   # automatically enabled after `nix flake update jacobpevans-cc-plugins`.
   #
   # Known plugins (for reference, not used for enablement):
-  #   ai-delegation, codeql-resolver, config-management, git-permission-guard,
-  #   git-rebase-workflow, git-troubleshooting, git-workflows, github-workflows,
-  #   infra-orchestration, issue-limiter, main-branch-guard, markdown-validator,
-  #   pr-review-toolkit, token-validator, webfetch-guard
+  #   After consolidation (v2.0.0): 8 plugins
+  #   - git-guards (hooks: git permissions + main branch protection)
+  #   - content-guards (hooks: token/markdown/webfetch validation + issue limits)
+  #   - git-workflows (7 skills: worktree, sync, refresh, rebase, troubleshooting)
+  #   - github-workflows (4 skills: PR management, issue shaping)
+  #   - infra-orchestration (3 skills: terraform/ansible orchestration)
+  #   - ai-delegation (2 skills: multi-model delegation + autonomous maintenance)
+  #   - config-management (2 skills: permission sync)
+  #   - codeql-resolver (1 command + 3 agents + 2 skills: CodeQL security)
   jacobpevansPlugins =
     let
       entries = builtins.readDir jacobpevans-cc-plugins;
