@@ -90,8 +90,9 @@
     # User's personal Claude Code plugins
     # Contains: git-rebase-workflow, webfetch-guard, markdown-validator, token-validator, issue-limiter
     # https://github.com/JacobPEvans/claude-code-plugins
+    # TEMPORARY: Testing feat/consolidate-plugins branch
     jacobpevans-cc-plugins = {
-      url = "github:JacobPEvans/claude-code-plugins";
+      url = "github:JacobPEvans/claude-code-plugins/feat/consolidate-plugins";
       flake = false; # Not a flake, just fetch the repo
     };
 
