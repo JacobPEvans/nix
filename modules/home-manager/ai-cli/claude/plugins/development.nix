@@ -14,11 +14,9 @@ let
   # flake input using builtins.readDir. New plugins added to the repo are
   # automatically enabled after `nix flake update jacobpevans-cc-plugins`.
   #
-  # Known plugins (for reference, not used for enablement):
-  #   ai-delegation, codeql-resolver, config-management, git-permission-guard,
-  #   git-rebase-workflow, git-troubleshooting, git-workflows, github-workflows,
-  #   infra-orchestration, issue-limiter, main-branch-guard, markdown-validator,
-  #   pr-review-toolkit, token-validator, webfetch-guard
+  # Known plugins (8 consolidated from 15, for reference, not used for enablement):
+  #   ai-delegation, codeql-resolver, config-management, content-guards,
+  #   git-guards, git-workflows, github-workflows, infra-orchestration
   jacobpevansPlugins =
     let
       entries = builtins.readDir jacobpevans-cc-plugins;
