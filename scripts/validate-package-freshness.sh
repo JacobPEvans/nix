@@ -38,6 +38,7 @@ EXEMPT_PACKAGES=(
   "flake-compat"  # Compatibility shim - stable interface, infrequent updates needed
   "flake-utils"   # Utility library - stable helpers, infrequent updates needed
   "systems"       # nix-systems/default-darwin - system architectures, rarely updated
+  "cl-nix-lite"   # WORKAROUND: Pinned to url-fix branch for Anubis anti-bot (mac-app-util dep)
 )
 
 # Check if flake.lock exists

@@ -44,20 +44,21 @@ _:
     "plugin-dev@claude-plugins-official" = true;
     "hookify@claude-plugins-official" = true;
 
+    # Setup & Management
+    "claude-code-setup@claude-plugins-official" = true;
+    "claude-md-management@claude-plugins-official" = true;
+
     # Language Servers & Developer Tools
     "pyright-lsp@claude-plugins-official" = true;
+    "typescript-lsp@claude-plugins-official" = false; # Minimal TS usage
 
     # Workflow
     # DISABLED - New Opus 4.6 and Agent Teams sort of handle this
     "ralph-loop@claude-plugins-official" = false;
 
-    # External plugins (GitHub, Slack, Context7, etc.) moved to external.nix
+    # Explicitly disabled - tracked for visibility
+    "example-plugin@claude-plugins-official" = false;
 
-    # REMOVED - unused or token-heavy:
-    # agent-sdk-dev - not building SDKs
-    # frontend-design - no frontend repos
-    # explanatory-output-style - output fluff
-    # learning-output-style - output fluff
-    # typescript-lsp - minimal TS usage
+    # External plugins (GitHub, Slack, Context7, etc.) moved to external.nix
   };
 }
