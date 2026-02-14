@@ -98,7 +98,6 @@ in
 
     # Authentication
     "better-auth@claude-skills" = true;
-    "clerk-auth@claude-skills" = true;
     "oauth-implementation@claude-skills" = true;
   };
 }
