@@ -77,9 +77,9 @@ jobs:
           COMMIT_MSG: ${{ github.event.pull_request.title }}
         run: |
           # Skip nix-build only if:
-          # 1. Author is jacobpevans-github-actions (Renovate bot)
+          # 1. Author is jacobpevans-github-actions (Renovate bot, with or without [bot] suffix)
           # 2. Commit message starts with "chore(deps)"
-          if [[ "$AUTHOR" == "jacobpevans-github-actions" && "$COMMIT_MSG" == chore\(deps\)* ]]; then
+          if [[ "$AUTHOR" == "jacobpevans-github-actions"* && "$COMMIT_MSG" == chore\(deps\)* ]]; then
             echo "is-deps-only=true" >> $GITHUB_OUTPUT
           else
             echo "is-deps-only=false" >> $GITHUB_OUTPUT
@@ -126,7 +126,7 @@ jobs:
   gate:
     name: Merge Gate
     needs: [changes, nix-build, nix-validate, markdown-lint, claude-settings, file-size]
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Check all results
