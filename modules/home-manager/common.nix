@@ -263,6 +263,34 @@ in
     };
 
     # ==========================================================================
+    # GitHub CLI
+    # ==========================================================================
+    # Declarative management of gh and extensions
+    # Extensions are linked to XDG data directory for gh discovery
+    gh = {
+      enable = true;
+      package = pkgs.gh; # Use nixpkgs gh (already installed in packages.nix)
+
+      # Extensions installed declaratively
+      extensions = [
+        # GitHub Agentic Workflows - AI-powered workflows in markdown
+        # Source: https://github.com/github/gh-aw
+        # Docs: https://github.github.io/gh-aw/
+        # Requires: ANTHROPIC_API_KEY or COPILOT_GITHUB_TOKEN (set in env)
+        (import ../home-manager/ai-cli/gh-extensions/gh-aw.nix {
+          inherit (pkgs) lib fetchFromGitHub;
+          inherit pkgs;
+        })
+      ];
+
+      # gh configuration (written to ~/.config/gh/config.yml)
+      settings = {
+        git_protocol = "ssh";
+        prompt = "enabled";
+      };
+    };
+
+    # ==========================================================================
     # Home Manager
     # ==========================================================================
     home-manager.enable = true;
