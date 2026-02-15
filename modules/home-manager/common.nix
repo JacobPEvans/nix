@@ -96,7 +96,7 @@ let
       force = true;
     };
   };
-  geminiFiles = import ./ai-cli/gemini.nix {
+  geminiConfig = import ./ai-cli/gemini.nix {
     inherit
       config
       lib
@@ -136,7 +136,7 @@ in
     # AI CLI Configurations
     # Each AI CLI has its own file in ai-cli/ directory:
     # - claude.nix: Claude Code settings + status line script
-    # - gemini.nix: Gemini CLI settings
+    # - gemini.nix: Gemini CLI settings (activation script for writable config)
     # - copilot.nix: GitHub Copilot CLI config
     #
     # Permissions: Now read from JSON in ai-assistant-instructions repo
@@ -146,7 +146,6 @@ in
       npmFiles
       // awsFiles
       // linterFiles
-      // geminiFiles
       // codexFiles
       // geminiCommands
       // copilotFiles
@@ -157,11 +156,14 @@ in
     # Claude Code Settings Validation (post-rebuild)
     # Validates settings.json against JSON Schema after home files are written
     # Script extracted to scripts/validate-claude-settings.sh for maintainability
-    activation.validateClaudeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${./scripts/validate-claude-settings.sh} \
-        "${config.home.homeDirectory}/.claude/settings.json" \
-        "${userConfig.ai.claudeSchemaUrl}"
-    '';
+    activation = {
+      validateClaudeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${./scripts/validate-claude-settings.sh} \
+          "${config.home.homeDirectory}/.claude/settings.json" \
+          "${userConfig.ai.claudeSchemaUrl}"
+      '';
+    }
+    // geminiConfig.home.activation;
   };
 
   # ==========================================================================

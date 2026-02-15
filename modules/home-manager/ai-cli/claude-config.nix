@@ -18,12 +18,6 @@
 }:
 
 let
-  userConfig = import ../../../lib/user-config.nix;
-
-  # Local repo path - ONLY used for autoClaude (needs writable git for commits)
-  # All other ai-assistant-instructions content comes from Nix store (flake input)
-  autoClaudeLocalRepoPath = userConfig.ai.instructionsRepo;
-
   # Import unified permissions from common module
   # This reads from ai-assistant-instructions agentsmd/permissions/
   aiCommon = import ./common { inherit lib config ai-assistant-instructions; };
@@ -47,6 +41,7 @@ let
 
   # Import modular plugin configuration
   # Plugin configuration moved to claude-plugins.nix and organized by category
+  # Marketplace flake inputs are now enriched with flakeInput attr internally
   # See: modules/home-manager/ai-cli/claude/plugins/*.nix
   claudePlugins = import ./claude-plugins.nix {
     inherit
@@ -56,6 +51,7 @@ let
       claude-cookbooks
       claude-plugins-official
       anthropic-skills
+      superpowers-marketplace
       claude-code-workflows
       claude-skills
       jacobpevans-cc-plugins
@@ -101,71 +97,8 @@ in
   effortLevel = "medium";
 
   # Auto-Claude: Scheduled autonomous maintenance
-  # ENABLED - Uses Haiku model for cost-efficiency (via per-repo CLAUDE_MODEL env var)
-  # Interactive sessions use the default model, autoClaude overrides to Haiku
-  # Resource limits: max 10 PRs, max 50 issues, max 1 analysis per item per run
-  autoClaude = {
-    enable = true;
-    repositories = {
-      # ai-assistant-instructions: every 4 hours starting at midnight
-      # Uses local repo (not Nix store) because autoClaude needs writable git
-      # Schedule: 0, 4, 8, 12, 16, 20 (6 times/day)
-      ai-assistant-instructions = {
-        enabled = true;
-        path = autoClaudeLocalRepoPath;
-        schedule.times = map (hour: {
-          inherit hour;
-          minute = 0;
-        }) (lib.lists.genList (i: i * 4) 6);
-        maxBudget = 20.0;
-      };
-      # nix config: every 4 hours starting at 1am (offset +1 to prevent concurrent runs)
-      # Schedule: 1, 5, 9, 13, 17, 21 (6 times/day)
-      nix = {
-        enabled = true;
-        path = "${config.home.homeDirectory}/.config/nix";
-        schedule.times = map (hour: {
-          inherit hour;
-          minute = 0;
-        }) (lib.lists.genList (i: i * 4 + 1) 6);
-        maxBudget = 20.0;
-      };
-      # terraform-proxmox: every 4 hours starting at 2am (offset +2 to prevent concurrent runs)
-      # Schedule: 2, 6, 10, 14, 18, 22 (6 times/day)
-      terraform-proxmox = {
-        enabled = true;
-        path = "${config.home.homeDirectory}/git/terraform-proxmox/main";
-        schedule.times = map (hour: {
-          inherit hour;
-          minute = 0;
-        }) (lib.lists.genList (i: i * 4 + 2) 6);
-        maxBudget = 20.0;
-      };
-    };
-
-    # Reporting: Twice-daily utilization reports and real-time anomaly alerts
-    reporting = {
-      enable = true;
-
-      # Scheduled digest reports (8am and 5pm EST)
-      scheduledReports = {
-        times = [
-          "08:00"
-          "17:00"
-        ]; # 8am and 5pm EST
-        slackChannel = ""; # Retrieve from BWS at runtime
-      };
-
-      # Real-time anomaly detection
-      alerts = {
-        enable = true;
-        contextThreshold = 90;
-        budgetThreshold = 50;
-        tokensNoOutput = 50000;
-        consecutiveFailures = 2;
-      };
-    };
-  };
+  # Extracted to claude-auto-config.nix for better modularity
+  autoClaude = import ./claude-auto-config.nix { inherit config lib; };
 
   # Menu bar status indicator via SwiftBar
   menubar = {
@@ -176,26 +109,8 @@ in
   plugins = {
     # Marketplaces from modular configuration with flakeInput for Nix symlinks
     # See: modules/home-manager/ai-cli/claude/plugins/marketplaces.nix
-    # Adding flakeInput enables Nix to create immutable symlinks instead of runtime downloads
-    marketplaces =
-      let
-        # Map marketplace names to flake inputs for Nix-managed symlinks
-        # Using a lookup table for better maintainability and readability
-        # Keys MUST match marketplace.nix keys exactly
-        flakeInputMap = {
-          "jacobpevans-cc-plugins" = jacobpevans-cc-plugins; # User's personal plugins (listed first in marketplaces.nix)
-          "claude-plugins-official" = claude-plugins-official;
-          "superpowers-marketplace" = superpowers-marketplace;
-          "anthropic-agent-skills" = anthropic-skills;
-        };
-      in
-      lib.mapAttrs (
-        name: marketplace:
-        let
-          flakeInput = flakeInputMap.${name} or null;
-        in
-        marketplace // lib.optionalAttrs (flakeInput != null) { inherit flakeInput; }
-      ) claudePlugins.pluginConfig.marketplaces;
+    # flakeInput enrichment now handled in claude-plugins.nix
+    inherit (claudePlugins.pluginConfig) marketplaces;
 
     enabled = enabledPlugins;
     # Enable runtime plugin installation from community marketplaces.

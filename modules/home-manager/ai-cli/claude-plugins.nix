@@ -22,20 +22,62 @@
   claude-code-workflows,
   claude-skills,
   jacobpevans-cc-plugins,
+  claude-plugins-official,
+  anthropic-skills,
+  superpowers-marketplace,
+  obsidian-skills,
+  obsidian-visual-skills,
+  cc-marketplace,
+  cc-dev-tools,
+  claude-code-plugins-plus,
+  lunar-claude,
+  bills-claude-skills,
+  wakatime,
   ...
 }:
 
 let
   # Import modular plugin configuration
-  # Pass flake inputs to enable DRY marketplace URL configuration
+  # Pass all marketplace flake inputs for Nix-managed symlinks
   pluginModules = import ./claude/plugins/default.nix {
     inherit
       lib
       claude-code-workflows
       claude-skills
       jacobpevans-cc-plugins
+      claude-plugins-official
+      anthropic-skills
+      superpowers-marketplace
       ;
   };
+
+  # Map marketplace names to flake inputs for Nix-managed symlinks
+  # Keys MUST match marketplace.nix keys exactly
+  flakeInputMap = {
+    "jacobpevans-cc-plugins" = jacobpevans-cc-plugins;
+    "claude-plugins-official" = claude-plugins-official;
+    "superpowers-marketplace" = superpowers-marketplace;
+    "anthropic-agent-skills" = anthropic-skills; # Marketplace name differs from flake input name
+    "claude-code-workflows" = claude-code-workflows;
+    "claude-skills" = claude-skills;
+    "obsidian-skills" = obsidian-skills;
+    "obsidian-visual-skills" = obsidian-visual-skills;
+    "cc-marketplace" = cc-marketplace;
+    "cc-dev-tools" = cc-dev-tools;
+    "claude-code-plugins-plus" = claude-code-plugins-plus;
+    "lunar-claude" = lunar-claude;
+    "bills-claude-skills" = bills-claude-skills;
+    "wakatime" = wakatime;
+  };
+
+  # Enrich marketplaces with flakeInput attributes for Nix symlinks
+  enrichedMarketplaces = lib.mapAttrs (
+    name: marketplace:
+    let
+      flakeInput = flakeInputMap.${name} or null;
+    in
+    marketplace // lib.optionalAttrs (flakeInput != null) { inherit flakeInput; }
+  ) pluginModules.marketplaces;
 
   # Commands from claude-cookbooks to install globally
   # These are copied directly to ~/.claude/commands/
@@ -56,7 +98,8 @@ in
   # Plugin marketplace and enabled plugins configuration
   # Merged into settings.json by claude.nix
   pluginConfig = {
-    inherit (pluginModules) marketplaces enabledPlugins;
+    marketplaces = enrichedMarketplaces;
+    inherit (pluginModules) enabledPlugins;
   };
 
   # Home-manager file entries for commands and agents

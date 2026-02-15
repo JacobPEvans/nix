@@ -1,7 +1,8 @@
 # Gemini CLI Configuration
 #
-# Returns home.file entries for Google Gemini Code Assist CLI.
-# Imported by home.nix for clean separation of AI CLI configs.
+# Returns activation script for Google Gemini Code Assist CLI settings.
+# Settings must be writable for Gemini CLI auth, so we use activation instead of home.file.
+# Imported by common.nix for clean separation of AI CLI configs.
 #
 # CRITICAL - tools.allowed vs tools.core:
 # =========================================
@@ -55,8 +56,9 @@ let
       # Enable preview features (experimental models, features)
       previewFeatures = true;
 
-      # Disable auto-update (managed via Nix)
-      disableAutoUpdate = true;
+      # Enable auto-update - Nix provides baseline, auto-update keeps it current
+      # nixpkgs stable can lag significantly behind Gemini releases
+      disableAutoUpdate = false;
     };
 
     # Context file configuration
@@ -134,5 +136,37 @@ let
       '';
 in
 {
-  ".gemini/settings.json".source = settingsJson;
+  # Activation script to create writable settings.json
+  # Gemini CLI needs to write to this file during startup/auth
+  # Cannot use home.file symlink because Nix store is read-only
+  #
+  # Strategy: Deep-merge Nix config with runtime state
+  # - Nix config takes precedence for known keys
+  # - Unknown runtime keys are preserved (e.g., auth tokens, cached data)
+  # - Use jq for robust JSON merging
+  home.activation.geminiSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    SETTINGS_FILE="${config.home.homeDirectory}/.gemini/settings.json"
+    SETTINGS_DIR=$(dirname "$SETTINGS_FILE")
+
+    # Ensure .gemini directory exists
+    mkdir -p "$SETTINGS_DIR"
+
+    # Read Nix-generated settings
+    NIX_SETTINGS=$(cat ${settingsJson})
+
+    # If existing settings file exists and is writable, merge with it
+    if [ -f "$SETTINGS_FILE" ] && [ -w "$SETTINGS_FILE" ]; then
+      echo "Merging Nix configuration with existing Gemini settings..." >&2
+      # Deep merge: NIX_SETTINGS takes precedence, runtime keys preserved
+      ${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$SETTINGS_FILE" <(echo "$NIX_SETTINGS") > "$SETTINGS_FILE.tmp"
+      mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+    else
+      # No existing file or not writable - write Nix settings directly
+      echo "Creating new Gemini settings file..." >&2
+      echo "$NIX_SETTINGS" > "$SETTINGS_FILE"
+    fi
+
+    # Ensure file is writable for Gemini CLI
+    chmod 644 "$SETTINGS_FILE"
+  '';
 }

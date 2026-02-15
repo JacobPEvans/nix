@@ -59,6 +59,25 @@ in
         # MUST run before linkGeneration to prevent "cannot overwrite directory" errors
         # Log format: YYYY-MM-DD HH:MM:SS [LOG_LEVEL] message
         cleanupMarketplaceDirectories = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
+          # Clean up orphaned marketplace directories from previous configurations
+          # These were from deprecated aggregation marketplaces or renamed marketplaces
+          ORPHAN_DIRS=(
+            "awesome-claude-code-plugins"
+            "claudeforge-marketplace"
+            "skills"
+            "agents"
+            "local"
+            "claude-code-plugins"
+          )
+
+          for ORPHAN in "''${ORPHAN_DIRS[@]}"; do
+            ORPHAN_PATH="${config.home.homeDirectory}/.claude/plugins/marketplaces/$ORPHAN"
+            if [ -e "$ORPHAN_PATH" ]; then
+              echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Removing orphaned marketplace directory: $ORPHAN" >&2
+              rm -rf "$ORPHAN_PATH"
+            fi
+          done
+
           # Clean up marketplace directories that conflict with Nix-managed symlinks
           # This handles the case where runtime plugin installs created real directories
           # that now prevent Nix from creating symlinks
@@ -76,6 +95,45 @@ in
               echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Cleaned up marketplace directory: ${path}" >&2
               echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   Backup saved to: $BACKUP" >&2
               echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   After activation completes, a diff will be shown" >&2
+            fi
+          '') marketplacePaths}
+        '';
+
+        # Cache integrity verification and cleanup
+        # Addresses upstream bug where stale cache prevents updated plugins from loading
+        # GitHub issue: anthropics/claude-code#17361
+        # MUST run after linkGeneration to ensure symlinks are created first
+        verifyCacheIntegrity = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+          # Verify cache integrity for Nix-managed marketplaces
+          # If the marketplace source changes (e.g., flake update), delete stale cache
+          ${lib.concatMapStringsSep "\n" (path: ''
+            if [ -L "${path}" ]; then
+              MARKETPLACE_NAME=$(basename "${path}")
+              SYMLINK_TARGET=$(readlink -f "${path}")
+              MARKER_FILE="${config.home.homeDirectory}/.claude/plugins/.nix-cache-marker-$MARKETPLACE_NAME"
+              CACHE_DIR="${config.home.homeDirectory}/.claude/plugins/cache/$MARKETPLACE_NAME"
+
+              # Compute hash of symlink target path
+              # Using path hash (not content hash) because it's deterministic and fast
+              CURRENT_HASH=$(echo "$SYMLINK_TARGET" | sha256sum | cut -d' ' -f1)
+
+              # Check if marker exists and matches
+              if [ -f "$MARKER_FILE" ]; then
+                STORED_HASH=$(cat "$MARKER_FILE")
+                if [ "$STORED_HASH" != "$CURRENT_HASH" ]; then
+                  echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Cache invalidation: $MARKETPLACE_NAME (source changed)" >&2
+                  if [ -d "$CACHE_DIR" ]; then
+                    rm -rf "$CACHE_DIR"
+                    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   Removed stale cache: $CACHE_DIR" >&2
+                  fi
+                  echo "$CURRENT_HASH" > "$MARKER_FILE"
+                  echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   Updated cache marker" >&2
+                fi
+              else
+                # No marker exists - create one
+                echo "$CURRENT_HASH" > "$MARKER_FILE"
+                echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Created cache marker for $MARKETPLACE_NAME" >&2
+              fi
             fi
           '') marketplacePaths}
         '';

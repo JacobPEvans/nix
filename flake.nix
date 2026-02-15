@@ -107,6 +107,56 @@
       flake = false;
     };
 
+    # Additional Community Marketplaces
+
+    # Obsidian Skills - Canonical Obsidian skills from kepano
+    obsidian-skills = {
+      url = "github:kepano/obsidian-skills";
+      flake = false;
+    };
+
+    # Obsidian Visual Skills - Independent visual diagram skills
+    obsidian-visual-skills = {
+      url = "github:axtonliu/axton-obsidian-visual-skills";
+      flake = false;
+    };
+
+    # CC Marketplace - claudecodecommands.directory
+    cc-marketplace = {
+      url = "github:ananddtyagi/cc-marketplace";
+      flake = false;
+    };
+
+    # CC Dev Tools - Multi-model AI integrations
+    cc-dev-tools = {
+      url = "github:Lucklyric/cc-dev-tools";
+      flake = false;
+    };
+
+    # Claude Code Plugins Plus - Community plugins
+    claude-code-plugins-plus = {
+      url = "github:jeremylongshore/claude-code-plugins-plus";
+      flake = false;
+    };
+
+    # Lunar Claude - Infrastructure and DevOps
+    lunar-claude = {
+      url = "github:basher83/lunar-claude";
+      flake = false;
+    };
+
+    # Bill's Claude Skills - Community skills
+    bills-claude-skills = {
+      url = "github:BillChirico/bills-claude-skills";
+      flake = false;
+    };
+
+    # WakaTime - Time tracking
+    wakatime = {
+      url = "github:wakatime/claude-code-wakatime";
+      flake = false;
+    };
+
   };
 
   outputs =
@@ -125,6 +175,14 @@
       jacobpevans-cc-plugins,
       claude-code-workflows,
       claude-skills,
+      obsidian-skills,
+      obsidian-visual-skills,
+      cc-marketplace,
+      cc-dev-tools,
+      claude-code-plugins-plus,
+      lunar-claude,
+      bills-claude-skills,
+      wakatime,
       ...
     }:
     let
@@ -139,44 +197,31 @@
 
       # Pure settings generator for CI (no derivations, cross-platform)
       # Reads permissions from unified ai-assistant-instructions structure
-      ciClaudeSettings =
-        let
-          # Import unified permissions using the common module
-          # Minimal config for CI - only needs lib and placeholder homeDir
-          aiCommon = import ./modules/home-manager/ai-cli/common {
-            inherit ai-assistant-instructions;
-            inherit (nixpkgs) lib;
-            config = {
-              home.homeDirectory = "/home/user"; # Placeholder for CI
-            };
-          };
-          inherit (aiCommon) permissions;
-          inherit (aiCommon) formatters;
-        in
-        import ./lib/claude-settings.nix {
-          inherit (nixpkgs) lib; # Required for pure evaluation
-          homeDir = "/home/user"; # Placeholder - CI only validates schema structure
-          schemaUrl = userConfig.ai.claudeSchemaUrl;
-          permissions = {
-            allow = formatters.claude.formatAllowed permissions;
-            deny = formatters.claude.formatDenied permissions;
-            ask = [ ]; # No ask permissions defined yet
-          };
-          plugins =
-            (import ./modules/home-manager/ai-cli/claude-plugins.nix {
-              inherit
-                claude-code-plugins
-                claude-cookbooks
-                claude-plugins-official
-                anthropic-skills
-                claude-code-workflows
-                claude-skills
-                jacobpevans-cc-plugins
-                ;
-              inherit (nixpkgs) lib;
-              config = { }; # Unused but required by signature
-            }).pluginConfig;
+      # Extracted to lib/ci-claude-settings.nix for better modularity
+      ciClaudeSettings = import ./lib/ci-claude-settings.nix {
+        inherit nixpkgs ai-assistant-instructions;
+        # Pass all marketplace inputs needed by plugins
+        marketplaceInputs = {
+          inherit
+            claude-code-plugins
+            claude-cookbooks
+            claude-plugins-official
+            anthropic-skills
+            superpowers-marketplace
+            claude-code-workflows
+            claude-skills
+            jacobpevans-cc-plugins
+            obsidian-skills
+            obsidian-visual-skills
+            cc-marketplace
+            cc-dev-tools
+            claude-code-plugins-plus
+            lunar-claude
+            bills-claude-skills
+            wakatime
+            ;
         };
+      };
 
       # Pass external sources to home-manager modules
       extraSpecialArgs = {
@@ -191,6 +236,14 @@
           jacobpevans-cc-plugins
           claude-code-workflows
           claude-skills
+          obsidian-skills
+          obsidian-visual-skills
+          cc-marketplace
+          cc-dev-tools
+          claude-code-plugins-plus
+          lunar-claude
+          bills-claude-skills
+          wakatime
           ;
       };
       # Define configuration once, assign to multiple names
