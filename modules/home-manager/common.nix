@@ -278,7 +278,7 @@ in
     # Extensions are linked to XDG data directory for gh discovery
     gh = {
       enable = true;
-      package = pkgs.gh; # Use nixpkgs gh (already installed in packages.nix)
+      package = pkgs.gh; # GitHub CLI from nixpkgs
 
       # Extensions installed declaratively
       extensions = [
