@@ -61,16 +61,16 @@ in
         cleanupMarketplaceDirectories = lib.hm.dag.entryBefore [ "linkGeneration" ] ''
           # Clean up orphaned marketplace directories from previous configurations
           # These were from deprecated aggregation marketplaces or renamed marketplaces
-          ORPHAN_DIRS=(
-            "awesome-claude-code-plugins"
-            "claudeforge-marketplace"
-            "skills"
-            "agents"
-            "local"
-            "claude-code-plugins"
-          )
-
-          for ORPHAN in "''${ORPHAN_DIRS[@]}"; do
+          # Clean up orphaned marketplace directories using while-read pattern
+          # (repository rule: no for loops in shell scripts)
+          printf '%s\n' \
+            "awesome-claude-code-plugins" \
+            "claudeforge-marketplace" \
+            "skills" \
+            "agents" \
+            "local" \
+            "claude-code-plugins" \
+          | while IFS= read -r ORPHAN; do
             ORPHAN_PATH="${config.home.homeDirectory}/.claude/plugins/marketplaces/$ORPHAN"
             if [ -e "$ORPHAN_PATH" ]; then
               echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Removing orphaned marketplace directory: $ORPHAN" >&2
@@ -108,14 +108,14 @@ in
           # If the marketplace source changes (e.g., flake update), delete stale cache
           ${lib.concatMapStringsSep "\n" (path: ''
             if [ -L "${path}" ]; then
-              MARKETPLACE_NAME=$(basename "${path}")
-              SYMLINK_TARGET=$(readlink -f "${path}")
+              MARKETPLACE_NAME=$(${config.nixpkgs.pkgs.coreutils}/bin/basename "${path}")
+              SYMLINK_TARGET=$(${config.nixpkgs.pkgs.coreutils}/bin/readlink -f "${path}")
               MARKER_FILE="${config.home.homeDirectory}/.claude/plugins/.nix-cache-marker-$MARKETPLACE_NAME"
               CACHE_DIR="${config.home.homeDirectory}/.claude/plugins/cache/$MARKETPLACE_NAME"
 
               # Compute hash of symlink target path
               # Using path hash (not content hash) because it's deterministic and fast
-              CURRENT_HASH=$(echo "$SYMLINK_TARGET" | sha256sum | cut -d' ' -f1)
+              CURRENT_HASH=$(echo "$SYMLINK_TARGET" | ${config.nixpkgs.pkgs.coreutils}/bin/sha256sum | ${config.nixpkgs.pkgs.coreutils}/bin/cut -d' ' -f1)
 
               # Check if marker exists and matches
               if [ -f "$MARKER_FILE" ]; then

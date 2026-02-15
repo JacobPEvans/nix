@@ -195,47 +195,18 @@
         config.allowUnfree = true;
       };
 
-      # Pure settings generator for CI (no derivations, cross-platform)
-      # Reads permissions from unified ai-assistant-instructions structure
-      # Extracted to lib/ci-claude-settings.nix for better modularity
-      ciClaudeSettings = import ./lib/ci-claude-settings.nix {
-        inherit nixpkgs ai-assistant-instructions;
-        # Pass all marketplace inputs needed by plugins
-        marketplaceInputs = {
-          inherit
-            claude-code-plugins
-            claude-cookbooks
-            claude-plugins-official
-            anthropic-skills
-            superpowers-marketplace
-            claude-code-workflows
-            claude-skills
-            jacobpevans-cc-plugins
-            obsidian-skills
-            obsidian-visual-skills
-            cc-marketplace
-            cc-dev-tools
-            claude-code-plugins-plus
-            lunar-claude
-            bills-claude-skills
-            wakatime
-            ;
-        };
-      };
-
-      # Pass external sources to home-manager modules
-      extraSpecialArgs = {
+      # Single source of truth for marketplace inputs (DRY principle)
+      # Used by both ciClaudeSettings and extraSpecialArgs
+      marketplaceInputs = {
         inherit
-          unstablePkgs
           claude-code-plugins
           claude-cookbooks
           claude-plugins-official
           anthropic-skills
-          ai-assistant-instructions
           superpowers-marketplace
-          jacobpevans-cc-plugins
           claude-code-workflows
           claude-skills
+          jacobpevans-cc-plugins
           obsidian-skills
           obsidian-visual-skills
           cc-marketplace
@@ -246,6 +217,19 @@
           wakatime
           ;
       };
+
+      # Pure settings generator for CI (no derivations, cross-platform)
+      # Reads permissions from unified ai-assistant-instructions structure
+      # Extracted to lib/ci-claude-settings.nix for better modularity
+      ciClaudeSettings = import ./lib/ci-claude-settings.nix {
+        inherit nixpkgs ai-assistant-instructions marketplaceInputs;
+      };
+
+      # Pass external sources to home-manager modules
+      extraSpecialArgs = {
+        inherit unstablePkgs ai-assistant-instructions;
+      }
+      // marketplaceInputs;
       # Define configuration once, assign to multiple names
       darwinConfig = darwin.lib.darwinSystem {
         system = "aarch64-darwin";
