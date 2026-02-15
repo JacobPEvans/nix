@@ -22,7 +22,12 @@
 #    - Helps users verify marketplace transitions
 #
 # Do NOT change this ordering without understanding the dependencies.
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.programs.claude;
@@ -108,14 +113,14 @@ in
           # If the marketplace source changes (e.g., flake update), delete stale cache
           ${lib.concatMapStringsSep "\n" (path: ''
             if [ -L "${path}" ]; then
-              MARKETPLACE_NAME=$(${config.nixpkgs.pkgs.coreutils}/bin/basename "${path}")
-              SYMLINK_TARGET=$(${config.nixpkgs.pkgs.coreutils}/bin/readlink -f "${path}")
+              MARKETPLACE_NAME=$(${pkgs.coreutils}/bin/basename "${path}")
+              SYMLINK_TARGET=$(${pkgs.coreutils}/bin/readlink -f "${path}")
               MARKER_FILE="${config.home.homeDirectory}/.claude/plugins/.nix-cache-marker-$MARKETPLACE_NAME"
               CACHE_DIR="${config.home.homeDirectory}/.claude/plugins/cache/$MARKETPLACE_NAME"
 
               # Compute hash of symlink target path
               # Using path hash (not content hash) because it's deterministic and fast
-              CURRENT_HASH=$(echo "$SYMLINK_TARGET" | ${config.nixpkgs.pkgs.coreutils}/bin/sha256sum | ${config.nixpkgs.pkgs.coreutils}/bin/cut -d' ' -f1)
+              CURRENT_HASH=$(echo "$SYMLINK_TARGET" | ${pkgs.coreutils}/bin/sha256sum | ${pkgs.coreutils}/bin/cut -d' ' -f1)
 
               # Check if marker exists and matches
               if [ -f "$MARKER_FILE" ]; then
