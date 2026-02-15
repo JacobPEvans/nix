@@ -14,6 +14,14 @@
   jacobpevans-cc-plugins,
   claude-code-workflows,
   claude-skills,
+  obsidian-skills,
+  obsidian-visual-skills,
+  cc-marketplace,
+  cc-dev-tools,
+  claude-code-plugins-plus,
+  lunar-claude,
+  bills-claude-skills,
+  wakatime,
   ...
 }:
 
@@ -55,6 +63,14 @@ let
       claude-code-workflows
       claude-skills
       jacobpevans-cc-plugins
+      obsidian-skills
+      obsidian-visual-skills
+      cc-marketplace
+      cc-dev-tools
+      claude-code-plugins-plus
+      lunar-claude
+      bills-claude-skills
+      wakatime
       ;
   };
 

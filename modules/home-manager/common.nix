@@ -11,6 +11,14 @@
   jacobpevans-cc-plugins,
   claude-code-workflows,
   claude-skills,
+  obsidian-skills,
+  obsidian-visual-skills,
+  cc-marketplace,
+  cc-dev-tools,
+  claude-code-plugins-plus,
+  lunar-claude,
+  bills-claude-skills,
+  wakatime,
   ...
 }:
 
@@ -65,6 +73,14 @@ let
       jacobpevans-cc-plugins
       claude-code-workflows
       claude-skills
+      obsidian-skills
+      obsidian-visual-skills
+      cc-marketplace
+      cc-dev-tools
+      claude-code-plugins-plus
+      lunar-claude
+      bills-claude-skills
+      wakatime
       ;
   };
 
@@ -163,7 +179,7 @@ in
           "${userConfig.ai.claudeSchemaUrl}"
       '';
     }
-    // geminiConfig.home.activation;
+    // geminiConfig;
   };
 
   # ==========================================================================

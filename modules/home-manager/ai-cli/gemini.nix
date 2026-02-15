@@ -144,7 +144,7 @@ in
   # - Nix config takes precedence for known keys
   # - Unknown runtime keys are preserved (e.g., auth tokens, cached data)
   # - Use jq for robust JSON merging
-  home.activation.geminiSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  geminiSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     SETTINGS_FILE="${config.home.homeDirectory}/.gemini/settings.json"
     SETTINGS_DIR=$(dirname "$SETTINGS_FILE")
 
