@@ -34,11 +34,11 @@
   bills-claude-skills,
   wakatime,
   ...
-}:
+}: # All marketplace flake inputs are available in calling scope
 
 let
   # Import modular plugin configuration
-  # Pass all marketplace flake inputs for Nix-managed symlinks
+  # Pass marketplace flake inputs needed for URL derivation
   pluginModules = import ./claude/plugins/default.nix {
     inherit
       lib

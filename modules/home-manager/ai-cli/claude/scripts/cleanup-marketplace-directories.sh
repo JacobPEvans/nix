@@ -1,58 +1,36 @@
 #!/usr/bin/env bash
 # Clean up orphaned marketplace directories from previous configurations
-# These were from deprecated aggregation marketplaces or renamed marketplaces
-# Clean up orphaned marketplace directories using while-read pattern
-# (repository rule: no for loops in shell scripts)
+# Backs up both deprecated marketplaces and conflicting real directories
 
 # Arguments:
 #   $1: HOME_DIR - user's home directory
 #   $@: MARKETPLACE_PATHS - space-separated list of marketplace paths to check
 
+set -euo pipefail
+
 HOME_DIR="$1"
 shift
 MARKETPLACE_PATHS=("$@")
 
-# Clean up known orphaned directories
-printf '%s\n' \
-  "awesome-claude-code-plugins" \
-  "claudeforge-marketplace" \
-  "skills" \
-  "agents" \
-  "local" \
-  "claude-code-plugins" \
-| while IFS= read -r ORPHAN; do
-  ORPHAN_PATH="$HOME_DIR/.claude/plugins/marketplaces/$ORPHAN"
-  if [ -e "$ORPHAN_PATH" ]; then
-    BACKUP="$ORPHAN_PATH.backup"
-
-    # Remove old backup if it exists (only keep one)
-    if [ -e "$BACKUP" ]; then
-      rm -rf "$BACKUP"
-    fi
-
-    # Move orphaned directory to backup
-    mv "$ORPHAN_PATH" "$BACKUP"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Cleaned up orphaned marketplace directory: $ORPHAN" >&2
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   Backup saved to: $BACKUP" >&2
+# Backup a directory with timestamp if it exists
+backup_if_exists() {
+  local path="$1"
+  if [ -e "$path" ]; then
+    local backup="${path}.backup"
+    [ -e "$backup" ] && rm -rf "$backup"
+    mv "$path" "$backup"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Backed up: ${path##*/} → $backup" >&2
   fi
+}
+
+# Backup deprecated/orphaned marketplaces
+for orphan in awesome-claude-code-plugins claudeforge-marketplace skills agents local claude-code-plugins; do
+  backup_if_exists "$HOME_DIR/.claude/plugins/marketplaces/$orphan"
 done
 
-# Clean up marketplace directories that conflict with Nix-managed symlinks
-# This handles the case where runtime plugin installs created real directories
-# that now prevent Nix from creating symlinks
-printf '%s\n' "${MARKETPLACE_PATHS[@]}" | while IFS= read -r path; do
+# Backup real directories that conflict with Nix-managed symlinks
+for path in "${MARKETPLACE_PATHS[@]}"; do
   if [ -d "$path" ] && [ ! -L "$path" ]; then
-    BACKUP="$path.backup"
-
-    # Remove old backup if it exists (only keep one)
-    if [ -e "$BACKUP" ]; then
-      rm -rf "$BACKUP"
-    fi
-
-    # Move directory to backup
-    mv "$path" "$BACKUP"
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Cleaned up marketplace directory: $path" >&2
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   Backup saved to: $BACKUP" >&2
-    echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   After activation completes, a diff will be shown" >&2
+    backup_if_exists "$path"
   fi
 done

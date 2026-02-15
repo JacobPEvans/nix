@@ -60,19 +60,20 @@ let
   linterFiles = import ./linters/markdownlint.nix { inherit config; };
 
   # Claude Code configuration (extracted to separate file for clarity)
+  # Direct dependencies: claude-cookbooks (for commands/agents discovery)
+  # Marketplace inputs available from home-manager extraSpecialArgs
   claudeConfig = import ./ai-cli/claude-config.nix {
     inherit
       config
       lib
-      claude-code-plugins
       claude-cookbooks
+      claude-code-workflows
+      claude-skills
+      jacobpevans-cc-plugins
       claude-plugins-official
       anthropic-skills
       ai-assistant-instructions
       superpowers-marketplace
-      jacobpevans-cc-plugins
-      claude-code-workflows
-      claude-skills
       obsidian-skills
       obsidian-visual-skills
       cc-marketplace

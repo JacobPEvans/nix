@@ -5,15 +5,14 @@
 {
   config,
   lib,
-  claude-code-plugins,
   claude-cookbooks,
+  claude-code-workflows,
+  claude-skills,
+  jacobpevans-cc-plugins,
   claude-plugins-official,
   anthropic-skills,
   ai-assistant-instructions,
   superpowers-marketplace,
-  jacobpevans-cc-plugins,
-  claude-code-workflows,
-  claude-skills,
   obsidian-skills,
   obsidian-visual-skills,
   cc-marketplace,
@@ -49,20 +48,17 @@ let
 
   # Import modular plugin configuration
   # Plugin configuration moved to claude-plugins.nix and organized by category
-  # Marketplace flake inputs are now enriched with flakeInput attr internally
-  # See: modules/home-manager/ai-cli/claude/plugins/*.nix
   claudePlugins = import ./claude-plugins.nix {
     inherit
       config
       lib
-      claude-code-plugins
       claude-cookbooks
-      claude-plugins-official
-      anthropic-skills
-      superpowers-marketplace
       claude-code-workflows
       claude-skills
       jacobpevans-cc-plugins
+      claude-plugins-official
+      anthropic-skills
+      superpowers-marketplace
       obsidian-skills
       obsidian-visual-skills
       cc-marketplace
