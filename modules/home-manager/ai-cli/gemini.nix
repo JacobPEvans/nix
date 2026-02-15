@@ -146,5 +146,5 @@ in
   # - Use jq for robust JSON merging
   geminiSettings =
     lib.hm.dag.entryAfter [ "writeBoundary" ]
-      "${../scripts/merge-gemini-settings.sh} ${lib.escapeShellArg config.home.homeDirectory} ${lib.escapeShellArg settingsJson} ${lib.escapeShellArg "${pkgs.jq}/bin/jq"}";
+      "${./scripts/merge-gemini-settings.sh} ${lib.escapeShellArg config.home.homeDirectory} ${lib.escapeShellArg settingsJson} ${lib.escapeShellArg "${pkgs.jq}/bin/jq"}";
 }
