@@ -116,6 +116,15 @@ let
       ai-assistant-instructions
       ;
   };
+
+  # GitHub CLI extensions (aggregated for modularity)
+  ghExtensions = import ./ai-cli/gh-extensions {
+    inherit
+      pkgs
+      lib
+      ;
+    inherit (pkgs) fetchFromGitHub;
+  };
 in
 {
   # ==========================================================================
@@ -277,10 +286,7 @@ in
         # Source: https://github.com/github/gh-aw
         # Docs: https://github.github.io/gh-aw/
         # Requires: ANTHROPIC_API_KEY or COPILOT_GITHUB_TOKEN (set in env)
-        (import ../home-manager/ai-cli/gh-extensions/gh-aw.nix {
-          inherit (pkgs) lib fetchFromGitHub;
-          inherit pkgs;
-        })
+        ghExtensions.gh-aw
       ];
 
       # gh configuration (written to ~/.config/gh/config.yml)
