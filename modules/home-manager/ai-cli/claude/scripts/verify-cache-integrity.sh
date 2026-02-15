@@ -15,7 +15,7 @@ COREUTILS_BIN="$2"
 shift 2
 MARKETPLACE_PATHS=("$@")
 
-for path in "${MARKETPLACE_PATHS[@]}"; do
+printf '%s\n' "${MARKETPLACE_PATHS[@]}" | while IFS= read -r path; do
   if [ -L "$path" ]; then
     MARKETPLACE_NAME=$("$COREUTILS_BIN/basename" "$path")
     SYMLINK_TARGET=$("$COREUTILS_BIN/readlink" -f "$path")

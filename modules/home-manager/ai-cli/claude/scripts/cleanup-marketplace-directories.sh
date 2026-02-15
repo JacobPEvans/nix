@@ -40,7 +40,7 @@ done
 # Clean up marketplace directories that conflict with Nix-managed symlinks
 # This handles the case where runtime plugin installs created real directories
 # that now prevent Nix from creating symlinks
-for path in "${MARKETPLACE_PATHS[@]}"; do
+printf '%s\n' "${MARKETPLACE_PATHS[@]}" | while IFS= read -r path; do
   if [ -d "$path" ] && [ ! -L "$path" ]; then
     BACKUP="$path.backup"
 

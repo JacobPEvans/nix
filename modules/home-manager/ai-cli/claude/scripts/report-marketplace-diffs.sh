@@ -7,7 +7,7 @@
 
 MARKETPLACE_PATHS=("$@")
 
-for path in "${MARKETPLACE_PATHS[@]}"; do
+printf '%s\n' "${MARKETPLACE_PATHS[@]}" | while IFS= read -r path; do
   BACKUP="$path.backup"
   if [ -d "$BACKUP" ]; then
     echo "" >&2
