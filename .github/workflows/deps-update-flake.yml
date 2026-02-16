@@ -141,11 +141,12 @@ jobs:
         if: steps.check-renovate.outputs.skip == 'false'
         uses: DeterminateSystems/determinate-nix-action@v3
 
-      - name: Update flake.lock
+      - name: Update all flake.lock files
         if: steps.check-renovate.outputs.skip == 'false'
         env:
           FLAKE_INPUTS: ${{ steps.inputs.outputs.inputs }}
         run: |
+          echo "=== Updating ROOT flake ==="
           if [ -n "$FLAKE_INPUTS" ]; then
             # Use array expansion for safe variable handling of space-separated inputs
             # SECURITY: FLAKE_INPUTS is from controlled GitHub Actions output, properly quoted
@@ -154,6 +155,25 @@ jobs:
           else
             nix flake update
           fi
+
+          echo ""
+          echo "=== Updating SHELL flakes ==="
+          # Update all shell environment flakes
+          # SECURITY: Iterating over repository directories only - no untrusted input
+          for dir in shells/*/; do
+            if [ -f "${dir}flake.nix" ]; then
+              echo "Updating: $dir"
+              (cd "$dir" && nix flake update 2>&1 | tail -3) || true
+            fi
+          done
+
+          # Update host-specific flakes if they have locks
+          for dir in hosts/*/; do
+            if [ -f "${dir}flake.lock" ]; then
+              echo "Updating: $dir"
+              (cd "$dir" && nix flake update 2>&1 | tail -3) || true
+            fi
+          done
 
       - name: Create Pull Request
         if: steps.check-renovate.outputs.skip == 'false'
@@ -169,16 +189,21 @@ jobs:
             Automated update of Nix flake dependencies.
           title: "chore(deps): update flake inputs"
           body: |
-            Automated Nix flake dependency update.
+            Automated Nix flake dependency update across **all flakes** in the repository.
 
             ## What Changed
-            See the flake.lock diff below for specific version bumps.
+            - Root flake.lock (darwin, home-manager, nixpkgs, AI tools)
+            - Shell environment flakes (shells/**/flake.lock)
+            - Host-specific flakes (hosts/**/flake.lock)
+
+            See the flake.lock diffs below for specific version bumps.
 
             ## Review Notes
             - CI validates flake structure and build
             - AI tool updates (including claude-code) run daily
             - Claude Code philosophy: Always accept updates, manually validate, revert only if issues found
             - Full dependency updates (darwin, home-manager) run Tue/Fri
+            - Shell environments updated to ensure consistency across development environments
 
             ---
             *Created by JacobPEvans-github-actions*
