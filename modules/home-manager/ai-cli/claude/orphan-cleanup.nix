@@ -135,7 +135,7 @@ in
       verifyCacheIntegrity = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
         ${logHelper}
         log_info "Verifying marketplace cache integrity..."
-        ${verifyCacheIntegrityScript} "${homeDir}"
+        $DRY_RUN_CMD ${verifyCacheIntegrityScript} "${homeDir}"
       '';
     };
   };

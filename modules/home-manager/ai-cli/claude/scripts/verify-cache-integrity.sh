@@ -8,6 +8,11 @@
 
 set -euo pipefail
 
+# Centralized logging function (stderr for diagnostics)
+log_info() {
+  echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] $1" >&2
+}
+
 HOME_DIR="${1:?Usage: verify-cache-integrity.sh <home-dir>}"
 MARKETPLACES_DIR="$HOME_DIR/.claude/plugins/marketplaces"
 CACHE_DIR="$HOME_DIR/.claude/plugins/cache"
@@ -27,8 +32,7 @@ fi
 
 # Build new hashes, purge stale caches
 declare -A new_hashes
-for entry in "$MARKETPLACES_DIR"/*; do
-  [[ -L "$entry" ]] || continue
+find "$MARKETPLACES_DIR" -maxdepth 1 -type l -print0 | while IFS= read -d $'\0' -r entry; do
   name=$(basename "$entry")
   target=$(readlink "$entry")
 
@@ -39,15 +43,16 @@ for entry in "$MARKETPLACES_DIR"/*; do
   if [[ "${old_hashes[$name]:-}" != "$hash" ]]; then
     if [[ -d "$CACHE_DIR/$name" ]]; then
       rm -rf "$CACHE_DIR/$name"
-      echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Purged stale cache: $name" >&2
-      echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO]   Store path changed to: $target" >&2
+      log_info "Purged stale cache: $name"
+      log_info "  Store path changed to: $target"
     fi
   fi
 done
 
-# Write updated hashes
+# Write updated hashes atomically to avoid leaving a partially written file
 mkdir -p "$CACHE_DIR"
-: > "$HASH_FILE"
+tmp_hash_file="$(mktemp "${HASH_FILE}.XXXXXX")"
 for name in "${!new_hashes[@]}"; do
-  echo "${name}=${new_hashes[$name]}" >> "$HASH_FILE"
+  echo "${name}=${new_hashes[$name]}" >> "$tmp_hash_file"
 done
+mv "$tmp_hash_file" "$HASH_FILE"
