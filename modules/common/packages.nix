@@ -73,12 +73,11 @@ with pkgs;
   aws-vault # Secure AWS credential storage (uses OS keychain)
 
   # ==========================================================================
-  # Terminal Multiplexer
+  # Remote Shell (Mobile Access)
   # ==========================================================================
-  # Required for Claude Code agent teams split-pane mode.
-  # Ghostty does not natively support agent team split panes.
-  # See: https://code.claude.com/docs/en/agent-teams
-  tmux
+  # Resilient mobile shell for iPhone access via UDP.
+  # Survives WiFi/cellular handoffs - used with Termius over UniFi VPN.
+  mosh
 
   # ==========================================================================
   # HTTP & API Tools
