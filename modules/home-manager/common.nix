@@ -71,7 +71,8 @@ let
   # AgentsMD files from Nix store (flake input)
   # Changes require darwin-rebuild, but ensures reproducibility
   # NOTE: .copilot and .gemini directories are NOT symlinked because
-  # Nix manages files inside them (config.json, settings.json)
+  # Nix manages individual files inside them (config.json, commands/*.toml)
+  # .gemini/settings.json is managed via activation script (writable at runtime)
   # Uses force = true to overwrite any existing files (git provides version control)
   agentsMdSymlinks = {
     # Root instruction files accessible from home directory
@@ -146,7 +147,7 @@ in
       npmFiles
       // awsFiles
       // linterFiles
-      // geminiFiles
+      // geminiFiles.file
       // codexFiles
       // geminiCommands
       // copilotFiles
@@ -154,14 +155,17 @@ in
       // gitHooks
       // gitMergeDrivers;
 
-    # Claude Code Settings Validation (post-rebuild)
-    # Validates settings.json against JSON Schema after home files are written
-    # Script extracted to scripts/validate-claude-settings.sh for maintainability
-    activation.validateClaudeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${./scripts/validate-claude-settings.sh} \
-        "${config.home.homeDirectory}/.claude/settings.json" \
-        "${userConfig.ai.claudeSchemaUrl}"
-    '';
+    # Activation scripts (run after home files are written)
+    activation = geminiFiles.activation // {
+      # Claude Code Settings Validation (post-rebuild)
+      # Validates settings.json against JSON Schema after home files are written
+      # Script extracted to scripts/validate-claude-settings.sh for maintainability
+      validateClaudeSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD ${./scripts/validate-claude-settings.sh} \
+          "${config.home.homeDirectory}/.claude/settings.json" \
+          "${userConfig.ai.claudeSchemaUrl}"
+      '';
+    };
   };
 
   # ==========================================================================
