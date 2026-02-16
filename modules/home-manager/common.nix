@@ -168,9 +168,11 @@ in
     # ==========================================================================
     # Settings managed via activation script (writable at runtime).
     # See vscode/writable-config.nix for the deep-merge pattern.
-    # userSettings intentionally empty so HM doesn't create a read-only symlink.
+    # profiles.default.userSettings intentionally empty so HM doesn't create
+    # a read-only symlink for settings.json.
     vscode = {
       enable = true;
+      profiles.default.userSettings = { };
     };
 
     # ==========================================================================

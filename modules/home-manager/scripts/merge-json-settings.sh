@@ -32,7 +32,7 @@ if [[ -f "$TARGET" ]] && [[ ! -L "$TARGET" ]]; then
     chmod 600 "$TARGET"
     exit 0
   }
-  printf '%s\n' "$MERGED" | "$JQ" '.' > "${TARGET}.tmp"
+  printf '%s\n' "$MERGED" > "${TARGET}.tmp"
   mv "${TARGET}.tmp" "$TARGET"
   chmod 600 "$TARGET"
   echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Merged ${TARGET_NAME} (preserved runtime state)"
