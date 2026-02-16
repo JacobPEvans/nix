@@ -60,31 +60,19 @@ fi
 
 **IMPORTANT**: Update the root flake AND all shell/module flakes throughout the repository.
 
+Use the centralized update script to avoid DRY violations:
+
 ```bash
-# Update root flake
-echo "=== Updating ROOT flake ===" && \
-nix flake update --refresh
-
-# Update ALL shell flakes
-echo "" && \
-echo "=== Updating SHELL flakes ===" && \
-for dir in shells/*/; do
-  if [ -f "${dir}flake.nix" ]; then
-    echo "Updating: $dir" && \
-    (cd "$dir" && nix flake update --refresh 2>&1 | tail -3) || true
-  fi
-done
-
-# Update host-specific flakes if they have locks
-for dir in hosts/*/; do
-  if [ -f "${dir}flake.lock" ]; then
-    echo "Updating: $dir" && \
-    (cd "$dir" && nix flake update --refresh 2>&1 | tail -3) || true
-  fi
-done
+./scripts/update-all-flakes.sh
 ```
 
-**Discovery pattern**: Use `find . -name "flake.nix" -o -name "flake.lock" | grep -v ".git"` to discover all flakes in the repository.
+**Script reference**: See `scripts/update-all-flakes.sh` in the repository root.
+
+The script updates:
+
+- Root flake.lock (darwin, home-manager, nixpkgs, AI tools)
+- Shell environment flakes (shells/**/flake.lock)
+- Host-specific flakes (hosts/**/flake.lock)
 
 **On failure**: Report the error and stop.
 

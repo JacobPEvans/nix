@@ -146,34 +146,40 @@ jobs:
         env:
           FLAKE_INPUTS: ${{ steps.inputs.outputs.inputs }}
         run: |
-          echo "=== Updating ROOT flake ==="
+          # Use centralized update script to maintain DRY principle
+          # See: scripts/update-all-flakes.sh
+
           if [ -n "$FLAKE_INPUTS" ]; then
+            # Selective update: update only specified inputs in root flake
+            echo "=== Updating ROOT flake (selective inputs) ==="
             # Use array expansion for safe variable handling of space-separated inputs
             # SECURITY: FLAKE_INPUTS is from controlled GitHub Actions output, properly quoted
             read -ra INPUTS_ARRAY <<< "$FLAKE_INPUTS"
             nix flake update "${INPUTS_ARRAY[@]}"
+
+            # Shell and host flakes always get full updates (no selective update support)
+            echo ""
+            echo "=== Updating SHELL and HOST flakes (full update) ==="
+            # Run only the shell/host update portions
+            # SECURITY: Iterating over repository directories only - no untrusted input
+            for dir in shells/*/; do
+              if [ -f "${dir}flake.nix" ]; then
+                echo "Updating: $dir"
+                (cd "$dir" && nix flake update 2>&1 | tail -3) || true
+              fi
+            done
+            for dir in hosts/*/; do
+              if [ -f "${dir}flake.lock" ]; then
+                echo "Updating: $dir"
+                (cd "$dir" && nix flake update 2>&1 | tail -3) || true
+              fi
+            done
           else
-            nix flake update
+            # Full update: use centralized script
+            echo "=== Running full flake update ==="
+            chmod +x scripts/update-all-flakes.sh
+            ./scripts/update-all-flakes.sh
           fi
-
-          echo ""
-          echo "=== Updating SHELL flakes ==="
-          # Update all shell environment flakes
-          # SECURITY: Iterating over repository directories only - no untrusted input
-          for dir in shells/*/; do
-            if [ -f "${dir}flake.nix" ]; then
-              echo "Updating: $dir"
-              (cd "$dir" && nix flake update 2>&1 | tail -3) || true
-            fi
-          done
-
-          # Update host-specific flakes if they have locks
-          for dir in hosts/*/; do
-            if [ -f "${dir}flake.lock" ]; then
-              echo "Updating: $dir"
-              (cd "$dir" && nix flake update 2>&1 | tail -3) || true
-            fi
-          done
 
       - name: Create Pull Request
         if: steps.check-renovate.outputs.skip == 'false'
