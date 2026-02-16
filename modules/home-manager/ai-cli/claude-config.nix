@@ -68,7 +68,7 @@ in
 
   # Default model: opusplan uses Opus for planning, Sonnet for execution
   # See: https://code.claude.com/docs/en/model-config
-  model = "opusplan";
+  # model = "opusplan";  # Uncomment to override (default: account-tier Opus)
 
   # Release channel: "stable" delays ~1 week to avoid regressions
   autoUpdatesChannel = "stable";
@@ -76,7 +76,7 @@ in
   # Show turn duration in UI for performance visibility
   showTurnDuration = true;
 
-  effortLevel = "medium";
+  # effortLevel = "medium";  # Uncomment to override (default: high)
 
   # Auto-Claude: DISABLED - migrating to ai-workflows repo
   # Module files preserved (guarded by mkIf), will be extracted later
