@@ -13,10 +13,6 @@
 #   Use macOS defaults to disable auto-updaters declaratively.
 #   This prevents the updater from running at all.
 #
-# Affected apps:
-#   - postman (com.postmanlabs.mac) - Squirrel/ShipIt updater
-#   - rapidapi (com.luckymarmot.Paw) - Sparkle updater
-#
 # Note: VS Code already handled via programs.vscode settings (no action needed).
 #
 # To verify settings are applied:
