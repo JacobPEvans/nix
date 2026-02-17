@@ -34,9 +34,10 @@ rules:
       - review-deps.yml
 
   # ACCEPTED: workflow_run is the only trigger for reacting to CI completions.
-  # ci-fix-claude.yml is safe because it only reads logs via the GitHub API
-  # (not fork PR code), secrets are not available to fork-triggered runs,
-  # and the should-fix job validates the PR exists before proceeding.
+  # ci-fix-claude.yml is safe because:
+  # - It only reads logs via the GitHub API (not fork PR code).
+  # - It does not execute untrusted fork code.
+  # - The should-fix job validates the PR exists and belongs to this repo.
   dangerous-triggers:
     ignore:
       - ci-fix-claude.yml
