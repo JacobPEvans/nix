@@ -158,15 +158,15 @@ Source: `modules/home-manager/ai-cli/ai-tools.nix`
 
 | Package | Method | Description |
 |---------|--------|-------------|
-| cclint | bunx wrapper | CLAUDE.md linter (@felixgeelhaar/cclint@0.12.1) |
+| cclint | bunx wrapper | CLAUDE.md linter |
 | github-mcp-server | nixpkgs (unstable) | GitHub API MCP server |
 | terraform-mcp-server | nixpkgs (unstable) | Terraform/OpenTofu MCP server |
 | gemini-cli | nixpkgs (unstable) | Google Gemini CLI |
 | codex | nixpkgs (unstable) | OpenAI Codex CLI |
 | gh-copilot | bunx wrapper | GitHub Copilot CLI |
-| chatgpt (CLI) | bunx wrapper | OpenAI ChatGPT CLI (chatgpt-cli@3.3.0) |
-| claude-flow | bunx wrapper | AI agent orchestration (claude-flow@2.7.47) |
-| aider | pipx | AI pair programming (aider-chat) |
+| chatgpt (CLI) | bunx wrapper | OpenAI ChatGPT CLI |
+| claude-flow | bunx wrapper | AI agent orchestration |
+| aider | pipx | AI pair programming |
 
 ---
 
