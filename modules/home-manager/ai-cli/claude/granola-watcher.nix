@@ -1,25 +1,13 @@
-# Granola Watcher: File-watcher-driven automatic meeting migration
+# Granola Watcher: watchexec-driven automatic meeting migration
 #
-# Uses watchexec to watch granola/ for new .md files, then triggers
-# a lightweight shell script that invokes Claude headless to run
-# the granola-merger skill.
+# Watches granola/ for new .md files, triggers granola-migrate.sh which
+# invokes Claude headless to run the granola-merger skill.
 #
-# Architecture:
-#   watchexec (long-lived, launchd KeepAlive) -> granola-migrate.sh (short-lived)
-#     -> claude -p (headless, Sonnet, budget-capped)
+# We generate the plist directly (bypassing home-manager's launchd.agents)
+# because HM wraps ProgramArguments with /bin/sh, causing macOS to show
+# "sh" in Login Items instead of the service name.
 #
-# IMPORTANT: We bypass home-manager's launchd.agents because it wraps
-# ProgramArguments with /bin/sh (HM PR #8609), causing macOS to display
-# "sh" in Login Items and background activity notifications. Instead we
-# generate the plist directly and manage lifecycle via home.activation.
-#
-# Naming convention for future LaunchAgents:
-#   Label:       com.visicore.<service>
-#   Plist:       ~/Library/LaunchAgents/com.visicore.<service>.plist
-#   Launcher:    pkgs.writeShellScript "<service>" (gives named ProgramArguments[0])
-#   Logs:        ~/.claude/logs/<service>.{log,err}
-#
-# Options defined in: ./granola-watcher/options.nix
+# Options: ./granola-watcher/options.nix
 {
   config,
   lib,
@@ -37,11 +25,8 @@ let
   label = "com.visicore.granola-watcher";
   plistDst = "${homeDir}/Library/LaunchAgents/${label}.plist";
 
-  # Named launcher script so macOS shows "granola-watcher" in Login Items
-  # instead of "sh". The basename of ProgramArguments[0] determines what
-  # macOS displays in background activity notifications and Login Items.
-  # We handle /nix/store readiness ourselves (wait4path) since we're
-  # bypassing home-manager's automatic wait4path wrapper.
+  # Named script so macOS shows "granola-watcher" in Login Items.
+  # We handle /nix/store readiness ourselves since we bypass HM's wait4path wrapper.
   launcherScript = pkgs.writeShellScript "granola-watcher" ''
     /bin/wait4path /nix/store
     exec ${pkgs.watchexec}/bin/watchexec \
@@ -53,7 +38,6 @@ let
       -- "${migrateScript}"
   '';
 
-  # Environment variables passed to watchexec via launchd
   envVars = {
     HOME = homeDir;
     VAULT_PATH = wCfg.vaultPath;
@@ -73,7 +57,6 @@ let
     API_KEY_HELPER = "${homeDir}/${cfg.apiKeyHelper.scriptPath}";
   };
 
-  # Generate plist directly (bypassing home-manager's mutateConfig)
   plistFile = pkgs.writeText "${label}.plist" (
     lib.generators.toPlist { escape = true; } {
       Label = label;
@@ -90,7 +73,6 @@ in
   imports = [ ./granola-watcher/options.nix ];
 
   config = lib.mkMerge [
-    # When enabled: deploy migration script
     (lib.mkIf (cfg.enable && wCfg.enable) {
       home.file.".claude/scripts/granola-migrate.sh" = {
         source = ./granola-migrate.sh;
@@ -98,7 +80,7 @@ in
       };
     })
 
-    # LaunchAgent lifecycle: always registered so disabling cleans up properly
+    # Always registered so disabling cleans up the LaunchAgent
     (lib.mkIf cfg.enable {
       home.activation.manageGranolaWatcher = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         PLIST_DST="${plistDst}"
@@ -107,7 +89,6 @@ in
         ${
           if wCfg.enable then
             ''
-              # Granola watcher enabled: install/update LaunchAgent
               PLIST_SRC="${plistFile}"
               $DRY_RUN_CMD mkdir -p "$(dirname "$PLIST_DST")"
               $DRY_RUN_CMD mkdir -p "${logDir}"
@@ -120,7 +101,6 @@ in
             ''
           else
             ''
-              # Granola watcher disabled: remove LaunchAgent if present
               if [ -f "$PLIST_DST" ]; then
                 $DRY_RUN_CMD launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
                 $DRY_RUN_CMD rm -f "$PLIST_DST"

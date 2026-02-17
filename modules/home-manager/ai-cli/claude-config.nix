@@ -90,11 +90,6 @@ in
   granolaWatcher = {
     enable = true;
     vaultPath = "${config.home.homeDirectory}/obsidian/obsidian-visicore";
-    model = "sonnet";
-    maxBudgetPerRun = 3.0;
-    dailyBudgetCap = 10.0;
-    maxTurns = 80;
-    debounce = "30s";
   };
 
   plugins = {
