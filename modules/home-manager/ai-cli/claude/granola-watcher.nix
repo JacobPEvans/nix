@@ -12,7 +12,12 @@
 # ProgramArguments with /bin/sh (HM PR #8609), causing macOS to display
 # "sh" in Login Items and background activity notifications. Instead we
 # generate the plist directly and manage lifecycle via home.activation.
-# See docs/LAUNCHD-NAMING.md for the full explanation.
+#
+# Naming convention for future LaunchAgents:
+#   Label:       com.visicore.<service>
+#   Plist:       ~/Library/LaunchAgents/com.visicore.<service>.plist
+#   Launcher:    pkgs.writeShellScript "<service>" (gives named ProgramArguments[0])
+#   Logs:        ~/.claude/logs/<service>.{log,err}
 #
 # Options defined in: ./granola-watcher/options.nix
 {
