@@ -71,11 +71,13 @@ in
           set -euo pipefail
 
           REPO_PATH="${cfg.kubernetes.repoPath}"
-          CONTEXT="${cfg.kubernetes.context}"
+          export KUBE_CONTEXT="${cfg.kubernetes.context}"
 
           if [ ! -d "$REPO_PATH" ]; then
             echo "ERROR: kubernetes-monitoring repo not found at $REPO_PATH"
-            echo "Clone it: cd ~/git/kubernetes-monitoring && git worktree add main -b main origin/main"
+            echo "Clone it:"
+            echo "  mkdir -p ~/git/kubernetes-monitoring"
+            echo "  git clone git@github.com:JacobPEvans/kubernetes-monitoring.git ~/git/kubernetes-monitoring/main"
             exit 1
           fi
 
@@ -108,7 +110,7 @@ in
           kubectl --context "$CONTEXT" -n "$NAMESPACE" get all
           echo ""
           echo "=== Pod Logs (last 10 lines each) ==="
-          for pod in $(kubectl --context "$CONTEXT" -n "$NAMESPACE" get pods -o jsonpath='{.items[*].metadata.name}'); do
+          kubectl --context "$CONTEXT" -n "$NAMESPACE" get pods -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | while IFS= read -r pod; do
             echo ""
             echo "--- $pod ---"
             kubectl --context "$CONTEXT" -n "$NAMESPACE" logs "$pod" --tail=10 2>/dev/null || echo "(no logs yet)"
