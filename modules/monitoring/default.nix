@@ -82,10 +82,17 @@ in
           echo "Deploying monitoring stack from: $REPO_PATH"
           cd "$REPO_PATH"
 
-          if [ -f secrets.enc.yaml ]; then
+          # Cribl secrets from Doppler, AI keys from SOPS if available
+          if command -v doppler &>/dev/null; then
+            if [ -f secrets.enc.yaml ]; then
+              doppler run --project iac-conf-mgmt --config prd -- sops exec-env secrets.enc.yaml './scripts/deploy.sh'
+            else
+              make deploy-doppler
+            fi
+          elif [ -f secrets.enc.yaml ]; then
             sops exec-env secrets.enc.yaml 'make deploy'
           else
-            echo "WARNING: No secrets.enc.yaml found, deploying without secrets"
+            echo "WARNING: Neither doppler nor secrets.enc.yaml found"
             make deploy
           fi
         '')
