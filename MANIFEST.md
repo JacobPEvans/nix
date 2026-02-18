@@ -64,6 +64,12 @@ Source: `modules/common/packages.nix`
 | nodejs | Provides npm and npx |
 | bun | Fast all-in-one JavaScript runtime (provides bunx) |
 
+### Git Workflow
+
+| Package | Description |
+|---------|-------------|
+| git-flow-next | Modern git-flow workflow tool (custom buildGoModule, gittower/git-flow-next v1.0.0) |
+
 ### Pre-commit and Linters
 
 | Package | Description |
