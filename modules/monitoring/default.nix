@@ -1,16 +1,11 @@
 # Monitoring Infrastructure Module
 #
-# Aggregates all monitoring components:
-# - Kubernetes manifests for OrbStack cluster
-# - OTEL Collector configuration
-# - Cribl Edge configuration
-# - Cribl Stream (local log routing)
+# Provides deployment scripts and OTEL configuration for the monitoring stack.
+# Kubernetes manifests are managed in the kubernetes-monitoring repository:
+#   https://github.com/JacobPEvans/kubernetes-monitoring
 #
 # Usage:
 #   imports = [ ./modules/monitoring ];
-#
-# This module primarily manages K8s manifest files and helper scripts.
-# The actual K8s resources are deployed via kubectl.
 {
   config,
   lib,
@@ -27,6 +22,12 @@ in
 
     kubernetes = {
       enable = lib.mkEnableOption "Kubernetes-based monitoring stack";
+
+      repoPath = lib.mkOption {
+        type = lib.types.str;
+        default = "${config.home.homeDirectory}/git/kubernetes-monitoring/main";
+        description = "Path to the kubernetes-monitoring repository worktree";
+      };
 
       namespace = lib.mkOption {
         type = lib.types.str;
@@ -64,55 +65,32 @@ in
 
   config = lib.mkIf cfg.enable {
     home = {
-      # Deploy K8s manifest files to a known location
-      file = {
-        ".config/monitoring/k8s/namespace.yaml".source = ./k8s/namespace.yaml;
-        ".config/monitoring/k8s/kustomization.yaml".source = ./k8s/kustomization.yaml;
-
-        # OTEL Collector manifests (substitute homeDir for hostPath volumes)
-        ".config/monitoring/k8s/otel-collector/deployment.yaml".source =
-          pkgs.replaceVars ./k8s/otel-collector/deployment.yaml
-            {
-              homeDir = config.home.homeDirectory;
-            };
-        ".config/monitoring/k8s/otel-collector/configmap.yaml".source = ./k8s/otel-collector/configmap.yaml;
-        ".config/monitoring/k8s/otel-collector/service.yaml".source = ./k8s/otel-collector/service.yaml;
-
-        # Cribl Edge manifests (substitute homeDir for hostPath volumes)
-        ".config/monitoring/k8s/cribl-edge/deployment.yaml".source =
-          pkgs.replaceVars ./k8s/cribl-edge/deployment.yaml
-            {
-              homeDir = config.home.homeDirectory;
-            };
-        ".config/monitoring/k8s/cribl-edge/service.yaml".source = ./k8s/cribl-edge/service.yaml;
-      };
-
       # Helper scripts for Kubernetes-based monitoring
-      # Only create these when kubernetes is actually enabled
       packages = lib.mkIf cfg.kubernetes.enable [
         (pkgs.writeShellScriptBin "monitoring-deploy" ''
-          #!/usr/bin/env bash
           set -euo pipefail
 
-          MANIFEST_DIR="$HOME/.config/monitoring/k8s"
+          REPO_PATH="${cfg.kubernetes.repoPath}"
           CONTEXT="${cfg.kubernetes.context}"
-          NAMESPACE="${cfg.kubernetes.namespace}"
 
-          echo "Deploying monitoring stack to context: $CONTEXT"
+          if [ ! -d "$REPO_PATH" ]; then
+            echo "ERROR: kubernetes-monitoring repo not found at $REPO_PATH"
+            echo "Clone it: cd ~/git/kubernetes-monitoring && git worktree add main -b main origin/main"
+            exit 1
+          fi
 
-          # Apply all resources via kustomization (includes namespace.yaml)
-          kubectl --context "$CONTEXT" apply -k "$MANIFEST_DIR"
+          echo "Deploying monitoring stack from: $REPO_PATH"
+          cd "$REPO_PATH"
 
-          echo "Monitoring stack deployed to namespace: $NAMESPACE"
-          echo ""
-          echo "Components deployed:"
-          echo "  - OTEL Collector (gRPC: 4317, HTTP: 4318)"
-          echo "  - Cribl Edge (OTEL receiver: 9420)"
-          echo "  - Cribl Stream (local leader)"
+          if [ -f secrets.enc.yaml ]; then
+            sops exec-env secrets.enc.yaml 'make deploy'
+          else
+            echo "WARNING: No secrets.enc.yaml found, deploying without secrets"
+            make deploy
+          fi
         '')
 
         (pkgs.writeShellScriptBin "monitoring-status" ''
-          #!/usr/bin/env bash
           set -euo pipefail
 
           CONTEXT="${cfg.kubernetes.context}"
@@ -128,6 +106,17 @@ in
             echo "--- $pod ---"
             kubectl --context "$CONTEXT" -n "$NAMESPACE" logs "$pod" --tail=10 2>/dev/null || echo "(no logs yet)"
           done
+        '')
+
+        (pkgs.writeShellScriptBin "monitoring-logs" ''
+          set -euo pipefail
+
+          CONTEXT="${cfg.kubernetes.context}"
+          NAMESPACE="${cfg.kubernetes.namespace}"
+
+          kubectl --context "$CONTEXT" -n "$NAMESPACE" logs \
+            -l app.kubernetes.io/part-of=claude-monitoring \
+            --all-containers --tail=50 -f
         '')
       ];
 
