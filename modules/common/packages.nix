@@ -18,6 +18,7 @@ with pkgs;
   # ==========================================================================
   # Framework for managing git pre-commit hooks - essential for code quality
   pre-commit
+  (pkgs.callPackage ./git-flow-next.nix { }) # git-flow workflow tool (not in nixpkgs)
 
   # ==========================================================================
   # Node.js and Bun Runtimes
