@@ -93,23 +93,39 @@ monitoring.otel = {
 3. Open a new shell to pick up new session variables
 4. Start a Claude Code session
 
-### Verification
+### End-to-End Pipeline Validation
+
+Run these in order to validate each hop of the pipeline:
 
 ```bash
-# 1. Verify env vars are set
+# ── Hop 1: Env vars (requires new shell after rebuild) ──────────────────────
 env | grep -E 'OTEL|TELEMETRY'
+# Expect: CLAUDE_CODE_ENABLE_TELEMETRY=1, OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:30317, etc.
 
-# 2. Verify OTEL Collector pod is running
+# ── Hop 2: NodePort reachability ────────────────────────────────────────────
+nc -z localhost 30317 && echo "gRPC OPEN" || echo "gRPC CLOSED"
+# Note: curl cannot speak gRPC, so use nc to verify 30317; use curl for 30318 (HTTP):
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:30318/v1/logs
+# Expect: gRPC OPEN, HTTP 405
+
+# ── Hop 3: Collector receiving Claude Code data ──────────────────────────────
 kubectl --context orbstack -n monitoring get pods -l app=otel-collector
+kubectl --context orbstack -n monitoring logs -l app=otel-collector --tail=50 | grep claude_code
+# Expect: claude_code.token.usage, claude_code.active_time.total, etc.
 
-# 3. Verify NodePort is reachable via HTTP OTLP endpoint (30318)
-# Note: curl cannot speak gRPC, so we check the HTTP endpoint (30318) as a proxy
-# for overall collector reachability. Claude Code uses the gRPC endpoint (30317).
-curl -s -o /dev/null -w '%{http_code}' http://localhost:30318/v1/logs
+# ── Hop 4: Cribl Edge filelog path (secondary ingestion) ────────────────────
+kubectl --context orbstack -n monitoring logs -l app=cribl-edge-managed --tail=20 | grep claude-code-logs
+# Expect: FileMonitor collector added for ~/.claude/projects/*/SESSION.jsonl files
 
-# 4. After a Claude session, check collector received data
-kubectl --context orbstack -n monitoring logs -l app=otel-collector --tail=50
-# Look for: claude_code.* metric/log entries
+# ── Hop 5: Cribl Edge → downstream (check for blocked endpoints) ─────────────
+kubectl --context orbstack -n monitoring logs -l app=cribl-edge-managed --tail=5 | grep -E 'blockedEP|droppedEvents'
+# Expect: blockedEP:0, droppedEvents:0
+# If blockedEP > 0: check Cribl Edge output configs and Cribl Cloud connectivity
+
+# ── Hop 6: OTEL Collector → Cribl Edge OTLP (port 9420) ─────────────────────
+kubectl --context orbstack -n monitoring logs -l app=otel-collector --tail=20 | grep -E 'error|failed'
+# Expect: no errors. "connection refused" on cribl-edge-managed:9420 = OTLP receiver
+# not yet enabled in Cribl Edge managed config (configure via Cribl Cloud UI)
 ```
 
 ## OTEL Collector Configuration
@@ -198,6 +214,17 @@ service:
 
 - `localhost:4317` = ClusterIP, **not reachable from macOS host**
 - `localhost:30317` = NodePort, reachable from macOS host via OrbStack
+
+### Cribl Edge OTLP Receiver: Connection Refused
+
+If the OTEL Collector logs show `connection refused` on `cribl-edge-managed:9420`,
+the Cribl Edge managed instance's OTLP HTTP input is not enabled or not configured.
+
+The OTLP input must be added to the managed Edge instance via the Cribl Cloud UI:
+`Cribl Cloud → Edge → <fleet> → Sources → OTLP → Port 9420`.
+
+Note: the `filelog` secondary path (reading JSONL files directly) works independently
+of the OTLP receiver and does not require port 9420 to be open.
 
 ### Missing Attributes
 
