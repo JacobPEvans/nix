@@ -216,6 +216,9 @@ in
         # GPG: Required for pinentry to prompt for passphrase in terminal
         export GPG_TTY=$(tty)
 
+        # SOPS: age key file for secrets decryption
+        export SOPS_AGE_KEY_FILE="$HOME/.config/sops/age/keys.txt"
+
         # npm global packages (managed via ~/.npmrc prefix)
         # Packages installed with: npm install -g <package>
         # are placed in ~/.npm-packages and available in PATH
