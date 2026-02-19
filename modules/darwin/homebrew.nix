@@ -70,6 +70,21 @@ _:
       "claude-code" # Anthropic Claude Code CLI (version 2.1.3)
       "wispr-flow" # AI-powered voice dictation app
       # NOTE: ChatGPT, Cursor, Antigravity are in nixpkgs - see home.packages
+
+      # Microsoft apps as Homebrew casks (not masApps) for fastest updates.
+      #
+      # App Store updates require Apple review, which can lag days/weeks behind
+      # upstream releases. Homebrew casks pick up new versions within hours.
+      #
+      # greedy = true: force upgrade even though these apps have a built-in
+      # Microsoft AutoUpdate mechanism. Without this flag, `brew upgrade` skips
+      # apps that report their own updater, leaving them stale between rebuilds.
+      #
+      # Microsoft Teams: standalone desktop app is required for running multiple
+      # accounts simultaneously - the App Store (PWA-based) version does not
+      # support proper account isolation across sessions.
+      { name = "microsoft-teams"; greedy = true; }
+      { name = "microsoft-outlook"; greedy = true; }
     ];
 
     # Mac App Store apps (requires signed into App Store)
@@ -86,7 +101,8 @@ _:
       "Microsoft Word" = 462054704;
       "Microsoft Excel" = 462058435;
       "Microsoft PowerPoint" = 462062816;
-      "Microsoft Outlook" = 985367838;
+      # NOTE: Microsoft Outlook and Teams are in casks (greedy = true) above for
+      # fastest updates - App Store review delays can lag upstream by days/weeks.
       "Microsoft OneNote" = 784801555;
       "OneDrive" = 823766827;
     };

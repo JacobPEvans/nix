@@ -196,6 +196,10 @@ Source: `modules/darwin/homebrew.nix`
 | claude | Anthropic Claude desktop app |
 | claude-code | Anthropic Claude Code CLI |
 | wispr-flow | AI-powered voice dictation |
+| microsoft-teams (greedy) | Microsoft Teams - standalone app for multi-account support |
+| microsoft-outlook (greedy) | Microsoft Outlook - cask for faster updates than App Store |
+
+Note: `greedy = true` forces `brew upgrade` to update these apps even when Microsoft AutoUpdate is present, ensuring updates land within hours of upstream release rather than after Apple's App Store review.
 
 ### Mac App Store
 
@@ -206,7 +210,6 @@ Source: `modules/darwin/homebrew.nix`
 | Microsoft Word | 462054704 |
 | Microsoft Excel | 462058435 |
 | Microsoft PowerPoint | 462062816 |
-| Microsoft Outlook | 985367838 |
 | Microsoft OneNote | 784801555 |
 | OneDrive | 823766827 |
 
