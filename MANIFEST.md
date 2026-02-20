@@ -139,7 +139,8 @@ Source: `modules/darwin/common.nix`
 | raycast | Productivity launcher (replaces Spotlight) |
 | swiftbar | Menu bar customization (auto-claude status) |
 
-Note: OrbStack managed via `programs.orbstack` module (`modules/darwin/apps/orbstack.nix`).
+Note: OrbStack installed via Homebrew cask (`greedy = true`) in `modules/darwin/homebrew.nix` for TCC permission stability.
+The `programs.orbstack` module (`modules/darwin/apps/orbstack.nix`) still manages the APFS data volume via launchd.
 
 ---
 
@@ -191,13 +192,19 @@ Source: `modules/darwin/homebrew.nix`
 
 ### Casks
 
-| Package | Description |
-|---------|-------------|
-| obsidian | Knowledge base / note-taking |
-| shortwave | AI-powered email client |
-| claude | Anthropic Claude desktop app |
-| claude-code | Anthropic Claude Code CLI |
-| wispr-flow | AI-powered voice dictation |
+All casks that ship a built-in auto-updater use `greedy = true` so that `brew upgrade` (triggered by
+`onActivation.upgrade = true` on `darwin-rebuild switch`) always installs the latest version rather than
+deferring to the app's own updater.
+
+| Package | greedy | Description |
+|---------|--------|-------------|
+| obsidian | yes | Knowledge base / note-taking |
+| shortwave | yes | AI-powered email client |
+| wispr-flow | yes | AI-powered voice dictation |
+| claude | yes | Anthropic Claude desktop app (not in nixpkgs for Darwin) |
+| claude-code | yes | Anthropic Claude Code CLI |
+| orbstack | yes | Container/Linux VM runtime — cask for TCC permission stability |
+| microsoft-teams | no | Teams desktop app (not available on Mac App Store; MAU handles updates) |
 
 ### Mac App Store
 
