@@ -20,10 +20,10 @@ jobs:
 
   resolve:
     needs: triage
-    if: always() && (needs.triage.result == 'success' || needs.triage.result == 'skipped')
+    if: always() && (github.event_name == 'workflow_dispatch' || github.event.sender.type != 'Bot') && (needs.triage.result == 'success' || needs.triage.result == 'skipped')
     uses: JacobPEvans/ai-workflows/.github/workflows/issue-resolver.yml@v0.2.0
     secrets: inherit
     with:
       repo_context: "NixOS/nix-darwin system configuration using flakes"
-      issue_number: ${{ github.event.inputs.issue_number && fromJSON(github.event.inputs.issue_number) || 0 }}
+      issue_number: ${{ github.event.inputs.issue_number || 0 }}
       extra_tools: "Bash(nix:*)"
