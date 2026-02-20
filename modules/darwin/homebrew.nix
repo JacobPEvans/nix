@@ -64,12 +64,54 @@ _:
       # not symlinks to /nix/store), so macOS TCC permissions (camera, mic, screen
       # recording) persist across darwin-rebuild. This is different from nixpkgs
       # apps which require copyApps workaround in home-manager.
-      "obsidian" # Knowledge base / note-taking - brew for faster beta updates
-      "shortwave" # AI-powered email client
-      "claude" # Anthropic Claude desktop app (not in nixpkgs for Darwin)
-      "claude-code" # Anthropic Claude Code CLI (version 2.1.3)
-      "wispr-flow" # AI-powered voice dictation app
+      #
+      # greedy = true: required for any app that ships a built-in auto-updater.
+      # Without this flag, `brew upgrade` silently skips the app because Homebrew
+      # assumes the app will update itself. In practice, built-in updaters are
+      # unreliable (require the app to be open, can be dismissed, etc.), so greedy
+      # ensures updates land deterministically on every `darwin-rebuild switch`.
       # NOTE: ChatGPT, Cursor, Antigravity are in nixpkgs - see home.packages
+
+      # --- Productivity / Communication ---
+      {
+        name = "obsidian";
+        greedy = true;
+      } # Knowledge base / note-taking
+      {
+        name = "shortwave";
+        greedy = true;
+      } # AI-powered email client
+      {
+        name = "wispr-flow";
+        greedy = true;
+      } # AI-powered voice dictation
+
+      # --- Anthropic ---
+      {
+        name = "claude";
+        greedy = true;
+      } # Claude desktop app (not in nixpkgs for Darwin)
+      {
+        name = "claude-code";
+        greedy = true;
+      } # Claude Code CLI
+
+      # --- OrbStack ---
+      # Installed as a Homebrew cask rather than nixpkgs so that:
+      #   1. TCC permissions (Docker socket, Linux VM) persist across rebuilds
+      #      (nixpkgs installs symlink to /nix/store path which changes on rebuild)
+      #   2. greedy = true keeps it current without relying on its built-in updater
+      # The programs.orbstack module still manages the APFS data volume; only
+      # package.enable is set to false to avoid a conflicting nixpkgs install.
+      {
+        name = "orbstack";
+        greedy = true;
+      }
+
+      # --- Microsoft ---
+      # Teams is only distributed via Homebrew (not available on Mac App Store).
+      # No greedy flag: Microsoft AutoUpdate handles updates reliably when the app runs.
+      "microsoft-teams"
     ];
 
     # Mac App Store apps (requires signed into App Store)
