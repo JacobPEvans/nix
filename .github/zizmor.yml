@@ -39,7 +39,6 @@ rules:
       - issue-pipeline.yml
       - next-steps.yml
       - nixos-release-check.yml
-      - test-reusable.yml
       - post-merge-docs-review.yml
       - post-merge-tests.yml
       - review-deps.yml
@@ -69,8 +68,14 @@ rules:
       - issue-pipeline.yml
       - next-steps.yml
       - post-merge-docs-review.yml
-      - test-reusable.yml
       - post-merge-tests.yml
+
+  # ACCEPTED: Workflow-level write permissions are required for cross-repo
+  # reusable workflow calls. permissions: {} causes startup_failure because
+  # reusable workflows need the caller to provide sufficient GITHUB_TOKEN scope.
+  excessive-permissions:
+    ignore:
+      - issue-pipeline.yml
 
   # IGNORED: Low-confidence credential persistence warnings
   # Most checkouts don't need persist-credentials: false unless
