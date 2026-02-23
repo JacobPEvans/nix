@@ -49,9 +49,15 @@ let
     # Using --from-ref/--to-ref prevents heavy hooks (e.g. terragrunt-plan)
     # from running when only unrelated files (e.g. YAML) are pushed.
     # Reads the ref pairs from stdin as per the git pre-push hook protocol.
+    z40=0000000000000000000000000000000000000000
     exit_code=0
-    while read local_ref local_sha remote_ref remote_sha; do
-      if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    while IFS=' ' read -r local_ref local_sha remote_ref remote_sha; do
+      # Skip branch deletions (local_sha is all zeros — not a valid commit ref)
+      if [ "$local_sha" = "$z40" ]; then
+        continue
+      fi
+
+      if [ "$remote_sha" = "$z40" ]; then
         # New branch: compare against the empty tree
         from=$(git hash-object -t tree /dev/null)
       else
