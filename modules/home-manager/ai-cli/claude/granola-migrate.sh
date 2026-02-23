@@ -119,7 +119,8 @@ log "Claude exited with code ${CLAUDE_EXIT}"
 # Claude's --max-budget-usd caps actual spending, so charge the full effective budget.
 # This is conservative (may overcount) but simple and safe.
 
-# Only charge budget on successful runs (not command-not-found failures)
+# Only charge budget on successful runs (exit 0) to avoid charging for failed/partial runs,
+# including command-not-found and other non-zero exit codes.
 if (( CLAUDE_EXIT == 0 )); then
   new_spent=$(echo "$spent + $effective_budget" | bc)
   echo "{\"date\":\"${TODAY}\",\"spent\":${new_spent}}" > "$BUDGET_FILE"
