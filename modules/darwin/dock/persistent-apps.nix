@@ -42,6 +42,7 @@ in
       # AI Assistants
       "/Applications/Claude.app" # Anthropic Claude desktop app (homebrew cask)
       "${homeDir}/Applications/Gemini.app" # Google Gemini AI assistant
+      "/Applications/Antigravity.app" # Google's AI-powered IDE (homebrew cask)
 
       # Knowledge & Notes
       "/Applications/Obsidian.app"
@@ -58,8 +59,7 @@ in
 
       # NOTE: Ollama runs headless via LaunchAgent, no dock icon needed.
       # NOTE: Additional AI tools (ChatGPT, Cursor) can be found in
-      # ~/Applications/Home Manager Apps/, and Antigravity in /Applications/,
-      # but they are not pinned to the Dock.
+      # ~/Applications/Home Manager Apps/, but they are not pinned to the Dock.
       # NOTE: RapidAPI, Postman, and Bitwarden removed from dock per #438
     ];
 
