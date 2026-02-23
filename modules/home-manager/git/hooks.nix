@@ -58,8 +58,11 @@ let
       fi
 
       if [ "$remote_sha" = "$z40" ]; then
-        # New branch: compare against the empty tree
-        from=$(git hash-object -t tree /dev/null)
+        # New branch: compare against merge-base with origin/main so we check
+        # only files changed in this branch, not the entire repo history.
+        # Falls back to empty tree if origin/main does not exist.
+        from=$(git merge-base "$local_sha" origin/main 2>/dev/null \
+               || git hash-object -t tree /dev/null)
       else
         from="$remote_sha"
       fi
