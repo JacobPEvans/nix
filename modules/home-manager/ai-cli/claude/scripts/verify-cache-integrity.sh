@@ -34,8 +34,8 @@ fi
 # Marketplaces are real directories containing per-file symlinks to /nix/store/
 # (after transition from whole-directory symlinks via recursive=true in plugins.nix)
 declare -A new_hashes
-for entry in "$MARKETPLACES_DIR"/*/; do
-  [[ -d "$entry" ]] || continue
+# Use find with process substitution to avoid a for loop, per repo guidelines
+while IFS= read -r -d '' entry; do
   name=$(basename "$entry")
 
   # Find the first Nix store symlink inside this marketplace directory
@@ -60,7 +60,7 @@ for entry in "$MARKETPLACES_DIR"/*/; do
       log_info "  Store path changed to: $target"
     fi
   fi
-done
+done < <(find "$MARKETPLACES_DIR" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
 
 # Write updated hashes atomically to avoid leaving a partially written file
 mkdir -p "$CACHE_DIR"
