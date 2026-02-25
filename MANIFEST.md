@@ -56,7 +56,6 @@ Source: `modules/darwin/common.nix`
 | ollama | LLM runtime (models on /Volumes/Ollama/models) |
 | whisper-cpp | Local speech-to-text (OpenAI Whisper C++ port, CoreML/Metal) |
 | openai-whisper | Original OpenAI Whisper (Python, GPU/CPU, broader model support) |
-| open-webui | Browser-based Ollama chat UI (run: open-webui serve) |
 
 ---
 
@@ -278,7 +277,6 @@ Source: `modules/darwin/common.nix` (overlay block)
 | github-mcp-server | AI CLI - stable lags behind upstream |
 | terraform-mcp-server | AI CLI - stable lags behind upstream |
 | whisper-cpp | Speech-to-text - fast-moving (CoreML/Metal support) |
-| open-webui | Ollama web UI - fast-moving releases |
 
 ---
 

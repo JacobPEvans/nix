@@ -54,7 +54,9 @@ in
 
         # Speech-to-text / AI tools (fast-moving releases)
         whisper-cpp # C++ Whisper port (CoreML/Metal on Apple Silicon)
-        open-webui # Browser-based Ollama chat UI
+        # NOTE: open-webui intentionally omitted from overlay — broken on darwin:
+        #   open-webui → pgvector → postgresql-test-hook (marked broken on darwin)
+        #   Install via: pipx install open-webui && open-webui serve
         ;
     })
   ];
@@ -111,7 +113,8 @@ in
       ollama # LLM runtime (models on /Volumes/Ollama/models)
       whisper-cpp # Local speech-to-text (OpenAI Whisper C++ port, CoreML/Metal)
       openai-whisper # Original OpenAI Whisper (Python, GPU/CPU, broader model support)
-      open-webui # Browser-based Ollama chat UI (run: open-webui serve)
+      # NOTE: open-webui omitted — broken on darwin (pgvector → postgresql-test-hook)
+      # Use instead: pipx install open-webui && open-webui serve
 
       # --- GUI applications ---
       bitwarden-desktop # Password manager desktop app
