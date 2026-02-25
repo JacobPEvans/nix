@@ -53,7 +53,7 @@ in
         terraform-mcp-server
 
         # Speech-to-text / AI tools (fast-moving releases)
-        whisper-cpp # C++ Whisper port (CoreML/Metal on Apple Silicon)
+        whisper-cpp # Local speech-to-text (OpenAI Whisper C++ port, CoreML/Metal)
         # NOTE: open-webui intentionally omitted — broken on darwin:
         #   open-webui → pgvector → postgresql-test-hook (marked broken on darwin)
         #   Installed via pipx in home-manager activation (see modules/home-manager/common.nix)
