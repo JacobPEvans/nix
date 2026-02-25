@@ -3,11 +3,11 @@
     "ai-assistant-instructions": {
       "flake": false,
       "locked": {
-        "lastModified": 1771884374,
-        "narHash": "sha256-nf1yUvarUzhCmYPztMpxtz6IdA7IJdtgOdjg6pM6CdQ=",
+        "lastModified": 1772016290,
+        "narHash": "sha256-5KLtn3dTd8OfPB6xScGPwnDc1Bb21lh3G0d8irdOzX4=",
         "owner": "JacobPEvans",
         "repo": "ai-assistant-instructions",
-        "rev": "bca3fd37e9876c4a9d0a78420257249db5ca0668",
+        "rev": "591ae2f6de7a6e6c7037edf1c79a30b54693d02d",
         "type": "github"
       },
       "original": {
@@ -19,11 +19,11 @@
     "anthropic-agent-skills": {
       "flake": false,
       "locked": {
-        "lastModified": 1770412772,
-        "narHash": "sha256-9FGubcwHcGBJcKl02aJ+YsTMiwDOdgU/FHALjARG51c=",
+        "lastModified": 1771993718,
+        "narHash": "sha256-mZZ0rlj/kju7we1h+MvUjgFAVjcZ/qKkMbNZfhfCSvk=",
         "owner": "anthropics",
         "repo": "skills",
-        "rev": "1ed29a03dc852d30fa6ef2ca53a67dc2c2c2c563",
+        "rev": "3d59511518591fa82e6cfcf0438d68dd5dad3e76",
         "type": "github"
       },
       "original": {
@@ -99,11 +99,11 @@
     "claude-code-plugins": {
       "flake": false,
       "locked": {
-        "lastModified": 1771915148,
-        "narHash": "sha256-E8CIJd+ucMLIUNmQ1TriadGzudfjCTrOitg0eWCJKsA=",
+        "lastModified": 1772000823,
+        "narHash": "sha256-IdnfV88YjgsUqzHsNlZcwtc/Td9yKQYohYsL5ANuJTc=",
         "owner": "anthropics",
         "repo": "claude-code",
-        "rev": "8f0fe03e5687b10134d400c10240071523ace5c5",
+        "rev": "db3858a5589c8e6ffeb4cf765edc23cd4dbf900a",
         "type": "github"
       },
       "original": {
@@ -147,11 +147,11 @@
     "claude-cookbooks": {
       "flake": false,
       "locked": {
-        "lastModified": 1771605554,
-        "narHash": "sha256-jnDTccQoooxw/FAwh0CoBopqUc1JayVxP9jJ895HmzA=",
+        "lastModified": 1771977324,
+        "narHash": "sha256-K+BbkpbnTAGCzHfYxpsOEMinmg2hs7YurDGtZMqv4io=",
         "owner": "anthropics",
         "repo": "claude-cookbooks",
-        "rev": "419ce35fa8457347ff8bf61bffed791f8617b8c1",
+        "rev": "112611bacad67a1e1947f35e1672d5f9f6a3ee93",
         "type": "github"
       },
       "original": {
@@ -163,11 +163,11 @@
     "claude-plugins-official": {
       "flake": false,
       "locked": {
-        "lastModified": 1771914705,
-        "narHash": "sha256-C12715TGUleFD6AU86thxGFTxBj0X1QvaRdRt/RGc1o=",
+        "lastModified": 1771993700,
+        "narHash": "sha256-pcMIh9sgdMDs0dlc0POomxnPOLoP5/EOdCGMKoESmoc=",
         "owner": "anthropics",
         "repo": "claude-plugins-official",
-        "rev": "99e11d95926936deb21c3fa29a098511573100d1",
+        "rev": "55b58ec6e5649104f926ba7558b567dc8d33c5ff",
         "type": "github"
       },
       "original": {
@@ -293,11 +293,11 @@
     "lunar-claude": {
       "flake": false,
       "locked": {
-        "lastModified": 1771815750,
-        "narHash": "sha256-18XTJGRa4bXn60kaLPVKwyP/3dRH3TBXVyvpimX+E44=",
+        "lastModified": 1771937456,
+        "narHash": "sha256-H487qwWEUrhgJf21IrvXblxnLjVGv5h4MhCDdmg14Ys=",
         "owner": "basher83",
         "repo": "lunar-claude",
-        "rev": "92a0afc0220634ca415d07b7b8123a5853aceb51",
+        "rev": "b9ae7b82c9c5cca0c4db1be50c3f328dcd183dc6",
         "type": "github"
       },
       "original": {
@@ -389,11 +389,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1771482645,
-        "narHash": "sha256-MpAKyXfJRDTgRU33Hja+G+3h9ywLAJJNRq4Pjbb4dQs=",
+        "lastModified": 1771923393,
+        "narHash": "sha256-Fy0+UXELv9hOE8WjYhJt8fMDLYTU2Dqn3cX4BwoGBos=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "724cf38d99ba81fbb4a347081db93e2e3a9bc2ae",
+        "rev": "ea7f1f06811ce7fcc81d6c6fd4213150c23edcf2",
         "type": "github"
       },
       "original": {
@@ -405,11 +405,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1771482645,
-        "narHash": "sha256-MpAKyXfJRDTgRU33Hja+G+3h9ywLAJJNRq4Pjbb4dQs=",
+        "lastModified": 1771923393,
+        "narHash": "sha256-Fy0+UXELv9hOE8WjYhJt8fMDLYTU2Dqn3cX4BwoGBos=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "724cf38d99ba81fbb4a347081db93e2e3a9bc2ae",
+        "rev": "ea7f1f06811ce7fcc81d6c6fd4213150c23edcf2",
         "type": "github"
       },
       "original": {
