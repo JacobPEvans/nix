@@ -45,6 +45,7 @@ let
     CLAUDE_MAX_TURNS = toString wCfg.maxTurns;
     MAX_BUDGET = toString wCfg.maxBudgetPerRun;
     DAILY_CAP = toString wCfg.dailyBudgetCap;
+    BATCH_SIZE = toString wCfg.batchSize;
     LOG_DIR = logDir;
     PATH = "${
       lib.makeBinPath [

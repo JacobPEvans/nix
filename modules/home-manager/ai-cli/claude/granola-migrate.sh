@@ -3,6 +3,8 @@
 #
 # Required environment variables (set by launchd):
 #   VAULT_PATH, CLAUDE_MODEL, CLAUDE_MAX_TURNS, MAX_BUDGET, DAILY_CAP, LOG_DIR
+# Optional:
+#   BATCH_SIZE (default: 5) — number of files per Claude invocation
 
 # Restore homebrew PATH stripped by nix-darwin /etc/zshenv
 export PATH="/opt/homebrew/bin:$PATH"
@@ -18,6 +20,8 @@ for var in VAULT_PATH CLAUDE_MODEL CLAUDE_MAX_TURNS MAX_BUDGET DAILY_CAP LOG_DIR
     exit 1
   fi
 done
+
+BATCH_SIZE=$(( ${BATCH_SIZE:-5} ))
 
 # --- Lock (atomic mkdir, no TOCTOU race) ---
 
@@ -45,9 +49,9 @@ else
 fi
 
 # Compare as integer cents to avoid floating-point issues
-spent_cents=$(printf "%.0f" "$(echo "$spent * 100" | bc)")
 cap_cents=$(printf "%.0f" "$(echo "$DAILY_CAP * 100" | bc)")
 
+spent_cents=$(printf "%.0f" "$(echo "$spent * 100" | bc)")
 if (( spent_cents >= cap_cents )); then
   log "Daily budget exhausted (\$${spent}/\$${DAILY_CAP}), skipping"
   exit 0
@@ -75,56 +79,119 @@ if (( ${#UNPROCESSED[@]} == 0 )); then
   exit 0
 fi
 
-log "Found ${#UNPROCESSED[@]} unprocessed file(s):"
+log "Found ${#UNPROCESSED[@]} unprocessed file(s) (batch size: ${BATCH_SIZE}):"
 printf '  %s\n' "${UNPROCESSED[@]}"
 
-# --- Invoke Claude headless ---
+# --- Process in batches ---
 
-FILE_LIST=$(printf '\n- %s' "${UNPROCESSED[@]}")
+batch_num=0
+for ((i=0; i<${#UNPROCESSED[@]}; i+=BATCH_SIZE)); do
+  batch_num=$((batch_num + 1))
+  BATCH=("${UNPROCESSED[@]:i:BATCH_SIZE}")
 
-PROMPT="You are running as an automated Granola migration agent. Headless mode - NEVER prompt for user input.
+  # Re-check budget before each batch
+  spent=$(jq -r '.spent // 0' "$BUDGET_FILE" 2>/dev/null || echo "0")
+  spent_cents=$(printf "%.0f" "$(echo "$spent * 100" | bc)")
+  if (( spent_cents >= cap_cents )); then
+    log "Daily budget exhausted before batch ${batch_num}, stopping"
+    break
+  fi
 
-Read .claude/skills/granola-merger/SKILL.md and process these files:
+  remaining=$(echo "$DAILY_CAP - $spent" | bc)
+  effective_budget=$(echo "if ($MAX_BUDGET < $remaining) $MAX_BUDGET else $remaining" | bc)
+
+  FILE_LIST=$(printf '\n- %s' "${BATCH[@]}")
+
+  PROMPT="You are an automated Granola migration agent for an Obsidian vault at ${VAULT_PATH}. Headless mode — NEVER prompt for user input. Process ONLY the files listed below.
+
+## Files to migrate (this batch):
 ${FILE_LIST}
 
-CONSTRAINTS:
-1. Process ONLY the listed files
-2. Skip ambiguous files and phases requiring user input
-3. Create person pages only when company is auto-detectable
-4. Commit to main and push"
+## Migration rules (self-contained — do NOT read any skill, rule, or data files):
 
-# Effective budget: min(per-run max, remaining daily budget)
-remaining=$(echo "$DAILY_CAP - $spent" | bc)
-effective_budget=$(echo "if ($MAX_BUDGET < $remaining) $MAX_BUDGET else $remaining" | bc)
+### Project routing — match meeting title or content to a destination:
 
-LOG_FILE="${LOG_DIR}/granola-migrate-$(date +%Y%m%d-%H%M%S).log"
-log "Invoking Claude (model=${CLAUDE_MODEL}, budget=\$${effective_budget}, turns=${CLAUDE_MAX_TURNS})"
+| Destination folder | Match when title or content contains |
+|---|---|
+| clients/deloitte/projects/netflow-itsi/meetings/YYYY-MM/ | ITSI, NetFlow, Splunk ITSI, 100-hour |
+| clients/deloitte/projects/cribl-activation/meetings/YYYY-MM/ | Cribl Worker, activation, Cribl troubleshoot, Andrew Hendricks |
+| clients/deloitte/projects/cyber/meetings/YYYY-MM/ | Cyber, CheckMark, Pratik |
+| clients/commercial-alliance/projects/loan-automation/meetings/YYYY-MM/ | Tines, FiServ, SSO, loan, boarding, Snowflake, Commercial Alliance, CA Sync |
+| clients/heb/projects/heb-cribl/meetings/YYYY-MM/ | HEB, H-E-B, SC4S |
+| clients/world-pay/projects/wpay-cribl/meetings/YYYY-MM/ | World Pay, WorldPay, wpay |
+| clients/hard-rock/projects/hrok-cribl/meetings/YYYY-MM/ | Hard Rock, HardRock |
+| clients/northern-trust/projects/ntrs-cribl/meetings/YYYY-MM/ | Northern Trust |
+| partner/cribl/meetings/YYYY-MM/ | Cribl (VCT/internal meeting with no external client) |
+| partner/splunk/meetings/YYYY-MM/ | Splunk (VCT/internal meeting with no external client) |
+| visicore/meetings/YYYY-MM/ | VCT internal, visicore, team meeting, all-hands |
 
-# Capture Claude's exit code via pipestatus (disable pipefail temporarily)
-set +o pipefail
-claude -p "$PROMPT" \
-  --model "$CLAUDE_MODEL" \
-  --max-budget-usd "$effective_budget" \
-  --max-turns "$CLAUDE_MAX_TURNS" \
-  --output-format stream-json \
-  --verbose \
-  --no-session-persistence \
-  2>&1 | tee "$LOG_FILE"
-CLAUDE_EXIT=$pipestatus[1]
-set -o pipefail
+Replace YYYY-MM with the meeting date extracted from the source file path or frontmatter.
+For multiple Deloitte keyword matches: netflow-itsi > cribl-activation > cyber.
+If no match is found, SKIP that file entirely — do not move it.
 
-log "Claude exited with code ${CLAUDE_EXIT}"
+### File naming
+Destination filename: YYYY-MM-DD Meeting Title.md
+Use the date prefix from the granola source path and the meeting title from frontmatter or H1 heading.
 
-# --- Update daily budget ---
-# Claude's --max-budget-usd caps actual spending, so charge the full effective budget.
-# This is conservative (may overcount) but simple and safe.
+### Frontmatter transformation
+When migrating, update these fields in the destination file:
+- Keep: granola_id (critical for dedup detection), attendees
+- Set: type: meeting
+- Set: project to the project slug (e.g., netflow-itsi, loan-automation, heb-cribl)
+- Set: tags including the company tag (e.g., client/deloitte), project tag (e.g., project/deloitte/netflow-itsi), and meeting
 
-# Only charge budget on successful runs (exit 0) to avoid charging for failed/partial runs,
-# including command-not-found and other non-zero exit codes.
-if (( CLAUDE_EXIT == 0 )); then
-  new_spent=$(echo "$spent + $effective_budget" | bc)
+### VCT internal people — do NOT create person pages for these:
+Jacob Evans (Jacob, Jake Evans, jevans), Paul Stout (Paul), Andrew Hendricks (Andrew Hendrix, Andrew),
+Rob Jolliffe (Rob), Vince Asdell (Vince), Cody Quinney (Cody), Arif Hohammad (Arif), James Hill (James)
+
+### Migration steps for each file:
+1. Read the granola file
+2. Determine destination using keyword matching above (skip if ambiguous or no match)
+3. Create the YYYY-MM destination folder if needed: mkdir -p path/to/meetings/YYYY-MM
+4. git mv source destination (ALWAYS use git mv, never plain mv)
+5. Update frontmatter in the destination file (Read then Edit)
+6. Do NOT migrate the corresponding -transcript.md file (leave it in granola/)
+7. Do NOT create person pages — skip that step entirely
+
+### After all files in this batch are processed:
+Stage and commit: git add -A && git commit -m '🤖 [AUTO-MERGE] Migrated N Granola meeting(s)' && git push origin main
+Replace N with the actual count of files migrated (not skipped)."
+
+  LOG_FILE="${LOG_DIR}/granola-migrate-$(date +%Y%m%d-%H%M%S)-batch${batch_num}.log"
+  log "Batch ${batch_num}: invoking Claude for ${#BATCH[@]} file(s) (model=${CLAUDE_MODEL}, budget=\$${effective_budget})"
+
+  set +o pipefail
+  claude -p "$PROMPT" \
+    --model "$CLAUDE_MODEL" \
+    --max-budget-usd "$effective_budget" \
+    --max-turns "$CLAUDE_MAX_TURNS" \
+    --output-format stream-json \
+    --verbose \
+    --no-session-persistence \
+    --permission-mode bypassPermissions \
+    --allowedTools "Bash,Read,Write,Edit,Glob,Grep" \
+    2>&1 | tee "$LOG_FILE"
+  CLAUDE_EXIT=$pipestatus[1]
+  set -o pipefail
+
+  log "Claude exited with code ${CLAUDE_EXIT} (batch ${batch_num})"
+
+  # Parse actual cost from the stream-json result line
+  actual_cost=$(grep '"type":"result"' "$LOG_FILE" 2>/dev/null | tail -1 | jq -r '.total_cost_usd // 0' 2>/dev/null || echo "0")
+  if [[ -n "$actual_cost" ]] && [[ "$actual_cost" != "0" ]] && [[ "$actual_cost" != "null" ]] && (( $(echo "$actual_cost > 0" | bc -l) )); then
+    new_spent=$(echo "$spent + $actual_cost" | bc)
+    log "Budget: \$${new_spent}/\$${DAILY_CAP} (actual cost: \$${actual_cost})"
+  elif (( CLAUDE_EXIT == 0 )); then
+    # Fallback: charge effective_budget conservatively if actual cost unavailable
+    new_spent=$(echo "$spent + $effective_budget" | bc)
+    log "Budget: \$${new_spent}/\$${DAILY_CAP} (charged \$${effective_budget}, actual cost unavailable)"
+  else
+    new_spent="$spent"
+    log "Claude failed (exit ${CLAUDE_EXIT}), not charging budget"
+  fi
+
   echo "{\"date\":\"${TODAY}\",\"spent\":${new_spent}}" > "$BUDGET_FILE"
-  log "Budget: \$${new_spent}/\$${DAILY_CAP} (charged \$${effective_budget})"
-else
-  log "Claude failed (exit ${CLAUDE_EXIT}), not charging budget"
-fi
+  spent="$new_spent"
+done
+
+log "Migration complete. Processed up to ${#UNPROCESSED[@]} file(s) across ${batch_num} batch(es)."

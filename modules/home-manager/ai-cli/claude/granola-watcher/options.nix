@@ -16,13 +16,19 @@
     maxBudgetPerRun = lib.mkOption {
       type = lib.types.float;
       default = 3.0;
-      description = "Maximum USD per Claude invocation";
+      description = "Maximum USD per Claude invocation (appropriate for 5-file batches)";
     };
 
     dailyBudgetCap = lib.mkOption {
       type = lib.types.float;
-      default = 10.0;
-      description = "Maximum cumulative USD per calendar day";
+      default = 20.0;
+      description = "Maximum cumulative USD per calendar day (raised to clear backlogs faster; lower to 10 once caught up)";
+    };
+
+    batchSize = lib.mkOption {
+      type = lib.types.int;
+      default = 5;
+      description = "Number of Granola files to process per Claude invocation";
     };
 
     model = lib.mkOption {
