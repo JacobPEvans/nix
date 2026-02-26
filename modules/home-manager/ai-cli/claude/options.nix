@@ -166,20 +166,8 @@ in
     };
 
     # API Key Helper (for headless authentication)
-    #
-    # This feature assumes you have created a ~/.config/bws/.env file
-    # containing the required environment variables for Bitwarden/Claude
-    # API key retrieval. Configuration is not provided via Nix options.
-    #
-    # NOTE: The bws_helper.py script currently performs little or no
-    # validation of this file. If ~/.config/bws/.env is missing or
-    # misconfigured, the helper will fail at runtime with confusing
-    # errors rather than clear setup instructions.
-    #
-    # Before enabling this option, ensure that:
-    #   - ~/.config/bws/.env exists
-    #   - it contains all variables expected by bws_helper.py
-    #   - the file has appropriate permissions (not world-readable)
+    # Requires ~/.config/bws/.env with Bitwarden/Claude API key env vars.
+    # bws_helper.py performs minimal validation — see it for required vars.
     apiKeyHelper = {
       enable = lib.mkEnableOption "API key helper for headless Claude authentication";
 
@@ -228,16 +216,25 @@ in
       description = "Show how long each turn takes in the Claude Code UI";
     };
 
+    # Remote Control auto-start (Feb 2026 feature)
+    # Stored in ~/.claude.json (global config) via home.activation.
+    # See: https://code.claude.com/docs/en/remote-control
+    remoteControlAtStartup = mkOption {
+      type = types.nullOr types.bool;
+      default = null;
+      description = ''
+        Enable Remote Control for all sessions automatically.
+        null = leave unmanaged (Claude Code default is false).
+      '';
+    };
+
     model = mkOption {
       type = types.nullOr types.str;
       default = null;
       description = ''
-        Override the default model used by Claude Code.
-        Accepts model aliases ("opus", "sonnet", "haiku", "opusplan")
-        or full model names (e.g., "claude-opus-4-6").
-        - "opusplan": Uses Opus for planning, Sonnet for execution
-        - null: Uses the account-tier default (Opus 4.6 for Max/Pro/Teams)
-        See: https://code.claude.com/docs/en/model-config
+        Override the default model. Accepts aliases ("opus", "sonnet",
+        "haiku", "opusplan") or full names ("claude-opus-4-6").
+        null = account-tier default. See: https://code.claude.com/docs/en/model-config
       '';
     };
 
@@ -323,12 +320,7 @@ in
         default = { };
         description = ''
           Environment variables passed to Claude Code.
-          Common variables:
-          - MAX_THINKING_TOKENS: Extended thinking token budget (e.g., "16000")
-          - CLAUDE_CODE_MAX_OUTPUT_TOKENS: Max output tokens (e.g., "16000")
-          - BASH_MAX_OUTPUT_LENGTH: Max bash output chars (e.g., "64000")
-          - BASH_DEFAULT_TIMEOUT_MS: Default bash timeout (e.g., "120000")
-          - DISABLE_PROMPT_CACHING: Disable caching ("1" to disable)
+          See: https://code.claude.com/docs/en/settings
         '';
         example = {
           MAX_THINKING_TOKENS = "16000";

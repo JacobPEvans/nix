@@ -73,6 +73,7 @@ let
     # Environment variables (user-defined + apiKeyHelper if enabled)
   }
   // lib.optionalAttrs (cfg.model != null) { inherit (cfg) model; }
+  // lib.optionalAttrs (cfg.remoteControlAtStartup != null) { inherit (cfg) remoteControlAtStartup; }
   // lib.optionalAttrs (envAttrs != { }) { env = envAttrs; }
 
   # Status line (only include if we have valid configuration)
@@ -182,6 +183,17 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
+    # Merge remoteControlAtStartup into ~/.claude.json (global config) at activation time.
+    # This key lives in the global config file, not settings.json, so home.file cannot be
+    # used directly (the file is runtime-mutable). jq merges only this key idempotently.
+    home.activation = lib.mkIf (cfg.remoteControlAtStartup != null) {
+      claudeRemoteControlAtStartup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        export PATH="${pkgs.jq}/bin:$PATH"
+        RC_VALUE=${if cfg.remoteControlAtStartup then "true" else "false"}
+        . ${./scripts/remote-control-startup.sh}
+      '';
+    };
+
     # Validate environment variable names before generating settings.json
     assertions = [
       {
