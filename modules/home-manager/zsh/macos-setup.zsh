@@ -9,7 +9,6 @@ tabs -2
 brew update
 
 # Clean up .DS_Store files in common directories.
+# Single find across all dirs; -exec rm {} + batches args for fewer rm invocations.
 # Runs in the background to avoid blocking shell startup.
-{ find ~/.config/  -name ".DS_Store" -depth -exec rm {} \; 2>/dev/null; } &!
-{ find ~/git/      -name ".DS_Store" -depth -exec rm {} \; 2>/dev/null; } &!
-{ find ~/obsidian/ -name ".DS_Store" -depth -exec rm {} \; 2>/dev/null; } &!
+{ find ~/.config/ ~/git/ ~/obsidian/ -name ".DS_Store" -depth -exec rm {} + 2>/dev/null; } &!
