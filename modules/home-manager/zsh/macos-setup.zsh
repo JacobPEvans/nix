@@ -3,10 +3,10 @@
 # Set tabs to 2 spaces
 tabs -2
 
-# Homebrew: update package index in the background.
-# Keeps formulae/casks current without blocking shell startup.
+# Homebrew: update package index on shell start.
+# Runs in the foreground so available updates are visible immediately.
 # Note: onActivation.autoUpdate = false keeps darwin-rebuild fast; this compensates.
-{ brew update &>/dev/null; } &!
+brew update
 
 # Clean up .DS_Store files in common directories.
 # Runs in the background to avoid blocking shell startup.
