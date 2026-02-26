@@ -87,6 +87,15 @@ repos:
         exclude: ^worktrees/
         pass_filenames: false
 
+      # Keyword scanning - prevent configured keywords from being committed
+      # Patterns: SOPS-encrypted in private-patterns.sops.json
+      - id: check-private-identifiers
+        name: Check for private identifiers
+        entry: scripts/check-private-identifiers.sh
+        language: system
+        types: [file]
+        exclude: ^(private-patterns\.sops\.json|scripts/check-private-identifiers\.sh|\.sops\.yaml)$
+
       # Claude Code settings validation - check-jsonschema via nix shell
       - id: validate-claude-settings
         name: Validate Claude settings
