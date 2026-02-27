@@ -1,6 +1,6 @@
 # PAL MCP — Dynamic Ollama Model Discovery
 #
-# Generates ~/.config/pal-mcp/custom_models.json from `ollama list` at
+# Generates ~/.config/pal-mcp/custom_models.json from the Ollama REST API at
 # activation time (darwin-rebuild switch) and injects CUSTOM_MODELS_CONFIG_PATH
 # into the PAL server env.
 #
@@ -11,7 +11,7 @@
 #   PAL's parse_model_option() strips ":tag" before registry lookup, so a
 #   model like "glm-5:cloud" must be registered with alias "glm-5". When the
 #   user asks for "glm-5", PAL finds the alias → resolves to "glm-5:cloud" →
-#   sends that to Ollama. This is handled automatically by the generator script.
+#   sends that to Ollama. This is handled automatically by pal-models.jq.
 {
   config,
   lib,
@@ -30,20 +30,14 @@ in
     # Merges with the env block defined in mcp/default.nix (DISABLED_TOOLS, etc.).
     programs.claude.mcpServers.pal.env.CUSTOM_MODELS_CONFIG_PATH = outputFile;
 
-    # Generate custom_models.json from `ollama list` during darwin-rebuild switch.
+    # Generate custom_models.json from Ollama REST API during darwin-rebuild switch.
     # If Ollama is unreachable the existing file is kept and no error is raised.
     home.activation.palCustomModels = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      OLLAMA_BIN="${pkgs.ollama}/bin/ollama"
-      OUTPUT_FILE="${outputFile}"
-      JQ_BIN="${pkgs.jq}/bin/jq"
-      export PATH="${
-        lib.makeBinPath [
-          pkgs.coreutils
-          pkgs.gawk
-          pkgs.gnused
-        ]
-      }:$PATH"
-      . ${../mcp/scripts/generate-pal-models.sh}
+      mkdir -p "${outputDir}"
+      ${pkgs.curl}/bin/curl -sf http://localhost:11434/api/tags \
+        | ${pkgs.jq}/bin/jq --from-file ${../mcp/scripts/pal-models.jq} \
+        > "${outputFile}" \
+      || echo "pal-models: Ollama unreachable — keeping existing file" >&2
     '';
   };
 }

@@ -67,11 +67,11 @@
 #   2. Add to unstable overlay in modules/darwin/common.nix
 #   3. Add to version check script (scripts/workflows/check-package-versions.sh)
 
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 
 {
   # AI-specific development tools
-  # Install via: home.packages = [ ... ] ++ (import ./ai-cli/ai-tools.nix { inherit pkgs lib; }).packages;
+  # Install via: home.packages = [ ... ] ++ (import ./ai-cli/ai-tools.nix { inherit pkgs; }).packages;
   #
   # See CURRENT STATUS section at the top of this file for package details.
   packages = with pkgs; [
@@ -153,17 +153,10 @@
     # without a full darwin-rebuild switch.
     (writeShellScriptBin "sync-ollama-models" ''
       set -euo pipefail
-      OLLAMA_BIN="${pkgs.ollama}/bin/ollama"
-      OUTPUT_FILE="$HOME/.config/pal-mcp/custom_models.json"
-      JQ_BIN="${pkgs.jq}/bin/jq"
-      export PATH="${
-        lib.makeBinPath [
-          pkgs.coreutils
-          pkgs.gawk
-          pkgs.gnused
-        ]
-      }:$PATH"
-      . ${./mcp/scripts/generate-pal-models.sh}
+      mkdir -p "$HOME/.config/pal-mcp"
+      ${pkgs.curl}/bin/curl -sf http://localhost:11434/api/tags \
+        | ${pkgs.jq}/bin/jq --from-file ${./mcp/scripts/pal-models.jq} \
+        > "$HOME/.config/pal-mcp/custom_models.json"
       echo "PAL custom models updated. Restart Claude Code to pick up changes."
     '')
 

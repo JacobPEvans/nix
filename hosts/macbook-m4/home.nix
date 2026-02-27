@@ -132,7 +132,7 @@
       ])
       # AI Development Tools (linters, formatters, analyzers)
       # See modules/home-manager/ai-cli/ai-tools.nix for package definitions
-      ++ (import ../../modules/home-manager/ai-cli/ai-tools.nix { inherit pkgs lib; }).packages;
+      ++ (import ../../modules/home-manager/ai-cli/ai-tools.nix { inherit pkgs; }).packages;
 
     # ========================================================================
     # Host-specific symlinks for external volumes
