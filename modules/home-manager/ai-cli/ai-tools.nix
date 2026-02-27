@@ -135,6 +135,18 @@
     '')
 
     # ==========================================================================
+    # Doppler MCP Wrapper
+    # ==========================================================================
+    # Wraps any MCP server command with Doppler secret injection.
+    # Fetches secrets from the ai-ci-automation project at subprocess launch time.
+    # Used by mcp/default.nix withDoppler helper — secrets never stored in any file.
+    # Usage: doppler-mcp <command> [args...]
+    (writeShellScriptBin "doppler-mcp" ''
+      set -euo pipefail
+      exec ${pkgs.doppler}/bin/doppler run -p ai-ci-automation -c prd -- "$@"
+    '')
+
+    # ==========================================================================
     # Aider - AI pair programming in the terminal
     # ==========================================================================
     # Not available in nixpkgs - python package, use pip/pipx

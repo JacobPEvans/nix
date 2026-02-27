@@ -50,6 +50,18 @@ let
       args = [ "@modelcontextprotocol/server-${name}" ];
     };
 
+  # Wrap an MCP server command with Doppler secret injection.
+  # The doppler-mcp script is defined in ai-tools.nix.
+  # Usage: withDoppler { command = "uvx"; args = [...]; enabled = true; }
+  # Produces: { command = "doppler-mcp"; args = ["uvx" ...]; enabled = true; }
+  withDoppler =
+    server:
+    server
+    // {
+      command = "doppler-mcp";
+      args = [ server.command ] ++ server.args;
+    };
+
   # All server definitions
   allServers = {
     # ================================================================
@@ -152,7 +164,7 @@ let
     #   - OLLAMA_HOST (for local Ollama models)
     #   - LOG_LEVEL (logging verbosity)
 
-    pal = mkServer {
+    pal = withDoppler (mkServer {
       enabled = true;
       command = "uvx";
       args = [
@@ -160,7 +172,7 @@ let
         "git+https://github.com/BeehiveInnovations/pal-mcp-server.git"
         "pal-mcp-server"
       ];
-    };
+    });
 
     # ================================================================
     # Obsidian - NOT IMPLEMENTED

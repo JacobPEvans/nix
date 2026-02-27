@@ -54,16 +54,55 @@ Then run `darwin-rebuild switch --flake .` to deploy.
 
 ## Secrets Management
 
+### Environment variables (default)
+
 Servers requiring API keys read them from environment variables at runtime.
 Use your secrets manager (Doppler, Keychain, 1Password, etc.) to inject env vars.
 
 Required env vars are documented in comments above each server definition.
 The config does NOT store any secrets — it only references commands and URLs.
 
+### Doppler injection via `withDoppler`
+
+For servers whose secrets live in Doppler (project `ai-ci-automation`, config `prd`),
+wrap the server definition with `withDoppler`:
+
+```nix
+pal = withDoppler (mkServer {
+  enabled = true;
+  command = "uvx";
+  args = [ "--from" "git+https://..." "pal-mcp-server" ];
+});
+```
+
+This sets `command = "doppler-mcp"` and shifts the original command into `args[0]`.
+The `doppler-mcp` script (defined in `ai-tools.nix`) runs:
+
+```bash
+doppler run -p ai-ci-automation -c prd -- <original-command> [args...]
+```
+
+Secrets are fetched at subprocess launch time and injected as environment variables.
+They are never written to `~/.claude.json` or any other file Claude Code can read.
+
+**Adding a new Doppler-wrapped server:**
+
+```nix
+my-server = withDoppler (mkServer {
+  enabled = true;
+  command = "uvx";
+  args = [ "my-mcp-server" ];
+});
+
+# Or with an official server:
+exa = withDoppler (officialServer { name = "exa"; enabled = true; });
+```
+
 ## Adding New Servers
 
 1. Choose the right helper:
    - Local stdio process → `mkServer` or `officialServer`
+   - Local stdio with Doppler secrets → wrap with `withDoppler`
    - Remote SSE/HTTP endpoint → `mkRemoteServer`
 
 2. Set `enabled = false` initially, test, then enable.
