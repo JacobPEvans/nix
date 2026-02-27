@@ -62,6 +62,11 @@ _:
       # - Named 'block-goose-cli' to avoid conflict with nixpkgs 'goose' (database migration tool)
       "block-goose-cli"
 
+      # OpenAI Codex CLI (AI coding agent)
+      # - Moved from nixpkgs to match claude/gemini installation pattern
+      # - Homebrew ensures latest release alongside other AI CLI tools
+      "codex"
+
       # Swift native on-device speech recognition (Apple Silicon, requires Xcode build - not in nixpkgs)
       "whisperkit-cli"
     ];

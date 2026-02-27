@@ -85,6 +85,23 @@ doppler run -p ai-ci-automation -c prd -- <original-command> [args...]
 Secrets are fetched at subprocess launch time and injected as environment variables.
 They are never written to `~/.claude.json` or any other file Claude Code can read.
 
+**Non-secret config belongs in Nix, not Doppler.** Use the `env` attr on `mkServer` for
+configuration values that are not sensitive (feature flags, timeouts, log levels). `withDoppler`
+preserves all attrs from the original server — `env` is merged into the deployed config unchanged:
+
+```nix
+pal = withDoppler (mkServer {
+  enabled = true;
+  command = "uvx";
+  args = [ "--from" "git+https://..." "pal-mcp-server" ];
+  env = {
+    DISABLED_TOOLS = "";         # non-secret config → Nix
+    LOG_LEVEL = "INFO";          # non-secret config → Nix
+    # GEMINI_API_KEY, OLLAMA_HOST → injected by Doppler at runtime
+  };
+});
+```
+
 **Adding a new Doppler-wrapped server:**
 
 ```nix
@@ -97,6 +114,37 @@ my-server = withDoppler (mkServer {
 # Or with an official server:
 exa = withDoppler (officialServer { name = "exa"; enabled = true; });
 ```
+
+## PAL MCP Tools
+
+The PAL server exposes 16 tools for multi-model AI orchestration.
+The last 6 are disabled upstream by default; `DISABLED_TOOLS = ""` enables all of them.
+
+| Tool | Description |
+|------|-------------|
+| `chat` | Single-model conversation |
+| `thinkdeep` | Extended reasoning with chain-of-thought |
+| `planner` | Architecture and design planning |
+| `codereview` | Multi-model code review |
+| `precommit` | Pre-commit review |
+| `debug` | Systematic debugging |
+| `apilookup` | API documentation lookup |
+| `challenge` | Devil's advocate reasoning |
+| `clink` | Multi-model parallel query |
+| `consensus` | Multi-model consensus debate |
+| `analyze` | Code analysis |
+| `refactor` | Code refactoring |
+| `testgen` | Test generation |
+| `secaudit` | Security audit |
+| `docgen` | Documentation generation |
+| `tracer` | Execution tracing |
+
+### Prerequisites for `clink`
+
+`clink` bridges to other AI CLIs. These must be installed and on `PATH`:
+
+- `gemini` — Homebrew brew: `gemini-cli`
+- `claude` — Homebrew cask: `claude-code`
 
 ## Adding New Servers
 

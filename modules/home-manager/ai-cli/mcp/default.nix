@@ -149,20 +149,17 @@ let
     # PAL MCP - Multi-model orchestration
     # ================================================================
     # Provider Abstraction Layer for routing tasks to different AI models
-    # Tools: chat, thinkdeep, planner, consensus, codereview, precommit, debug, apilookup, challenge
+    # Tools (all enabled): chat, thinkdeep, planner, codereview, precommit, debug,
+    #   apilookup, challenge, clink, consensus, analyze, refactor, testgen, secaudit,
+    #   docgen, tracer
     # See: https://github.com/BeehiveInnovations/pal-mcp-server
     #
-    # API keys inherited from shell environment (at least one required):
+    # API keys injected via Doppler (withDoppler wrapper, at least one required):
     #   - GEMINI_API_KEY (Google Gemini)
-    #   - OPENAI_API_KEY (OpenAI)
-    #   - ANTHROPIC_API_KEY (Anthropic Claude)
-    #   - Other providers: OPENROUTER_API_KEY, AZURE_OPENAI_API_KEY, XAI_API_KEY
+    #   - OPENROUTER_API_KEY (OpenRouter - unified model access)
+    #   - OLLAMA_HOST (local Ollama server URL)
     #
-    # Optional configuration (also inherited from shell):
-    #   - DISABLED_TOOLS (comma-separated, e.g., "analyze,refactor")
-    #   - DEFAULT_MODEL (default model selection strategy)
-    #   - OLLAMA_HOST (for local Ollama models)
-    #   - LOG_LEVEL (logging verbosity)
+    # Non-secret config is set in env below (belongs in Nix, not Doppler).
 
     pal = withDoppler (mkServer {
       enabled = true;
@@ -172,6 +169,14 @@ let
         "git+https://github.com/BeehiveInnovations/pal-mcp-server.git"
         "pal-mcp-server"
       ];
+      env = {
+        # Enable ALL PAL tools (default disables: analyze,refactor,testgen,secaudit,docgen,tracer)
+        DISABLED_TOOLS = "";
+        # Conversation limits
+        CONVERSATION_TIMEOUT_HOURS = "6";
+        MAX_CONVERSATION_TURNS = "50";
+        LOG_LEVEL = "INFO";
+      };
     });
 
     # ================================================================

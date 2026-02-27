@@ -13,7 +13,7 @@
 #    - Check: nix search nixpkgs <package>
 #    - Use if package exists and is reasonably up-to-date
 #    - Benefits: Binary cache, security updates, integration
-#    - Example: gemini-cli, codex, github-mcp-server
+#    - Example: github-mcp-server, terraform-mcp-server
 #
 # 2. **homebrew** (ONLY if not in nixpkgs)
 #    - Fallback for packages missing from nixpkgs
@@ -38,17 +38,18 @@
 # ============================================================================
 #
 # NIXPKGS PACKAGES (sourced via unstable overlay in modules/darwin/common.nix):
-#   codex, github-mcp-server, terraform-mcp-server
+#   github-mcp-server, terraform-mcp-server
+#
+# HOMEBREW PACKAGES (from modules/darwin/homebrew.nix):
+#   codex: OpenAI Codex CLI (moved from nixpkgs to match claude/gemini pattern)
+#   block-goose-cli: Block's AI agent (nixpkgs outdated at time of addition)
+#   gemini-cli: Google Gemini CLI (moved from nixpkgs due to severe version lag)
 #
 # BUNX WRAPPER PACKAGES (npm packages not in nixpkgs/homebrew):
 #   cclint: @felixgeelhaar/cclint@0.12.1
 #   gh-copilot: @githubnext/github-copilot-cli@latest (unversioned - upstream)
 #   chatgpt: chatgpt-cli@3.3.0
 #   claude-flow: claude-flow@2.0.0
-#
-# HOMEBREW PACKAGES (from modules/darwin/homebrew.nix):
-#   block-goose-cli: Block's AI agent (nixpkgs outdated at time of addition)
-#   gemini-cli: Google Gemini CLI (moved from nixpkgs due to severe version lag)
 #
 # PIPX PACKAGES (Python, installed separately):
 #   aider: aider-chat (AI pair programming)
@@ -99,13 +100,6 @@
     # Terraform MCP Server - Terraform/OpenTofu integration
     # Source: https://github.com/hashicorp/terraform-mcp-server
     terraform-mcp-server
-
-    # ==========================================================================
-    # OpenAI Codex CLI
-    # ==========================================================================
-    # Lightweight coding agent that runs in your terminal
-    # Sourced from unstable overlay (modules/darwin/common.nix)
-    codex
 
     # ==========================================================================
     # GitHub Copilot CLI

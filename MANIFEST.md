@@ -174,7 +174,7 @@ Source: `modules/home-manager/ai-cli/ai-tools.nix`, `modules/home-manager/common
 | cclint | bunx wrapper | CLAUDE.md linter |
 | github-mcp-server | nixpkgs (unstable) | GitHub API MCP server |
 | terraform-mcp-server | nixpkgs (unstable) | Terraform/OpenTofu MCP server |
-| codex | nixpkgs (unstable) | OpenAI Codex CLI |
+| codex | homebrew | OpenAI Codex CLI (moved from nixpkgs) |
 | gh-copilot | bunx wrapper | GitHub Copilot CLI |
 | chatgpt (CLI) | bunx wrapper | OpenAI ChatGPT CLI |
 | claude-flow | bunx wrapper | AI agent orchestration |
@@ -192,6 +192,7 @@ Source: `modules/darwin/homebrew.nix`
 | Package | Description |
 |---------|-------------|
 | ccusage | Claude Code usage analyzer |
+| codex | OpenAI Codex CLI (moved from nixpkgs) |
 | block-goose-cli | Block's Goose AI agent |
 | gemini-cli | Google Gemini CLI (moved from nixpkgs) |
 | whisperkit-cli | Swift native on-device speech recognition (Apple Silicon) |
@@ -274,7 +275,6 @@ Source: `modules/darwin/common.nix` (overlay block)
 |---------|--------|
 | ghostty-bin | GUI app - fast upstream releases |
 | ollama | LLM runtime - fast upstream releases |
-| codex | AI CLI - stable lags behind upstream |
 | github-mcp-server | AI CLI - stable lags behind upstream |
 | terraform-mcp-server | AI CLI - stable lags behind upstream |
 | whisper-cpp | Speech-to-text - fast-moving (CoreML/Metal support) |
