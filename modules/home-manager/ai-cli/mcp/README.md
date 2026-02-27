@@ -146,6 +146,59 @@ The last 6 are disabled upstream by default; `DISABLED_TOOLS = ""` enables all o
 - `gemini` — Homebrew brew: `gemini-cli`
 - `claude` — Homebrew cask: `claude-code`
 
+## PAL Ollama Model Discovery
+
+PAL's model registry (`custom_models.json`) is generated automatically from `ollama list`
+during every `darwin-rebuild switch`. This keeps PAL's model list in sync with your locally
+installed Ollama models without manual configuration.
+
+### How it works
+
+1. `claude/pal-models.nix` adds a `palCustomModels` activation script and injects
+   `CUSTOM_MODELS_CONFIG_PATH=~/.config/pal-mcp/custom_models.json` into the PAL server env.
+2. The activation script sources `mcp/scripts/generate-pal-models.sh`, which runs
+   `ollama list` and writes a JSON registry entry for each model.
+3. PAL reads the registry at startup. All Ollama models appear under **Custom/Local API**.
+
+If Ollama is not running at rebuild time the existing file is kept unchanged (no error).
+
+### Adding new models
+
+```bash
+ollama pull qwen3-coder:30b
+sync-ollama-models          # Regenerate registry (no rebuild required)
+# Restart Claude Code to pick up the new models
+```
+
+### The colon alias trick
+
+PAL's `parse_model_option()` strips `:tag` from model names before registry lookup. A model
+named `glm-5:cloud` must therefore be registered with alias `glm-5`. The generator handles
+this automatically:
+
+| Ollama name | model_name sent to API | Aliases |
+|-------------|------------------------|---------|
+| `glm-5:cloud` | `glm-5:cloud` | `glm-5`, `glm-5-cloud` |
+| `qwen3-coder:30b` | `qwen3-coder:30b` | `qwen3-coder`, `qwen3-coder-30b` |
+| `qwen3-next:latest` | `qwen3-next` | `qwen3-next` |
+
+When PAL sees `glm-5`, it strips the (absent) colon-suffix, looks up `glm-5` in the registry,
+resolves to `glm-5:cloud`, and sends that tag to the Ollama API.
+
+### Intelligence score heuristic
+
+Scores are estimated from model file size. Adjust if needed by editing
+`mcp/scripts/generate-pal-models.sh`.
+
+| Size | Score |
+|------|-------|
+| cloud / 0 GB | 14 |
+| < 5 GB | 5 |
+| 5–20 GB | 8 |
+| 20–40 GB | 11 |
+| 40–70 GB | 14 |
+| 70+ GB | 17 |
+
 ## Adding New Servers
 
 1. Choose the right helper:

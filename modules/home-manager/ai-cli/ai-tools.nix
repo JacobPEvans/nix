@@ -67,7 +67,7 @@
 #   2. Add to unstable overlay in modules/darwin/common.nix
 #   3. Add to version check script (scripts/workflows/check-package-versions.sh)
 
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 
 {
   # AI-specific development tools
@@ -143,6 +143,29 @@
         exit 1
       fi
       exec ${pkgs.doppler}/bin/doppler run -p ai-ci-automation -c prd -- "$@"
+    '')
+
+    # ==========================================================================
+    # Sync PAL Ollama Models
+    # ==========================================================================
+    # Refreshes ~/.config/pal-mcp/custom_models.json from `ollama list`.
+    # Run after `ollama pull <model>` to make new models available in PAL
+    # without a full darwin-rebuild switch.
+    (writeShellScriptBin "sync-ollama-models" ''
+      set -euo pipefail
+      OLLAMA_BIN="${pkgs.ollama}/bin/ollama"
+      OUTPUT_FILE="$HOME/.config/pal-mcp/custom_models.json"
+      JQ_BIN="${pkgs.jq}/bin/jq"
+      export PATH="${
+        lib.makeBinPath [
+          pkgs.coreutils
+          pkgs.gawk
+          pkgs.gnused
+          pkgs.gnugrep
+        ]
+      }:$PATH"
+      . ${./mcp/scripts/generate-pal-models.sh}
+      echo "PAL custom models updated. Restart Claude Code to pick up changes."
     '')
 
     # ==========================================================================

@@ -178,6 +178,7 @@ Source: `modules/home-manager/ai-cli/ai-tools.nix`, `modules/home-manager/common
 | gh-copilot | bunx wrapper | GitHub Copilot CLI |
 | chatgpt (CLI) | bunx wrapper | OpenAI ChatGPT CLI |
 | claude-flow | bunx wrapper | AI agent orchestration |
+| sync-ollama-models | writeShellScriptBin | Regenerate PAL Ollama model registry |
 | aider | pipx | AI pair programming |
 | open-webui | uv tool (home activation) | Browser-based Ollama chat UI (run: open-webui serve) |
 
