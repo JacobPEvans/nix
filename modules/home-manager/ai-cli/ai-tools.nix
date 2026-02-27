@@ -161,7 +161,6 @@
           pkgs.coreutils
           pkgs.gawk
           pkgs.gnused
-          pkgs.gnugrep
         ]
       }:$PATH"
       . ${./mcp/scripts/generate-pal-models.sh}

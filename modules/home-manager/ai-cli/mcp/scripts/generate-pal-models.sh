@@ -96,10 +96,16 @@ _pal_generate() {
     # Build aliases array (JSON)
     # Always include base name (colon-stripping workaround: PAL strips ":tag" before lookup)
     # Also add hyphenated variant for tags that are not "latest"
+    #
+    # Collision check: use exact space-delimited match to avoid false positives.
+    # grep -w would treat hyphens as word boundaries, causing "qwen3-coder" to
+    # falsely match "qwen3-coder-next" in seen_aliases.
+    _alias_taken() { case " $seen_aliases " in *" $1 "*) return 0;; *) return 1;; esac; }
+
     local aliases_json
     if [ "$tag" = "latest" ] || [ "$tag" = "$name" ]; then
       # Only base alias needed (model_name == base already)
-      if echo "$seen_aliases" | grep -qw "$base"; then
+      if _alias_taken "$base"; then
         # Alias already taken by an earlier model — omit aliases
         aliases_json="[]"
       else
@@ -111,11 +117,11 @@ _pal_generate() {
       local hyphen_alias="${base}-${tag}"
       aliases_json="[]"
       local a_base="" a_hyphen=""
-      if ! echo "$seen_aliases" | grep -qw "$base"; then
+      if ! _alias_taken "$base"; then
         a_base="\"$base\""
         seen_aliases="$seen_aliases $base"
       fi
-      if ! echo "$seen_aliases" | grep -qw "$hyphen_alias"; then
+      if ! _alias_taken "$hyphen_alias"; then
         a_hyphen="\"$hyphen_alias\""
         seen_aliases="$seen_aliases $hyphen_alias"
       fi
