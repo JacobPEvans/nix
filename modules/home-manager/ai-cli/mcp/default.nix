@@ -12,7 +12,7 @@
 { pkgs, lib, ... }:
 
 let
-  # Helper to create MCP server definition
+  # Helper to create stdio MCP server definition
   mkServer =
     {
       enabled ? false,
@@ -24,6 +24,19 @@ let
       inherit enabled command args;
     }
     // lib.optionalAttrs (env != { }) { inherit env; };
+
+  # Helper to create SSE/HTTP MCP server definition (remote, no local process)
+  mkRemoteServer =
+    {
+      enabled ? false,
+      type ? "sse",
+      url,
+      headers ? { },
+    }:
+    {
+      inherit enabled type url;
+    }
+    // lib.optionalAttrs (headers != { }) { inherit headers; };
 
   # Official MCP server via bunx (fast, auto-installs)
   officialServer =
@@ -202,17 +215,23 @@ let
       name = "sentry";
       enabled = false;
     };
+
+    # ================================================================
+    # Cribl MCP - OrbStack kubernetes-monitoring stack
+    # ================================================================
+    # Cribl MCP server running in OrbStack k8s cluster (NodePort :30030).
+    # Connection will fail when OrbStack k8s is not running — this is expected.
+    # See: ~/git/kubernetes-monitoring for the stack configuration.
+    cribl = mkRemoteServer {
+      enabled = true;
+      url = "http://localhost:30030/mcp";
+    };
   };
 
-  # Filter to enabled servers, remove the enabled flag for output
+  # Filter to enabled servers, strip the internal `enabled` flag.
+  # settings.nix handles the final transformation to Claude Code JSON format.
   enabledServers = lib.filterAttrs (_: v: v.enabled) allServers;
-  mcpServersForClaude = lib.mapAttrs (
-    _: v:
-    {
-      inherit (v) command args;
-    }
-    // lib.optionalAttrs (v.env or { } != { }) { inherit (v) env; }
-  ) enabledServers;
+  mcpServersForClaude = lib.mapAttrs (_: v: builtins.removeAttrs v [ "enabled" ]) enabledServers;
 
 in
 {
