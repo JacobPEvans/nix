@@ -142,8 +142,11 @@ in
   # Cribl MCP server running in OrbStack k8s cluster (NodePort :30030).
   # Connection will fail when OrbStack k8s is not running — this is expected.
   # See: ~/git/kubernetes-monitoring for the stack configuration.
+  # Cribl uses streamable HTTP transport (not SSE).
+  # Claude Code supports this natively with type = "http" — no mcp-remote proxy needed.
+  # See: https://docs.cribl.io/copilot/cribl-mcp-server/
   cribl = {
-    type = "sse";
+    type = "http";
     url = "http://localhost:30030/mcp";
   };
 }
