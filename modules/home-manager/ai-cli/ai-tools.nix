@@ -71,7 +71,7 @@
 
 {
   # AI-specific development tools
-  # Install via: home.packages = [ ... ] ++ (import ./ai-cli/ai-tools.nix { inherit pkgs; }).packages;
+  # Install via: home.packages = [ ... ] ++ (import ./ai-cli/ai-tools.nix { inherit pkgs lib; }).packages;
   #
   # See CURRENT STATUS section at the top of this file for package details.
   packages = with pkgs; [
