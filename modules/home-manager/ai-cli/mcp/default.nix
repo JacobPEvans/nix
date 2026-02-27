@@ -9,8 +9,6 @@
 # Note: Servers requiring API keys read them from environment variables.
 # Use your secrets manager (Doppler, Keychain, etc.) to inject env vars.
 
-_:
-
 let
   # Official MCP server via bunx (fast, auto-installs)
   official = name: {
