@@ -42,12 +42,31 @@ let
 
   mcpServerModule = types.submodule {
     options = {
-      command = mkOption { type = types.str; };
+      type = mkOption {
+        type = types.enum [
+          "stdio"
+          "sse"
+          "http"
+        ];
+        default = "stdio";
+      };
+      command = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+      };
       args = mkOption {
         type = types.listOf types.str;
         default = [ ];
       };
       env = mkOption {
+        type = types.attrsOf types.str;
+        default = { };
+      };
+      url = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+      };
+      headers = mkOption {
         type = types.attrsOf types.str;
         default = { };
       };

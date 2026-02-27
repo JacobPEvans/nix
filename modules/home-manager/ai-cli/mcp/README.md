@@ -1,40 +1,56 @@
 # MCP Servers - Nix-Native Configuration
 
-All MCP servers are built/fetched and cached at Nix evaluation time. No runtime npm,
-npx, or bunx - everything is deterministic and reproducible.
+MCP server definitions are declared in `default.nix` and deployed to `~/.claude.json`
+automatically on every `darwin-rebuild switch` via a `home.activation` script.
 
-## Architecture
+**Nix is the sole manager of user-scoped MCP servers.** Any entries added manually via
+`claude mcp add --scope user` will be overwritten on the next rebuild.
 
-- **Native nixpkgs packages**: terraform-mcp-server, github-mcp-server
-  - Referenced directly with `pkgs.package-name`
-  - Always up-to-date with nixpkgs version
+## Transports
 
-- **Fetched from GitHub**: Official MCP servers from `modelcontextprotocol/servers`
-  - Single fetch of entire repo, pinned to specific commit
-  - Fetched once and cached in `/nix/store`
+### stdio (local processes)
 
-- **npm packages via npx**: For servers not in official repo or nixpkgs
-  - Uses `${pkgs.nodejs}/bin/npx -y @package/name` pattern
-  - Example: Context7 for documentation lookup
+Run a local command as the MCP server. Use `mkServer` or `officialServer` helpers:
+
+```nix
+# Official Anthropic server via bunx
+fetch = officialServer { name = "fetch"; enabled = true; };
+
+# nixpkgs binary (resolved via PATH)
+github = mkServer { enabled = true; command = "github-mcp-server"; };
+
+# npm package via bunx
+context7 = mkServer {
+  enabled = true;
+  command = "bunx";
+  args = [ "@context7/mcp-server" ];
+};
+```
+
+### SSE / HTTP (remote servers)
+
+Connect to a running HTTP server using SSE or HTTP transport. Use `mkRemoteServer`:
+
+```nix
+# SSE server (default type)
+cribl = mkRemoteServer {
+  enabled = true;
+  url = "http://localhost:30030/mcp";
+};
+
+# HTTP server with custom headers
+my-server = mkRemoteServer {
+  enabled = true;
+  type = "http";
+  url = "http://localhost:8080/mcp";
+  headers = { Authorization = "Bearer \${TOKEN}"; };
+};
+```
 
 ## Enabling Servers
 
-Edit `modules/home-manager/ai-cli/mcp/default.nix` and set `enabled = true`
-for the servers you want to use.
-
-```nix
-# Example: Enable a nixpkgs package
-github = mkServerDef {
-  enabled = true;
-  command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
-};
-
-# Example: Enable an official MCP server
-docker = officialServerDef {
-  name = "docker";
-  enabled = true;
-};
-```
+Edit `modules/home-manager/ai-cli/mcp/default.nix` and set `enabled = true`.
+Then run `darwin-rebuild switch --flake .` to deploy.
 
 ## Secrets Management
 
@@ -42,77 +58,35 @@ Servers requiring API keys read them from environment variables at runtime.
 Use your secrets manager (Doppler, Keychain, 1Password, etc.) to inject env vars.
 
 Required env vars are documented in comments above each server definition.
-The config does NOT store any secrets - it only references the server binaries.
-
-## Updating the MCP Servers Repo Hash
-
-When updating to a newer commit of `modelcontextprotocol/servers`:
-
-1. Update the `rev` in `mcpServersRepo` to the new commit SHA
-2. Set `sha256 = lib.fakeHash;` temporarily
-3. Build to get the correct hash:
-
-   ```bash
-   darwin-rebuild switch --flake . 2>&1 | grep "got: sha256"
-   ```
-
-4. Replace `lib.fakeHash` with the actual hash from the error message
+The config does NOT store any secrets — it only references commands and URLs.
 
 ## Adding New Servers
 
-1. Determine the server source:
-   - Check if it's in nixpkgs: `nix search nixpkgs mcp-server`
-   - Check if it's in `modelcontextprotocol/servers` repo
-   - Otherwise, use npx pattern for npm packages
+1. Choose the right helper:
+   - Local stdio process → `mkServer` or `officialServer`
+   - Remote SSE/HTTP endpoint → `mkRemoteServer`
 
-2. For nixpkgs packages:
+2. Set `enabled = false` initially, test, then enable.
 
-   ```nix
-   my-server = mkServerDef {
-     enabled = false;
-     command = "${pkgs.my-mcp-server}/bin/my-mcp-server";
-   };
-   ```
+3. Run `darwin-rebuild switch --flake .` to deploy.
 
-3. For official MCP servers (modelcontextprotocol/servers):
-
-   ```nix
-   my-server = officialServerDef {
-     name = "my-server";  # Directory name in src/
-     enabled = false;
-   };
-   ```
-
-4. For npm packages not in the official repo:
-
-   ```nix
-   my-server = mkServerDef {
-     enabled = false;
-     command = "${pkgs.nodejs}/bin/npx";
-     args = [ "-y" "@my-org/mcp-server" ];
-   };
-   ```
-
-## Performance
-
-- **First build**: Fetches repos and caches in `/nix/store`
-- **Subsequent builds**: Cache hit - instant
-- **Zero runtime overhead**: All servers ready to use immediately
+4. Verify: `cat ~/.claude.json | jq .mcpServers`
 
 ## Troubleshooting
 
-### "hash mismatch" error
+### Server not appearing in Claude Code
 
-The cached hash doesn't match. Update the hash using the method above.
-
-### "not found" when running server
-
-Node.js servers: Check `${pkgs.nodejs}/bin/node` path
-Native packages: Verify package exists: `nix search nixpkgs package-name`
-
-### Server not loading in Claude Code
-
-1. Check `enabled = true` in mcp/default.nix
+1. Check `enabled = true` in `mcp/default.nix`
 2. Run `darwin-rebuild switch --flake .`
 3. Restart Claude Code
-4. Verify in Claude Code: check `/mcp` command
+4. Check `~/.claude.json` contains the server: `jq .mcpServers ~/.claude.json`
+
+### SSE server shows connection error
+
+Expected when the remote server is not running (e.g., OrbStack k8s is stopped).
+The server definition is still deployed — it will connect when the server is available.
+
+### "command not found" for a stdio server
+
+Verify the binary is in PATH. For nixpkgs packages, ensure it's installed in your profile
+or system packages. For bunx/uvx, ensure bun/uv is installed.

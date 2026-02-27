@@ -39,6 +39,20 @@ let
   isValidEnvVarName = name: builtins.match "^[A-Z_][A-Z0-9_]*$" name != null;
   invalidEnvVars = lib.filterAttrs (name: _: !isValidEnvVarName name) envAttrs;
 
+  # Build Claude Code JSON for enabled (non-disabled) MCP servers.
+  # Stdio servers: { command, args, env? }
+  # SSE/HTTP servers: { type, url, headers? }
+  activeMcpServers = lib.filterAttrs (_: v: !v.disabled) cfg.mcpServers;
+  mcpServersJson = builtins.toJSON (
+    lib.mapAttrs (
+      _: v:
+      if v.type == "stdio" then
+        { inherit (v) command args; } // lib.optionalAttrs (v.env != { }) { inherit (v) env; }
+      else
+        { inherit (v) type url; } // lib.optionalAttrs (v.headers != { }) { inherit (v) headers; }
+    ) activeMcpServers
+  );
+
   # Build the settings object
   settings = {
     "$schema" = cfg.settings.schemaUrl;
@@ -64,11 +78,6 @@ let
     extraKnownMarketplaces = lib.mapAttrs toClaudeMarketplaceFormat cfg.plugins.marketplaces;
 
     enabledPlugins = cfg.plugins.enabled;
-
-    # NOTE: MCP servers are NOT configured in settings.json
-    # Claude Code reads MCP servers from ~/.claude.json (user scope) or .mcp.json (project scope)
-    # Use `claude mcp add --scope user` to add servers, or run with d-claude alias for Doppler secrets
-    # The mcpServers option is kept for documentation but not output here
 
     # Environment variables (user-defined + apiKeyHelper if enabled)
   }
@@ -183,18 +192,26 @@ let
 in
 {
   config = lib.mkIf cfg.enable {
-    # Merge remoteControlAtStartup into ~/.claude.json (global config) at activation time.
-    # This key lives in the global config file, not settings.json, so home.file cannot be
-    # used directly (the file is runtime-mutable). jq merges only this key idempotently.
-    home.activation = lib.mkIf (cfg.remoteControlAtStartup != null) {
-      claudeRemoteControlAtStartup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        export PATH="${pkgs.jq}/bin:$PATH"
-        RC_VALUE=${if cfg.remoteControlAtStartup then "true" else "false"}
-        . ${./scripts/remote-control-startup.sh}
-      '';
-    };
+    # Merge runtime keys into ~/.claude.json (global config) at activation time.
+    # These keys live in the global config file, not settings.json, so home.file cannot be
+    # used directly (the file is runtime-mutable). jq merges only specific keys idempotently.
+    home.activation =
+      lib.optionalAttrs (cfg.remoteControlAtStartup != null) {
+        claudeRemoteControlAtStartup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          export PATH="${pkgs.jq}/bin:$PATH"
+          RC_VALUE=${if cfg.remoteControlAtStartup then "true" else "false"}
+          . ${./scripts/remote-control-startup.sh}
+        '';
+      }
+      // {
+        claudeMcpServers = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          export PATH="${pkgs.jq}/bin:$PATH"
+          MCP_SERVERS_JSON=${lib.escapeShellArg mcpServersJson}
+          . ${./scripts/mcp-servers-merge.sh}
+        '';
+      };
 
-    # Validate environment variable names before generating settings.json
+    # Validate configuration before generating settings.json
     assertions = [
       {
         assertion = invalidEnvVars == { };
@@ -204,6 +221,22 @@ in
 
           Environment variable names must match POSIX convention: ^[A-Z_][A-Z0-9_]*$
           (uppercase letters, digits, and underscores only; must start with letter or underscore)
+        '';
+      }
+      {
+        assertion = lib.all (v: v.type != "stdio" || v.command != null) (
+          builtins.attrValues cfg.mcpServers
+        );
+        message = ''
+          MCP servers with type "stdio" must have a command set.
+          Check programs.claude.mcpServers for entries with type = "stdio" and command = null.
+        '';
+      }
+      {
+        assertion = lib.all (v: v.type == "stdio" || v.url != null) (builtins.attrValues cfg.mcpServers);
+        message = ''
+          MCP servers with type "sse" or "http" must have a url set.
+          Check programs.claude.mcpServers for entries with type = "sse"/"http" and url = null.
         '';
       }
     ];

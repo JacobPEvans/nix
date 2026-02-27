@@ -4,6 +4,7 @@
 # Imported by common.nix to keep it clean and high-level.
 {
   config,
+  pkgs,
   lib,
   ai-assistant-instructions,
   marketplaceInputs,
@@ -196,17 +197,14 @@ in
     };
   };
 
-  # MCP Servers - NOT managed via settings.json
-  # Claude Code reads MCP servers from ~/.claude.json (user scope) or .mcp.json (project scope)
-  # Use CLI to add servers: `claude mcp add --scope user --transport stdio <name> -- <command> [args]`
-  #
-  # Pre-configured servers (add manually via CLI):
-  #   claude mcp add --scope user --transport stdio pal -- uvx --from "git+https://github.com/BeehiveInnovations/pal-mcp-server.git" pal-mcp-server
-  #   claude mcp add --scope user --transport stdio github -- github-mcp-server stdio
-  #   claude mcp add --scope user --transport stdio terraform -- terraform-mcp-server stdio
-  #
-  # API Keys: Servers requiring API keys (github, pal) work with d-claude alias
-  # which injects secrets from Doppler (ai-ci-automation project)
+  # MCP Servers - deployed to ~/.claude.json via home.activation (see claude/settings.nix).
+  # Nix is the sole manager of user-scoped MCP servers; manual `claude mcp add --scope user`
+  # entries will be overwritten on next darwin-rebuild switch.
+  mcpServers =
+    let
+      mcpCatalog = import ./mcp/default.nix { inherit pkgs lib; };
+    in
+    mcpCatalog.mcpServers;
 
   statusLine = {
     enable = true;

@@ -49,6 +49,7 @@ let
   claudeConfig = import ./ai-cli/claude-config.nix {
     inherit
       config
+      pkgs
       lib
       ai-assistant-instructions
       marketplaceInputs
