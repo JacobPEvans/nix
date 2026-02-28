@@ -8,7 +8,6 @@ External documentation and resources for this nix configuration.
 - [nix-darwin](#nix-darwin)
 - [home-manager](#home-manager)
 - [macOS Defaults](#macos-defaults)
-- [AI CLI Tools](#ai-cli-tools)
 - [Package Search](#package-search)
 
 ---
@@ -63,14 +62,6 @@ Common domains: `com.apple.dock`, `com.apple.finder`, `NSGlobalDomain`, `com.app
 defaults read com.apple.dock          # Read all dock settings
 defaults find "keyword"               # Find setting by keyword
 ```
-
-## AI CLI Tools
-
-| Tool | Documentation |
-|------|---------------|
-| Claude Code | <https://github.com/anthropics/claude-code> |
-| Gemini CLI | <https://google-gemini.github.io/gemini-cli/docs/get-started/configuration.html> |
-| GitHub Copilot | <https://docs.github.com/en/copilot/github-copilot-in-the-cli> |
 
 ## Package Search
 
