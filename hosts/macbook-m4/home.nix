@@ -94,33 +94,25 @@
       # Disable MCP servers that duplicate built-in tools, are demo/test, or are project-specific.
       # Servers remain defined (for type validation) but disabled = true excludes them from ~/.claude.json.
       # Project-specific servers (cribl, terraform, aws) are re-enabled via per-project .mcp.json.
-      mcpServers = {
-        # Demo/test — not useful in production
-        everything.disabled = true;
-
-        # Duplicates built-in Read/Write/Glob/Edit tools
-        filesystem.disabled = true;
-
-        # Duplicates built-in WebFetch tool
-        fetch.disabled = true;
-
-        # Duplicates built-in git via Bash(git:*)
-        git.disabled = true;
-
-        # Duplicates github@claude-plugins-official plugin
-        github.disabled = true;
-
-        # Project-specific — available via per-project .mcp.json
-        cribl.disabled = true;
-        aws.disabled = true;
-        terraform.disabled = true;
-
-        # Not actively used — disable until needed
-        cloudflare.disabled = true;
-        exa.disabled = true;
-        firecrawl.disabled = true;
-        docker.disabled = true;
-      };
+      mcpServers =
+        lib.genAttrs
+          [
+            "everything" # Demo/test — not useful in production
+            "filesystem" # Duplicates built-in Read/Write/Glob/Edit tools
+            "fetch" # Duplicates built-in WebFetch tool
+            "git" # Duplicates built-in git via Bash(git:*)
+            "github" # Duplicates github@claude-plugins-official plugin
+            "cribl" # Project-specific — available via per-project .mcp.json
+            "aws" # Project-specific — available via per-project .mcp.json
+            "terraform" # Project-specific — available via per-project .mcp.json
+            "cloudflare" # Not actively used — disable until needed
+            "exa" # Not actively used — disable until needed
+            "firecrawl" # Not actively used — disable until needed
+            "docker" # Not actively used — disable until needed
+          ]
+          (_: {
+            disabled = true;
+          });
     };
 
     # macOS-specific zsh overrides
