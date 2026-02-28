@@ -1,5 +1,10 @@
 # Manifest
 
+> **Note**: This repo is part of a trio. See also
+> [nix-ai](https://github.com/JacobPEvans/nix-ai) and
+> [nix-home](https://github.com/JacobPEvans/nix-home)
+> for AI tools and dev environment documentation.
+
 Complete inventory of everything installed and managed by this nix-darwin configuration.
 Each entry lists the source file where it is declared.
 
@@ -165,25 +170,6 @@ Source: `hosts/macbook-m4/home.nix`
 
 ---
 
-## AI CLI Tools
-
-Source: `modules/home-manager/ai-cli/ai-tools.nix`, `modules/home-manager/common.nix`
-
-| Package | Method | Description |
-|---------|--------|-------------|
-| cclint | bunx wrapper | CLAUDE.md linter |
-| github-mcp-server | nixpkgs (unstable) | GitHub API MCP server |
-| terraform-mcp-server | nixpkgs (unstable) | Terraform/OpenTofu MCP server |
-| codex | homebrew cask | OpenAI Codex CLI (moved from nixpkgs) |
-| gh-copilot | bunx wrapper | GitHub Copilot CLI |
-| chatgpt (CLI) | bunx wrapper | OpenAI ChatGPT CLI |
-| claude-flow | bunx wrapper | AI agent orchestration |
-| sync-ollama-models | writeShellScriptBin | Regenerate PAL Ollama model registry |
-| aider | pipx | AI pair programming |
-| open-webui | uv tool (home activation) | Browser-based Ollama chat UI (run: open-webui serve) |
-
----
-
 ## Homebrew
 
 Source: `modules/darwin/homebrew.nix`
@@ -231,23 +217,6 @@ deferring to the app's own updater.
 
 ---
 
-## Programs and Services
-
-Source: `modules/home-manager/common.nix`
-
-| Program | Description |
-|---------|-------------|
-| zsh | Shell with Oh My Zsh, autosuggestions, syntax highlighting |
-| git | Version control with GPG signing, aliases, hooks |
-| gh | GitHub CLI with extensions (gh-aw) |
-| direnv | Per-project environment loading with nix-direnv |
-| vscode | Visual Studio Code with writable settings merge |
-| home-manager | User environment management |
-| claude | Claude Code ecosystem (plugins, commands, agents, skills, hooks, MCP) |
-| claudeStatusline | Powerline-style statusline for Claude Code terminal |
-
----
-
 ## macOS System Settings
 
 | Category | Source | Key Settings |
@@ -281,58 +250,3 @@ Source: `modules/darwin/common.nix` (overlay block)
 | whisper-cpp | Speech-to-text - fast-moving (CoreML/Metal support) |
 
 ---
-
-## Development Shells
-
-Source: `shells/` (see [shells/README.md](shells/README.md) for details)
-
-| Shell | Description |
-|-------|-------------|
-| ansible | Ansible automation |
-| claude-sdk-python | Claude Agent SDK (Python) |
-| claude-sdk-typescript | Claude SDK (TypeScript) |
-| containers | Container ecosystem (Docker, BuildKit, registry tools) |
-| go | Go development (gopls, delve) |
-| image-building | Packer with Ansible for multi-platform image builds |
-| infrastructure-automation | Complete IaC toolkit (Ansible + Terraform + AWS + Packer) |
-| js | Node.js (npm, yarn, pnpm) |
-| kubernetes | Kubernetes validation, linting, orchestration, and local testing |
-| powershell | PowerShell 7.x scripting |
-| python | Basic Python development |
-| python-data | Data science / ML (pandas, numpy, jupyter) |
-| python310 | Python 3.10 (older compatibility testing) |
-| python312 | Python 3.12 (full dev environment) |
-| python314 | Python 3.14 (bleeding edge) |
-| splunk-dev | Splunk development (Python 3.9 via uv) |
-| terraform | Infrastructure as Code (Terraform, Terragrunt, OpenTofu) |
-
----
-
-## Process Cleanup Mechanisms
-
-Event-based cleanup to prevent orphaned MCP server and subagent processes from
-accumulating across Claude Code sessions (workaround for upstream bug [anthropics/claude-code#1935](https://github.com/anthropics/claude-code/issues/1935)).
-
-### Layer 1: zsh zshexit() Hook (Primary)
-
-Source: `modules/home-manager/zsh/process-cleanup.zsh`
-Wired via: `modules/home-manager/common.nix` initContent
-
-| Property | Detail |
-|----------|--------|
-| Trigger | Shell exit — including SIGHUP from Ghostty tab close |
-| Scope | Descendants of the current shell PID only (safe: no cross-tab impact) |
-| Condition | Inner shell only (SCRIPT_SESSION set by session-logging.zsh) |
-| Method | BFS process tree walk via pgrep -P; SIGTERM then SIGKILL after 1s |
-
-### Layer 2: Claude Code stop Hook (Defense-in-Depth)
-
-Source: `process-cleanup@jacobpevans-cc-plugins`
-Wired via: `jacobpevans-cc-plugins` flake input → auto-discovered by `development.nix`
-
-| Property | Detail |
-|----------|--------|
-| Trigger | Claude session exit via /exit or Ctrl+C |
-| Scope | System-wide orphans with ppid=1 (reparented to launchd) |
-| Targets | terraform-mcp-server, context7-mcp, orphaned node MCP processes |
-| Logs | ~/Library/Logs/claude-process-cleanup/cleanup-YYYY-MM-DD.log |

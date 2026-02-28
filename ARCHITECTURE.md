@@ -1,5 +1,10 @@
 # Architecture
 
+> **Note**: This repo is part of a trio. See also
+> [nix-ai](https://github.com/JacobPEvans/nix-ai) and
+> [nix-home](https://github.com/JacobPEvans/nix-home)
+> for AI tools and dev environment documentation.
+
 Detailed structure of the nix-darwin configuration.
 
 ## Table of Contents
@@ -32,58 +37,44 @@ Detailed structure of the nix-darwin configuration.
 │
 ├── modules/                       # Reusable configuration modules
 │   ├── common/
-│   │   └── packages.nix           # System-level packages for ALL platforms
+│   │   ├── packages.nix           # System-level packages for ALL platforms
+│   │   └── git-flow-next.nix      # git-flow-next custom derivation
 │   ├── darwin/
 │   │   ├── common.nix             # macOS system packages, homebrew, settings
+│   │   ├── apps/                  # Application-specific modules
+│   │   │   ├── default.nix        # App module aggregator
+│   │   │   ├── orbstack.nix       # OrbStack APFS volume management
+│   │   │   ├── raycast.nix        # Raycast configuration
+│   │   │   ├── auto-update-prevention.nix # Prevent unwanted app updates
+│   │   │   └── scripts/           # App support scripts
 │   │   ├── dock/                  # Dock configuration
 │   │   │   ├── default.nix        # Dock behavior, appearance, hot corners
 │   │   │   └── persistent-apps.nix # Dock app order (left & right sides)
 │   │   ├── finder.nix             # Finder preferences
 │   │   ├── keyboard.nix           # Keyboard settings
 │   │   ├── trackpad.nix           # Trackpad gestures
-│   │   └── system-ui.nix          # Menu bar, control center, login window
+│   │   ├── system-ui.nix          # Menu bar, control center, login window
+│   │   ├── security.nix           # System security policies
+│   │   ├── energy.nix             # Power management
+│   │   ├── logging.nix            # Syslog forwarding
+│   │   ├── boot-activation.nix    # Creates /run/current-system at boot
+│   │   ├── launchd-bootstrap.nix  # LaunchDaemon bootstrap
+│   │   ├── file-extensions.nix    # File type associations
+│   │   ├── file-associations.nix  # File association helpers
+│   │   ├── auto-recovery.nix      # Activation error recovery
+│   │   ├── activation-error-tracking.nix # Track activation errors
+│   │   └── homebrew.nix           # Homebrew casks and formulas
 │   ├── linux/
 │   │   └── common.nix             # Linux home-manager settings (XDG, packages)
 │   └── home-manager/
-│       ├── common.nix             # Cross-platform: shell, git, vscode
-│       ├── ai-cli/                # AI CLI tool configurations
-│       │   ├── claude.nix         # Claude Code settings
-│       │   ├── gemini.nix         # Gemini CLI settings
-│       │   └── copilot.nix        # GitHub Copilot settings
-│       ├── permissions/           # AI CLI permission files
-│       │   ├── claude-permissions-allow.nix
-│       │   ├── claude-permissions-ask.nix
-│       │   ├── claude-permissions-deny.nix
-│       │   ├── gemini-permissions-allow.nix
-│       │   ├── gemini-permissions-ask.nix
-│       │   ├── gemini-permissions-deny.nix
-│       │   ├── copilot-permissions-allow.nix
-│       │   ├── copilot-permissions-ask.nix
-│       │   └── copilot-permissions-deny.nix
-│       ├── git/                   # Git aliases and settings
-│       │   └── aliases.nix
-│       ├── vscode/                # VS Code settings
-│       │   ├── extensions.nix     # Extensions list
-│       │   ├── settings.nix       # Editor settings
-│       │   ├── keybindings.nix    # Keyboard shortcuts
-│       │   └── copilot-settings.nix # GitHub Copilot for VS Code
-│       └── zsh/                   # Shell configuration
-│           ├── aliases.nix        # Command aliases
-│           ├── docker-functions.zsh
-│           └── ...
+│       ├── nix-activation-recovery.nix  # Activation recovery helper
+│       ├── nix-config-symlink.nix       # Config symlink management
+│       └── raycast-scripts.nix          # Raycast script extensions
 │
 ├── lib/                           # Shared configuration variables
 │   ├── user-config.nix            # User info (name, email, GPG key)
-│   ├── server-config.nix          # Server hostnames and settings
-│   ├── security-policies.nix      # System-level security (git signing, etc.)
-│   └── home-manager-defaults.nix  # Shared home-manager settings
-│
-├── shells/                        # Development environment templates
-│   ├── python/                    # Basic Python development
-│   ├── python-data/               # Python with pandas, numpy, jupyter
-│   ├── js/                        # Node.js development
-│   ├── go/                        # Go development
-│   └── terraform/                 # Terraform/OpenTofu development
+│   ├── home-manager-defaults.nix  # Shared home-manager settings
+│   └── checks.nix                 # Flake check definitions
 │
 ├── ARCHITECTURE.md                # This file - detailed structure
 ├── CLAUDE.md                      # AI agent instructions
@@ -103,26 +94,24 @@ flake.nix
     │       │
     │       ├── hosts/macbook-m4/default.nix
     │       │       └── imports: modules/darwin/common.nix
+    │       │                       ├── modules/darwin/apps/
     │       │                       ├── modules/darwin/dock/
     │       │                       ├── modules/darwin/finder.nix
     │       │                       ├── modules/darwin/keyboard.nix
     │       │                       ├── modules/darwin/trackpad.nix
-    │       │                       └── modules/darwin/system-ui.nix
+    │       │                       ├── modules/darwin/system-ui.nix
+    │       │                       ├── modules/darwin/security.nix
+    │       │                       ├── modules/darwin/energy.nix
+    │       │                       └── modules/darwin/homebrew.nix
     │       │
     │       └── home-manager
     │               └── hosts/macbook-m4/home.nix
-    │                       └── imports: modules/home-manager/common.nix
-    │                                       ├── modules/home-manager/ai-cli/
-    │                                       ├── modules/home-manager/git/
-    │                                       ├── modules/home-manager/vscode/
-    │                                       └── modules/home-manager/zsh/
+    │                       └── imports: modules/home-manager/
+    │                           (AI tools via nix-ai, dev env via nix-home)
     │
-    └── devShells
-            ├── python      → shells/python/
-            ├── python-data → shells/python-data/
-            ├── js          → shells/js/
-            ├── go          → shells/go/
-            └── terraform   → shells/terraform/
+    └── inputs
+            ├── nix-ai       → AI coding tools (Claude, Gemini, etc.)
+            └── nix-home     → Dev environment (git, zsh, VS Code, tmux)
 ```
 
 ## Configuration Layers
@@ -130,9 +119,8 @@ flake.nix
 | Layer | Scope | Location | Managed By |
 |-------|-------|----------|------------|
 | System | macOS settings, packages | `modules/darwin/` | nix-darwin |
-| User | Shell, git, apps | `modules/home-manager/` | home-manager |
+| User | Activation helpers | `modules/home-manager/` | home-manager |
 | Host | Machine-specific | `hosts/<name>/` | Both |
-| Shared | Variables, policies | `lib/` | Imported |
-| Dev | Temporary environments | `shells/` | `nix develop` |
+| Shared | Variables, defaults | `lib/` | Imported |
 
 For a complete list of installed packages and managed settings, see [MANIFEST.md](MANIFEST.md).

@@ -467,20 +467,6 @@ sudo -u <username> find ~/.gnupg -type f -exec chmod 600 {} \;
 gpg --list-keys
 ```
 
-### VS Code userSettings Deprecation
-
-**Problem**: Warning about `programs.vscode.userSettings` being renamed.
-
-**Solution**: Update `home/home.nix`:
-
-```nix
-# OLD (deprecated):
-programs.vscode.userSettings = { ... };
-
-# NEW (correct):
-programs.vscode.profiles.default.userSettings = { ... };
-```
-
 ### Invalid BWS Access Token
 
 **Problem**: Auto-claude or other automation fails with BWS error:
@@ -539,30 +525,17 @@ Error: Access token is not in a valid format: Doesn't contain a decryption key
 
 ## File Recovery
 
-### home.nix File Became Empty
+### Configuration File Became Empty
 
-**Problem**: Configuration file truncated to 0 bytes.
+**Problem**: A `.nix` configuration file truncated to 0 bytes.
 
 **Solution**:
 
-1. **Check for backup files**:
-
-   ```bash
-   ls -la ~/.config/nix/home/
-   # Look for home.nix~ or home.nix.backup
-   ```
-
-2. **Restore from backup**:
-
-   ```bash
-   cp ~/.config/nix/home/home.nix~ ~/.config/nix/home/home.nix
-   ```
-
-3. **Or restore from git**:
+1. **Restore from git**:
 
    ```bash
    cd ~/.config/nix
-   git restore home/home.nix
+   git restore <path-to-file>
    ```
 
 **Prevention**: Always commit changes before rebuilding.

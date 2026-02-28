@@ -30,7 +30,7 @@ This is a known upstream issue: [nix-darwin#1255](https://github.com/nix-darwin/
 Created `modules/darwin/launchd-bootstrap.nix` to ensure services are always bootstrapped
 during activation using the modern `launchctl bootstrap` API.
 
-**PR**: [#423](https://github.com/JacobPEvans/nix/pull/423)
+**PR**: [#423](https://github.com/JacobPEvans/nix-darwin/pull/423)
 
 ---
 
