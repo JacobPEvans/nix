@@ -1,4 +1,4 @@
-# SOPS configuration for nix-config
+# SOPS configuration for nix-darwin
 # Age key: ~/.config/sops/age/keys.txt
 # Encrypt: sops --encrypt --in-place <file>
 # Edit: sops <file>

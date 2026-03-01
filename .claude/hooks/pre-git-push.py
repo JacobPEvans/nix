@@ -20,7 +20,7 @@ import sys
 
 
 def is_nix_config_repo():
-    """Check if the current repository is the nix-config repository."""
+    """Check if the current repository is the nix-darwin repository."""
     try:
         # Get the remote origin URL
         result = subprocess.run(
@@ -33,7 +33,7 @@ def is_nix_config_repo():
 
         # This is more robust than checking the local path as it works for any
         # clone location and handles both SSH and HTTPS remote URLs.
-        return remote_url.endswith("JacobPEvans/nix-config.git") or remote_url.endswith("JacobPEvans/nix.git")
+        return remote_url.endswith("JacobPEvans/nix-darwin.git") or remote_url.endswith("JacobPEvans/nix.git")
     except subprocess.CalledProcessError:
         # Git command failed (not in a git repo, no remote configured, etc.)
         return False
@@ -89,7 +89,7 @@ def main():
     if "git push" not in command:
         return 0
 
-    # Skip hook for non-nix-config repositories
+    # Skip hook for non-nix-darwin repositories
     if not is_nix_config_repo():
         return 0
 

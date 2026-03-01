@@ -184,7 +184,7 @@ Add grep check to pre-commit or CI:
 1. **Pre-implementation**:
 
    ```bash
-   cd ~/git/nix-config/main
+   cd ~/git/nix-darwin/main
    git status  # Confirm clean state
    nix flake check  # Baseline
    ```

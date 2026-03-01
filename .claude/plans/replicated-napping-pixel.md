@@ -79,7 +79,7 @@ shells/
 
 **Benefits**:
 
-- Single `nix develop github:owner/nix-config#shells.python312`
+- Single `nix develop github:owner/nix-darwin#shells.python312`
 - Shared nixpkgs input across all shells
 - Independent versioning possible
 
@@ -137,9 +137,9 @@ modules/home-manager/ai-cli/
 
 ```bash
 # Test jsondiff is globally available in Python 3.12 dev shell
-nix develop ~/git/nix-config/main/shells/python312 \
+nix develop ~/git/nix-darwin/main/shells/python312 \
   --command python -c "import jsondiff; print('jsondiff OK')"
 
 # Full flake check
-nix flake check ~/git/nix-config/main
+nix flake check ~/git/nix-darwin/main
 ```

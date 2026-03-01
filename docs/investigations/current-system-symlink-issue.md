@@ -222,7 +222,7 @@ work even if lsregister fails.
 To verify the fix works:
 
 ```bash
-cd ~/git/nix-config/main
+cd ~/git/nix-darwin/main
 sudo darwin-rebuild switch --flake .
 ```
 

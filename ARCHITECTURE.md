@@ -68,7 +68,6 @@ Detailed structure of the nix-darwin configuration.
 │   │   └── common.nix             # Linux home-manager settings (XDG, packages)
 │   └── home-manager/
 │       ├── nix-activation-recovery.nix  # Activation recovery helper
-│       ├── nix-config-symlink.nix       # Config symlink management
 │       └── raycast-scripts.nix          # Raycast script extensions
 │
 ├── lib/                           # Shared configuration variables

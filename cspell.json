@@ -77,9 +77,16 @@
     "ncdu",
     "nixfmt",
     "nixos",
+    "ahls",
+    "ahlt",
+    "managername",
+    "namespacing",
     "nixpkgs",
     "Nixpkgs",
     "NOPASSWD",
+    "passwordless",
+    "Passwordless",
+    "writability",
     "numpy",
     "numtide",
     "nvram",
@@ -165,5 +172,13 @@
     "*.lock",
     "node_modules",
     ".git"
+  ],
+  "overrides": [
+    {
+      "filename": "**/*.md",
+      "ignoreRegExpList": [
+        "/```[\\s\\S]*?```/g"
+      ]
+    }
   ]
 }

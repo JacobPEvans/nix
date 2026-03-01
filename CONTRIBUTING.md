@@ -65,7 +65,7 @@ This repository requires:
 ```bash
 # 1. Clone the repo
 git clone <repo-url>
-cd nix-config
+cd nix-darwin
 
 # 2. Install pre-commit hooks (automatic on rebuild)
 pre-commit install

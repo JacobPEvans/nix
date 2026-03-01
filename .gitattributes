@@ -1,4 +1,4 @@
-# Git attributes for nix-config repository
+# Git attributes for nix-darwin repository
 
 # flake.lock - auto-regenerate on merge conflict
 # Uses custom merge driver defined in git config (merge.flakelock.driver)
