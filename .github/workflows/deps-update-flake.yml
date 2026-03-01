@@ -52,6 +52,7 @@ jobs:
         anthropic-agent-skills
         superpowers-marketplace
         nix-ai
+        nix-home
     steps:
       - name: Generate GitHub App Token
         id: app-token
