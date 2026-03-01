@@ -68,13 +68,13 @@ but the Darwin configuration itself only builds and activates on aarch64-darwin.
 ## Pre-Commit Hooks
 
 Formatting and linting run automatically on every commit via pre-commit hooks
-(nixfmt, statix, deadnix, shellcheck, BATS shell tests).
+(nixfmt, statix, deadnix, shellcheck). BATS shell tests run via `nix flake check`
+and CI -- not on each commit.
 
 To install the hooks locally:
 
 ```bash
-nix develop
-pre-commit install
+nix shell nixpkgs#pre-commit -c pre-commit install
 ```
 
 ## What It Manages
