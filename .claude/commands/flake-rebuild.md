@@ -19,9 +19,9 @@ Update all flake inputs and rebuild nix-darwin.
 
 This repo uses a bare git repo with worktrees:
 
-- `~/git/nix-config/` - bare repo (do not cd here directly)
-- `~/git/nix-config/main/` - main branch worktree
-- `~/git/nix-config/<branch-name>/` - feature worktrees
+- `~/git/nix-darwin/` - bare repo (do not cd here directly)
+- `~/git/nix-darwin/main/` - main branch worktree
+- `~/git/nix-darwin/<branch-name>/` - feature worktrees
 
 ## Steps
 
@@ -30,7 +30,7 @@ This repo uses a bare git repo with worktrees:
 **IMPORTANT**: Update the main worktree before starting:
 
 ```bash
-cd ~/git/nix-config/main
+cd ~/git/nix-darwin/main
 git fetch origin
 git pull origin main
 git status
@@ -45,7 +45,7 @@ Branch/worktree name format: `chore/flake-update-YYYY-MM-DD` (replace with today
 Check if worktree already exists, otherwise create it:
 
 ```bash
-cd ~/git/nix-config
+cd ~/git/nix-darwin
 # Check if worktree exists
 if [ -d "chore/flake-update-YYYY-MM-DD" ]; then
   cd chore/flake-update-YYYY-MM-DD
@@ -134,7 +134,7 @@ gh pr merge --auto --squash --delete-branch
 Switch back to the main worktree while waiting for auto-merge:
 
 ```bash
-cd ~/git/nix-config/main
+cd ~/git/nix-darwin/main
 ```
 
 ### 9. Report Summary
@@ -148,5 +148,5 @@ Tell the user:
 
 **DO NOT wait for checks** - auto-merge handles this automatically.
 
-**Note**: The worktree at `~/git/nix-config/chore/flake-update-YYYY-MM-DD/` will be automatically
+**Note**: The worktree at `~/git/nix-darwin/chore/flake-update-YYYY-MM-DD/` will be automatically
 cleaned up by auto-claude after the PR is merged.

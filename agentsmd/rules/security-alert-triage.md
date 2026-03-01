@@ -11,7 +11,7 @@ Check if the flagged logging actually reveals secrets.
 - **Slack/Discord channel IDs**: Public workspace identifiers, not secrets
   - Example: Logging channel ID like `C1234567890`
 - **Configuration metadata**: Key names, not values
-  - Example: Logging `"keychain_key": "SLACK_CHANNEL_ID_nix-config"` (metadata about where the value came from)
+  - Example: Logging `"keychain_key": "SLACK_CHANNEL_ID_nix-darwin"` (metadata about where the value came from)
 - **Operational data**: Status strings, counts, ratios
   - Example: Logging `"status": "ok"` or `"issue_count": 42`
 
