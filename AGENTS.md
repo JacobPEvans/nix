@@ -81,7 +81,7 @@ cd <branch>
 - Editor settings -> nix-home
 - Linters and formatters -> nix-home
 - AI tools (Claude, Gemini, Copilot, MCP) -> nix-ai
-- User-level LaunchAgents -> nix-home (`modules/home-manager/darwin/`)
+- User-level LaunchAgents -> nix-home
 
 ### Package placement
 
