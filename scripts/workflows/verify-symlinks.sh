@@ -42,8 +42,9 @@ if [ -f "$HM_FILES/.claude/settings.json" ]; then
   jq . "$HM_FILES/.claude/settings.json" > /dev/null
   echo "  ✓ settings.json valid"
 else
-  echo "  ✗ settings.json not found"
-  ERRORS=$((ERRORS + 1))
+  # settings.json is managed via activation-time merge (not home.file symlink)
+  # since nix-ai commit 9af21f8 — absence from home-files is expected
+  echo "  - settings.json not in home-files (managed via activation-time merge)"
 fi
 
 if [ $ERRORS -gt 0 ]; then

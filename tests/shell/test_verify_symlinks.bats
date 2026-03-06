@@ -69,11 +69,12 @@ teardown() {
   [ "$status" -ne 0 ]
 }
 
-@test "verify-symlinks.sh: detects missing settings.json" {
-  # Remove the default settings.json created in setup
+@test "verify-symlinks.sh: handles missing settings.json gracefully" {
+  # settings.json is managed via activation-time merge (nix-ai#107), not home.file
+  # so its absence from home-files is expected and non-fatal
   rm -f "$TEST_HOME_FILES/.claude/settings.json"
 
   run bash "$SCRIPT_UNDER_TEST" "$TEST_HOME_FILES"
-  [ "$status" -eq 1 ]
-  [[ "$output" =~ "✗ settings.json not found" ]]
+  [ "$status" -eq 0 ]
+  [[ "$output" =~ "managed via activation-time merge" ]]
 }
