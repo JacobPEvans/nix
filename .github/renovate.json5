@@ -54,10 +54,12 @@
     // Note: matchPackageNames uses GitHub repo paths (owner/repo), not flake input names
     {
       "description": "AI-focused flake inputs - daily updates at 7am",
+      "matchDatasources": ["git-refs"],
       "matchPackageNames": [
         "anthropics/**",
         "obra/superpowers-marketplace",
-        "JacobPEvans/claude-code-plugins"
+        "JacobPEvans/claude-code-plugins",
+        "JacobPEvans/nix-ai"
       ],
       "groupName": "ai-tools",
       "automerge": true,
