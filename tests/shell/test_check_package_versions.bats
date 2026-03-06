@@ -58,7 +58,8 @@ teardown() {
 
 @test "check-package-versions.sh: exits with error when jq/nix are missing" {
   EMPTY_BIN=$(mktemp -d)
-  run env PATH="$EMPTY_BIN" bash "$SCRIPT_UNDER_TEST"
+  BASH_BIN=$(command -v bash)
+  run env PATH="$EMPTY_BIN" "$BASH_BIN" "$SCRIPT_UNDER_TEST"
   rm -rf "$EMPTY_BIN"
   [ "$status" -eq 1 ]
 }
