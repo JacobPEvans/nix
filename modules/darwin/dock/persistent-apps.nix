@@ -26,11 +26,15 @@ in
     # Left side of Dock (before separator) - Main apps
     # ========================================================================
     persistent-apps = [
+      # iPhone Mirroring
+      "/System/Applications/iPhone Mirroring.app"
+
       # Time & Tasks
       "/System/Applications/Clock.app"
       "/System/Applications/Reminders.app"
       "/System/Applications/Calendar.app"
       "/Applications/Toggl Track.app"
+      "/Applications/Microsoft Teams.app"
       "/Applications/Microsoft Outlook.app"
 
       # Communication
