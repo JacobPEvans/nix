@@ -43,7 +43,8 @@ See [CLAUDE.md](CLAUDE.md) for complete directory structure with all files and d
 determinateNix.enable = true;
 ```
 
-**Why**: Determinate Nix manages its own daemon. The official module automatically sets `nix.enable = false` and manages `/etc/nix/nix.custom.conf` declaratively — no manual override needed.
+**Why**: Determinate Nix manages its own daemon. The official module automatically sets `nix.enable = false`
+and manages `/etc/nix/nix.custom.conf` declaratively — no manual override needed.
 
 ### 2. Documentation Build Warnings
 
