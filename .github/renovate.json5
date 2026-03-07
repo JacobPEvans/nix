@@ -63,15 +63,8 @@
       ],
       "groupName": "ai-tools",
       "automerge": true,
+      "matchUpdateTypes": ["minor", "patch"],
       "schedule": ["after 7am every day"]
-    },
-
-    // GUARD: git-refs major updates - never automerge (local ai-tools rule would otherwise override preset)
-    {
-      "description": "Git refs - disable automerge for major updates (e.g., flake inputs)",
-      "matchDatasources": ["git-refs"],
-      "matchUpdateTypes": ["major"],
-      "automerge": false
     },
 
     // GROUP 3: npm packages (bunx wrappers) - Weekly Monday 7am
