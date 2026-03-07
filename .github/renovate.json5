@@ -102,12 +102,6 @@
       "enabled": false // Disabled: Node.js managed via nixpkgs flake, not direct npm/github-releases
     },
 
-    // Override for major updates (require human review)
-    {
-      "description": "Never auto-merge major updates (X.0.0) - require human review",
-      "matchUpdateTypes": ["major"],
-      "automerge": false
-    }
   ],
 
   // Commit message formatting
@@ -157,6 +151,5 @@
   ],
 
   // Platform-specific settings
-  "platformAutomerge": true, // Use GitHub's auto-merge feature when enabled
   "platformCommit": true // Use GitHub API for commits (enables signing)
 }
