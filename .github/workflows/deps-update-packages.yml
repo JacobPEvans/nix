@@ -38,9 +38,7 @@ jobs:
         uses: DeterminateSystems/determinate-nix-action@v3
 
       - name: Update ClaudeBar
-        run: ./scripts/update-claudebar.sh --apply
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: nix run nixpkgs#nix-update -- --flake claudebar
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
@@ -52,12 +50,13 @@ jobs:
           commit-message: |
             chore(deps): update ClaudeBar to latest version
 
-            Automated update via scripts/update-claudebar.sh
+            Automated update via nix-update.
           title: "chore(deps): update ClaudeBar"
           body: |
-            Automated ClaudeBar version update.
+            Automated ClaudeBar version update via nix-update.
 
-            See the overlay diff for the version and hash change.
+            nix-update automatically fetches the latest release from GitHub
+            and updates the version and hash in `packages/claudebar.nix`.
 
             ---
             *Created by JacobPEvans-github-actions*
