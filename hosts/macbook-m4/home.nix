@@ -185,6 +185,31 @@
       # MIGRATION: Stop OrbStack and move existing data before enabling
       "Library/Group Containers/HUAQ24HBR6.dev.orbstack".source =
         config.lib.file.mkOutOfStoreSymlink "/Volumes/ContainerData";
+
+      # Docker daemon configuration for OrbStack
+      # Log rotation + build cache GC to prevent unbounded disk growth
+      ".orbstack/config/docker.json".text = builtins.toJSON {
+        log-driver = "json-file";
+        log-opts = {
+          max-size = "25m";
+          max-file = "25";
+        };
+        builder.gc = {
+          enabled = true;
+          defaultKeepStorage = "10GB";
+          policy = [
+            {
+              keepDuration = "2160h";
+              filter = [ "type==source.local" ];
+              maxUsedSpace = "10GB";
+            }
+            {
+              keepDuration = "2160h";
+              maxUsedSpace = "20GB";
+            }
+          ];
+        };
+      };
     };
 
     # ========================================================================
