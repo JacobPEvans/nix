@@ -1,0 +1,66 @@
+# Automated ClaudeBar package updates with verified commits
+#
+# Uses JacobPEvans-github-actions App for:
+# - Signed & verified commits via GitHub's REST API
+# - Triggering downstream workflows (CI Gate, Review)
+#
+# Triggers:
+# - Weekly Monday at 8am UTC (schedule)
+# - Manual (workflow_dispatch)
+name: Update Custom Packages
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # Weekly Monday 8am UTC
+  workflow_dispatch: {}
+
+jobs:
+  update-claudebar:
+    name: Update ClaudeBar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Install Nix
+        uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Update ClaudeBar
+        run: ./scripts/update-claudebar.sh --apply
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          sign-commits: true
+          branch: chore/update-claudebar
+          delete-branch: true
+          commit-message: |
+            chore(deps): update ClaudeBar to latest version
+
+            Automated update via scripts/update-claudebar.sh
+          title: "chore(deps): update ClaudeBar"
+          body: |
+            Automated ClaudeBar version update.
+
+            See the overlay diff for the version and hash change.
+
+            ---
+            *Created by JacobPEvans-github-actions*
+          labels: dependencies
+          assignees: JacobPEvans
+          reviewers: JacobPEvans
