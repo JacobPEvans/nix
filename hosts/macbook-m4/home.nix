@@ -188,27 +188,41 @@
 
       # Docker daemon configuration for OrbStack
       # Log rotation + build cache GC to prevent unbounded disk growth
-      ".orbstack/config/docker.json".text = builtins.toJSON {
-        log-driver = "json-file";
-        log-opts = {
-          max-size = "25m";
-          max-file = "25";
-        };
-        builder.gc = {
-          enabled = true;
-          defaultKeepStorage = "10GB";
-          policy = [
-            {
-              keepDuration = "2160h";
-              filter = [ "type==source.local" ];
-              maxUsedSpace = "10GB";
-            }
-            {
-              keepDuration = "2160h";
-              maxUsedSpace = "20GB";
-            }
-          ];
-        };
+      # force = true: OrbStack pre-creates this file; home-manager must overwrite it
+      ".orbstack/config/docker.json" = {
+        force = true;
+        text = builtins.toJSON (
+          let
+            logMaxFileSize = "25m";
+            logMaxFiles = "25";
+            keepDuration = "2160h"; # 90 days
+            defaultKeepStorage = "10GB";
+            sourceLocalMaxUsedSpace = "10GB";
+            generalMaxUsedSpace = "20GB";
+          in
+          {
+            log-driver = "json-file";
+            log-opts = {
+              max-size = logMaxFileSize;
+              max-file = logMaxFiles;
+            };
+            builder.gc = {
+              enabled = true;
+              inherit defaultKeepStorage;
+              policy = [
+                {
+                  inherit keepDuration;
+                  filter = [ "type==source.local" ];
+                  maxUsedSpace = sourceLocalMaxUsedSpace;
+                }
+                {
+                  inherit keepDuration;
+                  maxUsedSpace = generalMaxUsedSpace;
+                }
+              ];
+            };
+          }
+        );
       };
     };
 
