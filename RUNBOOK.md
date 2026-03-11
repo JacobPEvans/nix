@@ -13,6 +13,7 @@ Step-by-step procedures for common configuration tasks.
 - [Dock Configuration](#dock-configuration)
 - [Dev Shells](#dev-shells)
 - [Host Profiles](#host-profiles)
+- [CI and Caching](#ci-and-caching)
 
 ---
 
@@ -788,3 +789,36 @@ For one-off approvals without editing Nix:
 
 - Click "Accept indefinitely" in Claude UI
 - Saves to `~/.claude/settings.local.json` (not Nix-managed)
+
+---
+
+## CI and Caching
+
+CI uses `nix-community/cache-nix-action@v7` — Nix-aware, free, restore-only on PRs, saves on
+main. For full context (rationale, rejected alternatives, performance expectations), see
+`.claude/rules/ci-workflows.md`.
+
+Workflow files:
+
+- `.github/workflows/_nix-build.yml` — macOS Nix build and home-manager check
+- `.github/workflows/_claude-settings.yml` — Claude settings validation
+
+### Check Cache Status
+
+Look for the "Cache Nix Store" step in any CI run. It reports cache hit/miss and key:
+
+```bash
+gh run list --repo JacobPEvans/nix-darwin --limit 5
+gh run view <run-id> --log --repo JacobPEvans/nix-darwin | grep -A5 "Cache Nix Store"
+```
+
+### When CI Is Slow
+
+**Cold cache (expected):** First run after `flake.lock` changes falls back to prefix-matching —
+slower than a full hit. Normal; the next main push saves a warm cache.
+
+**Actual regression:** Builds consistently above 10min without a cache key change. Investigate:
+
+1. New dependency bloating the Nix store
+2. "Build Timing" notices in CI logs across recent runs
+3. `gc-max-store-size-macos` (5G) being hit frequently
