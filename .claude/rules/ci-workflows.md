@@ -10,7 +10,8 @@ cache saves happen only on main pushes. `gc-max-store-size` keeps the cache from
 
 `cache-nix-action` does not require `id-token: write` — it uses `github.token` only.
 
-`auto-optimise-store = false` is set in Nix CI config because hardlinks break tar-based caching
+`auto-optimise-store = false` is set for the macOS Nix build workflow via `extra-conf` in
+`.github/workflows/_nix-build.yml` because hardlinks break tar-based caching
 (see nix-community/cache-nix-action#170).
 
 ### What We Tried and Why We Moved On
