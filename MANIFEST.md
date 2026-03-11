@@ -158,7 +158,6 @@ Source: `hosts/macbook-m4/home.nix`
 | Package | Description |
 |---------|-------------|
 | ghostty-bin | Terminal emulator (unstable overlay) |
-| postman | API development environment |
 | rapidapi | Full-featured HTTP client |
 | code-cursor | Cursor AI IDE (VS Code fork) |
 | chatgpt | OpenAI ChatGPT desktop app |
@@ -196,6 +195,7 @@ deferring to the app's own updater.
 | claude-code | yes | Anthropic Claude Code CLI |
 | codex | yes | OpenAI Codex CLI (moved from nixpkgs; migrated from homebrew/core to cask) |
 | antigravity | yes | Google AI-powered IDE (Gemini 3) |
+| postman | yes | API development environment (moved from nixpkgs — version lag caused schema mismatch) |
 | orbstack | yes | Container/Linux VM runtime — cask for TCC permission stability |
 | microsoft-teams | no | Teams desktop app (not available on Mac App Store; MAU handles updates) |
 

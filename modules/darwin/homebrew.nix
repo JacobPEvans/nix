@@ -123,6 +123,12 @@ _:
         greedy = true;
       } # Google's AI-powered IDE (Gemini 3) - moved from nixpkgs for Gemini 3.1 Pro support
 
+      # --- API Development ---
+      {
+        name = "postman";
+        greedy = true;
+      } # API development environment (moved from nixpkgs — version lag caused schema mismatch)
+
       # --- OrbStack ---
       # Installed as a Homebrew cask rather than nixpkgs so that:
       #   1. TCC permissions (Docker socket, Linux VM) persist across rebuilds
