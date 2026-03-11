@@ -40,12 +40,11 @@
   # ==========================================================================
   # Auto-Update Cache Cleanup (for Nix-managed apps)
   # ==========================================================================
-  # Clean Squirrel/ShipIt and Sparkle updater caches on every rebuild.
+  # Clean Sparkle updater caches on every rebuild.
   # This complements the auto-update-prevention.nix module by removing
   # leftover updater state that could interfere with Nix-managed versions.
   home.activation.cleanAutoUpdateCaches = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # Clean Squirrel/ShipIt and Sparkle updater caches
-    $DRY_RUN_CMD rm -rf "$HOME/Library/Caches/com.postmanlabs.mac.ShipIt" 2>/dev/null || true
+    # Clean Sparkle updater caches
     $DRY_RUN_CMD rm -rf "$HOME/Library/Caches/com.luckymarmot.Paw/org.sparkle-project.Sparkle" 2>/dev/null || true
   '';
 
@@ -155,7 +154,6 @@
     packages = with pkgs; [
       # Terminal & Development
       ghostty-bin # Terminal emulator - needs Full Disk Access for darwin-rebuild
-      postman # API development environment - auto-updates disabled (see auto-update-prevention.nix)
       rapidapi # Full-featured HTTP client for testing and describing APIs - auto-updates disabled (see auto-update-prevention.nix)
 
       # AI IDEs & Tools (nixpkgs - stable TCC paths via copyApps)

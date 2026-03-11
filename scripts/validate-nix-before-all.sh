@@ -19,6 +19,7 @@ EXCLUSIONS=(
   "gemini-cli:Intentionally using homebrew due to recent nixpkgs latency on latest packages"
   "shortwave:Different apps - nixpkgs=radio client, homebrew=email client"
   "orbstack:Cask preferred over nixpkgs for TCC permission stability (nixpkgs symlink changes on rebuild, forcing TCC re-grant)"
+  "postman:Nixpkgs version lags significantly behind upstream, causing Squirrel/ShipIt schema mismatch errors"
 )
 
 HOMEBREW_FILE="modules/darwin/homebrew.nix"
