@@ -12,6 +12,7 @@ concurrency:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   validate:
@@ -25,16 +26,14 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
 
-      # Performance: Cache Nix store for faster evaluation
+      # Caching: Free, zero-config Nix store cache via GitHub Actions cache
+      # DO NOT replace with flakehub-cache-action (PAID) or raw actions/cache (breaks on /nix/store)
       - name: Cache Nix Store
-        uses: actions/cache@v5
-        with:
-          path: |
-            /nix/store
-            ~/.cache/nix
-          key: nix-linux-${{ runner.os }}-${{ hashFiles('flake.lock') }}
-          restore-keys: |
-            nix-linux-${{ runner.os }}-
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+
+      - name: Start Validation Timer
+        id: validation-timer
+        run: echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
 
       - name: Fetch schema
         run: |
@@ -66,3 +65,9 @@ jobs:
             exit 1
           fi
           echo "Permission patterns are valid!"
+
+      - name: Validation Timing
+        if: always()
+        run: |
+          elapsed=$(( $(date +%s) - ${{ steps.validation-timer.outputs.start }} ))
+          echo "::notice::Settings validation completed in ${elapsed}s"
