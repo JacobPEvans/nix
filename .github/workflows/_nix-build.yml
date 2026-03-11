@@ -1,8 +1,5 @@
 # Reusable: Nix Build (macOS)
 # Called by ci-gate.yml and ci-nix.yml
-#
-# Cache strategy: Restore-only on PRs (no upload), save on main push with GC
-# Uses actions/cache sub-actions for compatibility with existing cache entries
 name: _nix-build
 
 on:
@@ -35,19 +32,21 @@ jobs:
             stalled-download-timeout = 10
             narinfo-cache-positive-ttl = 86400
             fallback = true
+            auto-optimise-store = false
 
-      # Performance: Restore Nix store from cache (fast bulk tarball)
-      # Uses actions/cache/restore (no post-step upload) — PRs skip save entirely
-      - name: Restore Nix Store Cache
-        uses: actions/cache/restore@v5
-        id: nix-cache
+      # Restore-only on PRs; saves on main. See .claude/rules/ci-workflows.md.
+      - name: Cache Nix Store
+        uses: nix-community/cache-nix-action@v7
         with:
-          path: |
-            /nix/store
-            ~/.cache/nix
-          key: nix-macos-${{ runner.os }}-${{ hashFiles('flake.lock') }}
-          restore-keys: |
-            nix-macos-${{ runner.os }}-
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: |
+            nix-${{ runner.os }}-
+          gc-max-store-size-macos: 5G
+          save: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Start Build Timer
+        id: build-timer
+        run: echo "start=$(date +%s)" >> "$GITHUB_OUTPUT"
 
       - name: Build Home Manager
         run: ./scripts/workflows/build-hm.sh result-hm
@@ -55,20 +54,11 @@ jobs:
       - name: Verify Nix Symlinks
         run: ./scripts/workflows/verify-symlinks.sh result-hm/home-files
 
-      # Performance: GC store before save to reduce cache size
-      - name: Garbage Collect Nix Store
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.nix-cache.outputs.cache-hit != 'true'
+      - name: Build Timing
+        if: always()
         run: |
-          echo "Store size before GC: $(du -sh /nix/store | cut -f1)"
-          nix-collect-garbage --delete-older-than 1d
-          echo "Store size after GC: $(du -sh /nix/store | cut -f1)"
-
-      # Performance: Save cache only on main push when key misses
-      - name: Save Nix Store Cache
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.nix-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: |
-            /nix/store
-            ~/.cache/nix
-          key: nix-macos-${{ runner.os }}-${{ hashFiles('flake.lock') }}
+          start="${{ steps.build-timer.outputs.start }}"
+          if [ -n "$start" ]; then
+            elapsed=$(( $(date +%s) - start ))
+            echo "::notice::Build + verify completed in ${elapsed}s"
+          fi
