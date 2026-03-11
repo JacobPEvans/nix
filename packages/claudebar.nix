@@ -30,6 +30,5 @@ stdenvNoCC.mkDerivation rec {
     homepage = "https://github.com/tddworks/ClaudeBar";
     license = lib.licenses.mit;
     platforms = lib.platforms.darwin;
-    mainProgram = "ClaudeBar";
   };
 }
