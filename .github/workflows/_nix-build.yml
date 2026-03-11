@@ -34,9 +34,7 @@ jobs:
             fallback = true
             auto-optimise-store = false
 
-      # Caching: Nix-aware cache with restore-only on PRs, save on main only
-      # DO NOT replace with magic-nix-cache-action (uploads every run, 2.5x wall-time regression)
-      # DO NOT replace with flakehub-cache-action (PAID) or raw actions/cache (tar errors)
+      # Restore-only on PRs; saves on main. See .claude/rules/ci-workflows.md.
       - name: Cache Nix Store
         uses: nix-community/cache-nix-action@v7
         with:
