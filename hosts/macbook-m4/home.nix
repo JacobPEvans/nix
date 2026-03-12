@@ -113,8 +113,9 @@
 
         _get_keychain_secret() {
           # Fetch a secret from the macOS Keychain by service name.
-          # Usage: _get_keychain_secret <service> <account>
-          security find-generic-password -s "$1" -a "$2" -w 2>/dev/null || echo ""
+          # Usage: _get_keychain_secret <service> <account> [keychain-db]
+          # keychain-db: optional path, e.g. automation.keychain-db
+          security find-generic-password -s "$1" -a "$2" -w ''${3:+"$3"} 2>/dev/null || echo ""
         }
 
         # GitHub - for github@claude-plugins-official MCP server
@@ -124,7 +125,9 @@
         export CONTEXT7_API_KEY=''${CONTEXT7_API_KEY:-"$(_get_keychain_secret 'CONTEXT7_API_KEY' '${userConfig.user.name}')"}
 
         # HuggingFace - for huggingface MCP server and hf CLI (model downloads)
-        export HF_TOKEN=''${HF_TOKEN:-"$(_get_keychain_secret 'HF_TOKEN' '${userConfig.user.name}')"}
+        # Account: ai-cli-coder, Keychain: automation.keychain-db
+        # Setup: security add-generic-password -U -s HF_TOKEN -a ai-cli-coder -w "<token>" automation.keychain-db
+        export HF_TOKEN=''${HF_TOKEN:-"$(_get_keychain_secret 'HF_TOKEN' 'ai-cli-coder' 'automation.keychain-db')"}
 
         unset -f _get_keychain_secret
 
