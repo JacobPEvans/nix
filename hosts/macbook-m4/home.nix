@@ -118,13 +118,12 @@
           security find-generic-password -s "$1" -a "$2" -w ''${3:+"$3"} 2>/dev/null || echo ""
         }
 
-        # Keychain identity constants — defined once, used everywhere below.
-        # Human account: personal secrets stored under the user login keychain.
-        # AI account: automation secrets stored in a dedicated keychain to keep
-        #             them separate from personal credentials.
+        # Keychain identity constants — resolved from userConfig at build time.
+        # Human account: personal secrets in the login keychain.
+        # AI account: automation secrets in a dedicated keychain (see lib/user-config.nix).
         _KC_USER='${userConfig.user.name}'
-        _KC_AI_ACCOUNT='ai-cli-coder'
-        _KC_AI_DB='automation.keychain-db'
+        _KC_AI_ACCOUNT='${userConfig.keychain.aiAccount}'
+        _KC_AI_DB='${userConfig.keychain.aiDb}'
 
         # GitHub - for github@claude-plugins-official MCP server
         export GITHUB_PERSONAL_ACCESS_TOKEN=''${GITHUB_PERSONAL_ACCESS_TOKEN:-"$(_get_keychain_secret 'github-pat' "$_KC_USER")"}
