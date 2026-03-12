@@ -87,7 +87,6 @@
             "git" # Duplicates built-in git via Bash(git:*)
             "github" # Duplicates github@claude-plugins-official plugin
             "cribl" # Project-specific — available via per-project .mcp.json
-            "aws" # Project-specific — available via per-project .mcp.json
             "terraform" # Project-specific — available via per-project .mcp.json
             "cloudflare" # Not actively used — disable until needed
             "exa" # Not actively used — disable until needed
