@@ -50,6 +50,38 @@
   };
 
   # ============================================================================
+  # Scheduled Generation Pruning (LaunchDaemon)
+  # ============================================================================
+  # determinateNixd's reactive GC only collects *unreferenced* store paths —
+  # it does NOT delete old profile generations. Profile generation symlinks are
+  # GC roots, so every old generation keeps its entire system closure alive.
+  # nix.gc.automatic cannot be used because Determinate Nix sets nix.enable = false.
+  # This LaunchDaemon replicates that behaviour: runs as root on Sunday at 3:15am,
+  # deletes all system/user profile generations older than 30 days, then GCs.
+  launchd.daemons.nix-gc = {
+    serviceConfig = {
+      Label = "org.nixos.gc";
+      ProgramArguments = [
+        "/bin/sh"
+        "-c"
+        "${pkgs.nix}/bin/nix-collect-garbage --delete-older-than 30d"
+      ];
+      StartCalendarInterval = [
+        {
+          Weekday = 7;
+          Hour = 3;
+          Minute = 15;
+        }
+      ];
+      RunAtLoad = false;
+      UserName = "root";
+      GroupName = "wheel";
+      StandardOutPath = "/var/log/nix-gc.log";
+      StandardErrorPath = "/var/log/nix-gc.log";
+    };
+  };
+
+  # ============================================================================
   # Home-manager compatibility workaround
   # ============================================================================
   # home-manager's darwin module accesses nix.package even when nix is disabled
