@@ -106,6 +106,13 @@ in
         example = "disk3";
       };
 
+      quota = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Optional APFS quota for the data volume (e.g., \"50g\").";
+        example = "50g";
+      };
+
       groupContainerId = lib.mkOption {
         type = lib.types.str;
         default = "HUAQ24HBR6.dev.orbstack";
@@ -140,7 +147,8 @@ in
           "${volumeScript}"
           cfg.dataVolume.name
           cfg.dataVolume.apfsContainer
-        ];
+        ]
+        ++ lib.optional (cfg.dataVolume.quota != null) cfg.dataVolume.quota;
         RunAtLoad = true;
         LaunchOnlyOnce = true;
         UserName = "root";

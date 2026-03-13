@@ -9,6 +9,7 @@ _:
 
 {
   imports = [
+    ./ai-volumes.nix
     ./auto-update-prevention.nix
     ./orbstack.nix
     ./raycast.nix
@@ -17,4 +18,7 @@ _:
   # OrbStack module is imported but host-specific config (apfsContainer)
   # must be set in hosts/<host>/default.nix
   # Data symlink (in hosts/<host>/home.nix) is only needed if dataVolume.enable is true
+  #
+  # ai-volumes module is imported but host-specific config (apfsContainer)
+  # must be set in hosts/<host>/default.nix
 }
