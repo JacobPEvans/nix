@@ -62,13 +62,13 @@
     serviceConfig = {
       Label = "org.nixos.gc";
       ProgramArguments = [
-        "/bin/sh"
-        "-c"
-        "${pkgs.nix}/bin/nix-collect-garbage --delete-older-than 30d"
+        "${pkgs.nix}/bin/nix-collect-garbage"
+        "--delete-older-than"
+        "30d"
       ];
       StartCalendarInterval = [
         {
-          Weekday = 7;
+          Weekday = 0; # 0 = Sunday per launchd.plist(5); both 0 and 7 are Sunday, 0 is conventional
           Hour = 3;
           Minute = 15;
         }
@@ -76,8 +76,6 @@
       RunAtLoad = false;
       UserName = "root";
       GroupName = "wheel";
-      StandardOutPath = "/var/log/nix-gc.log";
-      StandardErrorPath = "/var/log/nix-gc.log";
     };
   };
 
