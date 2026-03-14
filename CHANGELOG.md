@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.4.0...v1.5.0) (2026-03-14)
+
+
+### Features
+
+* **nix:** add trusted-users and devenv cachix binary cache ([#837](https://github.com/JacobPEvans/nix-darwin/issues/837)) ([cf31065](https://github.com/JacobPEvans/nix-darwin/commit/cf310650e36d3d773150fad0034b68bd4411e3a4))
+
 ## [1.4.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.3.0...v1.4.0) (2026-03-14)
 
 
