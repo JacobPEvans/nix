@@ -2,7 +2,8 @@ name: Copilot Setup Steps
 
 on: push
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   copilot-setup-steps:
