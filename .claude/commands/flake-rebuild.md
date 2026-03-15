@@ -1,7 +1,7 @@
 ---
 description: Update all flake inputs and rebuild nix-darwin
 model: haiku
-allowed-tools: Read, Bash(nix flake:*), Bash(git:*), Bash(gh:*), Bash(darwin-rebuild:*), Bash(sudo darwin-rebuild:*)
+allowed-tools: Read, Grep, Glob, Bash(nix flake *), Bash(git *), Bash(gh *), Bash(darwin-rebuild *), Bash(sudo darwin-rebuild *)
 ---
 
 # Flake Rebuild
