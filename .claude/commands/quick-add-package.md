@@ -1,7 +1,7 @@
 ---
 description: Add a package to the Nix configuration with proper workflow
 model: sonnet
-allowed-tools: Read, Edit, Bash(nix search:*), Bash(brew:*), Bash(git:*), Bash(darwin-rebuild:*), Bash(sudo darwin-rebuild:*), Bash(home-manager:*), Bash(gh:*), Bash(ssh-add:*)
+allowed-tools: Read, Edit, Write, Grep, Glob, Bash(nix search *), Bash(brew *), Bash(git *), Bash(darwin-rebuild *), Bash(sudo darwin-rebuild *), Bash(home-manager *), Bash(gh *), Bash(ssh-add *)
 ---
 
 # Quick Add Package
