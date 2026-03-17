@@ -121,22 +121,21 @@ echo ""
 echo "Checking DIRECT inputs (must be <$GENERAL_THRESHOLD_DAYS days):"
 
 # Check direct inputs only (depth-1 from root)
-while IFS= read -r package; do
-  # Skip root node
-  [[ "$package" == "root" ]] && continue
-
-  # Skip if already checked in critical packages
-  if matches_exemption_pattern "$package" "${CRITICAL_PACKAGES[@]}"; then
+# Use to_entries[] to get input key (user-facing name) and node name (for lastModified lookup)
+while IFS=$'\t' read -r input_key node_name; do
+  # Skip if already checked in critical packages (compare by node name since
+  # CRITICAL_PACKAGES uses resolved node names like nixpkgs_3)
+  if matches_exemption_pattern "$node_name" "${CRITICAL_PACKAGES[@]}"; then
     continue
   fi
 
-  # Skip if in exempt list
-  if matches_exemption_pattern "$package" "${EXEMPT_PACKAGES[@]}"; then
-    echo -e "  ${YELLOW}⊘ EXEMPT${NC}: $package (in exemption list)"
+  # Skip if in exempt list (compare by input key — user-facing name)
+  if matches_exemption_pattern "$input_key" "${EXEMPT_PACKAGES[@]}"; then
+    echo -e "  ${YELLOW}⊘ EXEMPT${NC}: $input_key (in exemption list)"
     continue
   fi
 
-  LAST_MOD=$(get_last_modified "$package")
+  LAST_MOD=$(get_last_modified "$node_name")
 
   if [[ "$LAST_MOD" == "0" ]]; then
     # No lastModified field (might be a flake input that follows another)
@@ -146,16 +145,16 @@ while IFS= read -r package; do
   DAYS_OLD=$(( (CURRENT_TIME - LAST_MOD) / 86400 ))
 
   if [[ $DAYS_OLD -gt $GENERAL_THRESHOLD_DAYS ]]; then
-    echo -e "  ${RED}✗ FAIL${NC}: $package is ${RED}$DAYS_OLD days${NC} old (threshold: $GENERAL_THRESHOLD_DAYS days)"
+    echo -e "  ${RED}✗ FAIL${NC}: $input_key is ${RED}$DAYS_OLD days${NC} old (threshold: $GENERAL_THRESHOLD_DAYS days)"
     FAILED=$((FAILED + 1))
   elif [[ $DAYS_OLD -gt 60 ]]; then
     # Warn if approaching threshold
-    echo -e "  ${YELLOW}⚠  WARN${NC}: $package is $DAYS_OLD days old (approaching threshold)"
+    echo -e "  ${YELLOW}⚠  WARN${NC}: $input_key is $DAYS_OLD days old (approaching threshold)"
     WARNINGS=$((WARNINGS + 1))
   else
-    echo -e "  ${GREEN}✓ OK${NC}:   $package ($DAYS_OLD days old)"
+    echo -e "  ${GREEN}✓ OK${NC}:   $input_key ($DAYS_OLD days old)"
   fi
-done < <(jq -r '.nodes.root.inputs | values[]' "$FLAKE_LOCK")
+done < <(jq -r '.nodes.root.inputs | to_entries[] | "\(.key)\t\(.value)"' "$FLAKE_LOCK")
 
 # Summary
 echo ""
