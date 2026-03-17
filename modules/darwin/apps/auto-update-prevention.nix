@@ -15,19 +15,12 @@
 #
 # Note: VS Code already handled via programs.vscode settings (no action needed).
 # Note: Postman moved to Homebrew cask (greedy = true) — no prevention needed.
-#
-# To verify settings are applied:
-#   defaults read com.luckymarmot.Paw SUEnableAutomaticChecks
+# Note: Paw (RapidAPI) removed — runs in macOS sandbox container, `defaults write` cannot reach it.
 
 _:
 
 {
   system.defaults.CustomUserPreferences = {
-    # RapidAPI (formerly Paw) - Disable Sparkle auto-updater
-    "com.luckymarmot.Paw" = {
-      SUEnableAutomaticChecks = false;
-      SUAutomaticallyUpdate = false;
-      SUAllowsAutomaticUpdates = false; # Sparkle-specific
-    };
+    # Add apps here as needed. See header comment for pattern.
   };
 }
