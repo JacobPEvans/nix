@@ -2,9 +2,10 @@
 # Validate Package Freshness - Pre-commit Hook
 #
 # PURPOSE: Prevent committing flake.lock with outdated package versions
+# SCOPE: Depth-1 only — checks direct inputs from .nodes.root.inputs, not transitive deps
 # FAIL THRESHOLDS:
-#   - Critical packages (nixpkgs, darwin, home-manager): >30 days = FAIL
-#   - All packages: >90 days = FAIL
+#   - Critical packages (nixpkgs, home-manager, ai-assistant-instructions): >30 days = FAIL
+#   - All direct inputs: >90 days = FAIL
 # EXEMPTIONS: Packages in EXEMPT_PACKAGES array skip age checks
 #
 # USAGE: Run as pre-commit hook or manually: ./scripts/validate-package-freshness.sh
@@ -44,22 +45,12 @@ CRITICAL_PACKAGES=(
 # Exempt packages (archived repos, intentional pins)
 # Add packages here that should never trigger staleness failures
 # Supports glob patterns: "prefix*" matches "prefix", "prefix_2", etc.
+# NOTE: With depth-1 checking, only direct inputs are iterated — most transitive
+# exemptions are no longer needed.
 EXEMPT_PACKAGES=(
-  "cl-nix-lite"   # Transitive dependency - cannot be directly updated
-  "darwin"        # Pinned to nix-darwin-25.11 stable branch - infrequent backports
-  "flake-compat*" # Compatibility shim and suffixed variants (flake-compat_2 etc)
-  "flake-utils"   # Utility library - stable helpers, infrequent updates needed
-  "systems"       # nix-systems/default-darwin - system architectures, rarely updated
-
-  # Transitive dependencies from DeterminateSystems/determinate — pinned upstream,
-  # we cannot update these independently of the determinate flake input.
-  "nixpkgs"            # Determinate's internal nixpkgs (root uses nixpkgs_N instead)
-  "nixpkgs_2"          # Determinate's nixpkgs renamed by Nix (determinate->nixpkgs maps here)
-  "nix"                # DeterminateSystems/nix-src — pinned by determinate, not directly updatable
-  "flake-parts"        # Pinned by determinate/nix build system
-  "git-hooks-nix"      # Pinned by determinate/nix for pre-commit hooks
-  "nixpkgs-23-11"      # Pinned regression test nixpkgs in determinate/nix
-  "nixpkgs-regression" # Pinned regression test nixpkgs in determinate/nix
+  "darwin"          # Pinned to nix-darwin-25.11 stable branch — infrequent backports
+  "systems"         # nix-systems/default-darwin — rarely updated
+  "pal-mcp-server"  # Upstream repo (BeehiveInnovations) — infrequent releases
 )
 
 # Check if flake.lock exists
@@ -127,25 +118,24 @@ while IFS= read -r package; do
 done < <(printf '%s\n' "${CRITICAL_PACKAGES[@]}")
 
 echo ""
-echo "Checking ALL packages (must be <$GENERAL_THRESHOLD_DAYS days):"
+echo "Checking DIRECT inputs (must be <$GENERAL_THRESHOLD_DAYS days):"
 
-# Check all packages in flake.lock
-while IFS= read -r package; do
-  # Skip root node
-  [[ "$package" == "root" ]] && continue
-
-  # Skip if already checked in critical packages
-  if matches_exemption_pattern "$package" "${CRITICAL_PACKAGES[@]}"; then
+# Check direct inputs only (depth-1 from root)
+# Use to_entries[] to get input key (user-facing name) and node name (for lastModified lookup)
+while IFS=$'\t' read -r input_key node_name; do
+  # Skip if already checked in critical packages (compare by node name since
+  # CRITICAL_PACKAGES uses resolved node names like nixpkgs_3)
+  if matches_exemption_pattern "$node_name" "${CRITICAL_PACKAGES[@]}"; then
     continue
   fi
 
-  # Skip if in exempt list
-  if matches_exemption_pattern "$package" "${EXEMPT_PACKAGES[@]}"; then
-    echo -e "  ${YELLOW}⊘ EXEMPT${NC}: $package (in exemption list)"
+  # Skip if in exempt list (compare by input key — user-facing name)
+  if matches_exemption_pattern "$input_key" "${EXEMPT_PACKAGES[@]}"; then
+    echo -e "  ${YELLOW}⊘ EXEMPT${NC}: $input_key (in exemption list)"
     continue
   fi
 
-  LAST_MOD=$(get_last_modified "$package")
+  LAST_MOD=$(get_last_modified "$node_name")
 
   if [[ "$LAST_MOD" == "0" ]]; then
     # No lastModified field (might be a flake input that follows another)
@@ -155,16 +145,16 @@ while IFS= read -r package; do
   DAYS_OLD=$(( (CURRENT_TIME - LAST_MOD) / 86400 ))
 
   if [[ $DAYS_OLD -gt $GENERAL_THRESHOLD_DAYS ]]; then
-    echo -e "  ${RED}✗ FAIL${NC}: $package is ${RED}$DAYS_OLD days${NC} old (threshold: $GENERAL_THRESHOLD_DAYS days)"
+    echo -e "  ${RED}✗ FAIL${NC}: $input_key is ${RED}$DAYS_OLD days${NC} old (threshold: $GENERAL_THRESHOLD_DAYS days)"
     FAILED=$((FAILED + 1))
   elif [[ $DAYS_OLD -gt 60 ]]; then
     # Warn if approaching threshold
-    echo -e "  ${YELLOW}⚠  WARN${NC}: $package is $DAYS_OLD days old (approaching threshold)"
+    echo -e "  ${YELLOW}⚠  WARN${NC}: $input_key is $DAYS_OLD days old (approaching threshold)"
     WARNINGS=$((WARNINGS + 1))
   else
-    echo -e "  ${GREEN}✓ OK${NC}:   $package ($DAYS_OLD days old)"
+    echo -e "  ${GREEN}✓ OK${NC}:   $input_key ($DAYS_OLD days old)"
   fi
-done < <(jq -r '.nodes | keys[]' "$FLAKE_LOCK")
+done < <(jq -r '.nodes.root.inputs | to_entries[] | "\(.key)\t\(.value)"' "$FLAKE_LOCK")
 
 # Summary
 echo ""
