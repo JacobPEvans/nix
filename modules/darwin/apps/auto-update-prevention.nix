@@ -13,14 +13,21 @@
 #   Use macOS defaults to disable auto-updaters declaratively.
 #   This prevents the updater from running at all.
 #
+# Example (Sparkle-based auto-updater):
+#   "com.example.AppName" = {
+#     SUEnableAutomaticChecks = false;
+#     SUAutomaticallyUpdate = false;
+#   };
+#
 # Note: VS Code already handled via programs.vscode settings (no action needed).
 # Note: Postman moved to Homebrew cask (greedy = true) — no prevention needed.
-# Note: Paw (RapidAPI) removed — runs in macOS sandbox container, `defaults write` cannot reach it.
+# Note: Paw (RapidAPI) defaults-based prevention removed — app still installed via Nix,
+#   but runs in a macOS sandbox container so `defaults write` cannot reach its preferences domain.
 
 _:
 
 {
   system.defaults.CustomUserPreferences = {
-    # Add apps here as needed. See header comment for pattern.
+    # Add apps here as needed. See header example for the Sparkle pattern.
   };
 }
