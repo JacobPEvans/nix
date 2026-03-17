@@ -38,17 +38,6 @@
   manual.manpages.enable = false;
 
   # ==========================================================================
-  # Auto-Update Cache Cleanup (for Nix-managed apps)
-  # ==========================================================================
-  # Clean Sparkle updater caches on every rebuild.
-  # This complements the auto-update-prevention.nix module by removing
-  # leftover updater state that could interfere with Nix-managed versions.
-  home.activation.cleanAutoUpdateCaches = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # Clean Sparkle updater caches
-    $DRY_RUN_CMD rm -rf "$HOME/Library/Caches/com.luckymarmot.Paw/org.sparkle-project.Sparkle" 2>/dev/null || true
-  '';
-
-  # ==========================================================================
   # Host-Specific Home Settings
   # ==========================================================================
   # Settings unique to this machine's user environment
@@ -173,7 +162,7 @@
     packages = with pkgs; [
       # Terminal & Development
       ghostty-bin # Terminal emulator - needs Full Disk Access for darwin-rebuild
-      rapidapi # Full-featured HTTP client for testing and describing APIs - auto-updates disabled (see auto-update-prevention.nix)
+      rapidapi # Full-featured HTTP client for testing and describing APIs (sandboxed — auto-update prevention not possible)
 
       # AI IDEs & Tools (nixpkgs - stable TCC paths via copyApps)
       code-cursor # Cursor AI IDE (VS Code fork)
@@ -200,6 +189,9 @@
       # Volume created by launchd daemon (see modules/darwin/apps/orbstack.nix)
       # Contains: Docker images, containers, volumes, Linux VMs, logs
       # MIGRATION: Stop OrbStack and move existing data before enabling
+      # NOTE: `ln` reports a permission error when OrbStack is running because the
+      # Group Container directory is locked. This is expected — the symlink persists
+      # correctly and does not need to be recreated on every rebuild.
       "Library/Group Containers/HUAQ24HBR6.dev.orbstack".source =
         config.lib.file.mkOutOfStoreSymlink "/Volumes/ContainerData";
 
