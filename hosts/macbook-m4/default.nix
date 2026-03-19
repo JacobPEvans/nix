@@ -76,7 +76,12 @@ in
     cribl-edge = {
       enable = true;
       acls = [
-        "/var/log"
+        "/var/log" # system.log, install.log, wifi.log
+        "/var/log/asl" # Apple System Log archives
+        "/var/log/DiagnosticMessages" # system diagnostics
+        "/var/audit" # BSM audit trail (login, sudo, file access)
+        "/Library/Logs" # system-level application logs
+        "/Library/Logs/DiagnosticReports" # crash reports
       ];
     };
   };
