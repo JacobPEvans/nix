@@ -71,6 +71,19 @@ in
     enable = true;
   };
 
+  # ==========================================================================
+  # Cribl Edge
+  # ==========================================================================
+  # Log collection agent managed by Cribl Cloud
+  # Installed externally via .pkg — Nix manages the LaunchDaemon and ACLs
+
+  programs.cribl-edge = {
+    enable = true;
+    acls = [
+      "/var/log"
+    ];
+  };
+
   # --- Energy & Sleep Configuration ---
   system.energy = {
     enable = true;
