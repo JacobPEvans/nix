@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.2](https://github.com/JacobPEvans/nix-darwin/compare/v1.12.1...v1.12.2) (2026-03-19)
+
+
+### Bug Fixes
+
+* update nix-ai (MLX port 11435→11436, screenpipe conflict) ([#869](https://github.com/JacobPEvans/nix-darwin/issues/869)) ([d399876](https://github.com/JacobPEvans/nix-darwin/commit/d39987629c25af1c7f02425e3aa56d13b6564f75))
+
 ## [1.12.1](https://github.com/JacobPEvans/nix-darwin/compare/v1.12.0...v1.12.1) (2026-03-19)
 
 
