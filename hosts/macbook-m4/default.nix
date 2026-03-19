@@ -35,53 +35,50 @@ in
   services.openssh.enable = true;
 
   # ==========================================================================
-  # OrbStack Configuration
+  # Programs
   # ==========================================================================
-  # Container runtime as system-level application
-  # - System-wide installation via nix-darwin
-  # - Dedicated APFS volume for data storage
-  # - Data symlink configured in home.nix using mkOutOfStoreSymlink
-  #
-  # NOTE: package.enable = true installs OrbStack system-wide
-  # TCC permissions (Docker/Linux VM access) may need re-granting after rebuilds
-  # For TCC stability, set package.enable = false and add to home.packages instead
 
-  programs.orbstack = {
-    enable = true;
-    # package.enable = false: OrbStack is installed via Homebrew cask (greedy = true)
-    # in modules/darwin/homebrew.nix. Homebrew installs to /Applications/ as a real
-    # copy, so TCC permissions (Docker socket, Linux VM) persist across darwin-rebuild.
-    # Previously, nixpkgs installed a symlink to a /nix/store path that changes on
-    # every rebuild, forcing TCC re-granting each time.
-    package.enable = false;
-    dataVolume = {
+  programs = {
+    # --- OrbStack ---
+    # Container runtime as system-level application
+    # - System-wide installation via nix-darwin
+    # - Dedicated APFS volume for data storage
+    # - Data symlink configured in home.nix using mkOutOfStoreSymlink
+    #
+    # NOTE: package.enable = true installs OrbStack system-wide
+    # TCC permissions (Docker/Linux VM access) may need re-granting after rebuilds
+    # For TCC stability, set package.enable = false and add to home.packages instead
+    orbstack = {
       enable = true;
-      name = "ContainerData";
-      apfsContainer = "disk3"; # Find with: diskutil apfs list
+      # package.enable = false: OrbStack is installed via Homebrew cask (greedy = true)
+      # in modules/darwin/homebrew.nix. Homebrew installs to /Applications/ as a real
+      # copy, so TCC permissions (Docker socket, Linux VM) persist across darwin-rebuild.
+      # Previously, nixpkgs installed a symlink to a /nix/store path that changes on
+      # every rebuild, forcing TCC re-granting each time.
+      package.enable = false;
+      dataVolume = {
+        enable = true;
+        name = "ContainerData";
+        apfsContainer = "disk3"; # Find with: diskutil apfs list
+      };
     };
-  };
 
-  # ==========================================================================
-  # File Extension Mappings
-  # ==========================================================================
-  # Custom file extensions recognized as tar.gz archives
-  # Enables Finder auto-extract and shell autocomplete
+    # --- File Extension Mappings ---
+    # Custom file extensions recognized as tar.gz archives
+    # Enables Finder auto-extract and shell autocomplete
+    file-extensions = {
+      enable = true;
+    };
 
-  programs.file-extensions = {
-    enable = true;
-  };
-
-  # ==========================================================================
-  # Cribl Edge
-  # ==========================================================================
-  # Log collection agent managed by Cribl Cloud
-  # Installed externally via .pkg — Nix manages the LaunchDaemon and ACLs
-
-  programs.cribl-edge = {
-    enable = true;
-    acls = [
-      "/var/log"
-    ];
+    # --- Cribl Edge ---
+    # Log collection agent managed by Cribl Cloud
+    # Installed externally via .pkg — Nix manages the LaunchDaemon and ACLs
+    cribl-edge = {
+      enable = true;
+      acls = [
+        "/var/log"
+      ];
+    };
   };
 
   # --- Energy & Sleep Configuration ---
