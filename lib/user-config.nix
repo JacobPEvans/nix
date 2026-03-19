@@ -7,6 +7,10 @@
 # - GPG key IDs are public identifiers (not private keys)
 # - Email addresses are often public (GitHub noreply recommended)
 # - Usernames are public information
+#
+# Secrets come from SOPS-encrypted secrets.sops.json (decrypted to .secrets.json).
+# Run: sops -d secrets.sops.json > .secrets.json
+# The build will hard fail if .secrets.json is missing or values are empty.
 
 let
   # Define username once, derive everything else from it
@@ -17,6 +21,19 @@ let
   # Use this for paths in darwin modules where config.home.homeDirectory
   # is not available
   homeDir = "/Users/${username}";
+
+  # Decrypted secrets — hard fail if missing
+  # Generate with: sops -d secrets.sops.json > .secrets.json
+  secretsPath = ../. + "/.secrets.json";
+  secretsExist = builtins.pathExists secretsPath;
+  secrets =
+    if secretsExist
+    then builtins.fromJSON (builtins.readFile secretsPath)
+    else builtins.throw ''
+      FATAL: .secrets.json not found.
+      Run: cd ~/git/nix-darwin/main && sops -d secrets.sops.json > .secrets.json
+      The AWS config and other secrets-dependent files will NOT be generated without this.
+    '';
 in
 {
   # ==========================================================================
@@ -113,6 +130,15 @@ in
 
     # Dedicated keychain database for AI/automation secrets
     aiDb = "automation.keychain-db";
+  };
+
+  # ==========================================================================
+  # AWS Configuration (from SOPS-encrypted secrets)
+  # ==========================================================================
+  aws = {
+    # AWS account ID — used by nix-home to generate IAM role ARNs in ~/.aws/config
+    # Source: secrets.sops.json (encrypted) → .secrets.json (decrypted at build time)
+    accountId = secrets.aws_account_id;
   };
 
   # ==========================================================================

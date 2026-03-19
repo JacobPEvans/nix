@@ -18,3 +18,6 @@ __pycache__/
 
 # Log files
 *.log
+
+# Decrypted secrets (generated from *.sops.json at build time)
+.secrets.json
