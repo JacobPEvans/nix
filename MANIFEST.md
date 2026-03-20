@@ -57,7 +57,6 @@ Source: `modules/darwin/common.nix`
 | Package | Description |
 |---------|-------------|
 | mas | Mac App Store CLI |
-| ollama | LLM runtime (models on /Volumes/Ollama/models) |
 | whisper-cpp | Local speech-to-text (OpenAI Whisper C++ port, CoreML/Metal) |
 | openai-whisper | Original OpenAI Whisper (Python, GPU/CPU, broader model support) |
 
@@ -132,7 +131,7 @@ Source: nix-home (`home.packages` via flake input)
 | python314 | Python 3.14 (bleeding edge) |
 | python312 | Python 3.12 (general development) |
 | uv | Fast Python package manager (also runs EOL versions) |
-| python3.withPackages | Unified env: cryptography, grip, ollama, pipx, pygithub |
+| python3.withPackages | Unified env: cryptography, grip, pipx, pygithub |
 
 ---
 
@@ -251,7 +250,6 @@ Source: `modules/darwin/common.nix` (overlay block)
 | Package | Reason |
 |---------|--------|
 | ghostty-bin | GUI app - fast upstream releases |
-| ollama | LLM runtime - fast upstream releases |
 | github-mcp-server | AI CLI - stable lags behind upstream |
 | terraform-mcp-server | AI CLI - stable lags behind upstream |
 | whisper-cpp | Speech-to-text - fast-moving (CoreML/Metal support) |

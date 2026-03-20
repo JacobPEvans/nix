@@ -182,8 +182,6 @@
     # NOTE: These symlinks point to data on external volumes.
     # Nix does NOT manage the volume contents - only creates symlinks.
     file = {
-      # Ollama models symlink managed by nix-ai (ollama.nix module)
-
       # OrbStack data on dedicated APFS volume
       # Symlinks entire Group Container so ALL OrbStack data lives on volume
       # Volume created by launchd daemon (see modules/darwin/apps/orbstack.nix)
