@@ -214,6 +214,16 @@ deferring to the app's own updater.
 
 ---
 
+## Services (External)
+
+Managed by nix-darwin modules but installed externally (not via nixpkgs or Homebrew).
+
+| Service | Source | Description |
+|---------|--------|-------------|
+| Cribl Edge | `modules/darwin/apps/cribl-edge.nix` | Log collection agent (installed via .pkg, Nix manages LaunchDaemon + ACLs) |
+
+---
+
 ## macOS System Settings
 
 | Category | Source | Key Settings |
