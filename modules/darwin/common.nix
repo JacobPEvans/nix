@@ -41,7 +41,6 @@ in
       inherit (unstablePkgs)
         # GUI applications (need unstable for fast upstream releases)
         ghostty-bin
-        ollama
 
         # AI CLI tools (fast-moving, stable lags behind upstream)
         github-mcp-server
@@ -95,7 +94,6 @@ in
     # ========================================================================
     # AI/ML system services
     # ========================================================================
-    ollama # LLM runtime (models on /Volumes/Ollama/models)
     whisper-cpp # Local speech-to-text (OpenAI Whisper C++ port, CoreML/Metal)
     openai-whisper # Original OpenAI Whisper (Python, GPU/CPU, broader model support)
 

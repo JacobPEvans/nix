@@ -9,7 +9,7 @@
 #     enable = true;
 #     apfsContainer = "disk3";  # Find with: diskutil apfs list
 #     ollamaVolume = {
-#       enable = true;          # default: true
+#       enable = true;          # default: false
 #       name = "OllamaModels";  # default
 #       quota = "500g";         # default
 #     };
@@ -45,10 +45,11 @@ let
       displayName,
       defaultName,
       defaultQuota,
+      defaultEnable ? true,
     }:
     {
       enable = lib.mkEnableOption "${displayName} models volume" // {
-        default = true;
+        default = defaultEnable;
       };
 
       name = lib.mkOption {
@@ -106,6 +107,7 @@ in
       displayName = "Ollama";
       defaultName = "OllamaModels";
       defaultQuota = "500g";
+      defaultEnable = false;
     };
 
     huggingfaceVolume = mkVolumeOpts {
