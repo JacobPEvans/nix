@@ -8,6 +8,9 @@
 # Cribl Edge itself is installed externally via .pkg (not in any package manager).
 # This module manages: LaunchDaemon lifecycle, ACL-based file permissions.
 # No root execution. No FDA — ACLs only for monitored paths.
+#
+# Note: Disabling this module does not automatically remove ACLs from previously
+# configured paths. Run `/bin/chmod -a "cribl allow ..." <path>` manually if needed.
 
 { lib, config, ... }:
 
@@ -19,8 +22,8 @@ in
     enable = lib.mkEnableOption "Cribl Edge service management";
 
     installPath = lib.mkOption {
-      type = lib.types.path;
-      default = /opt/cribl;
+      type = lib.types.str;
+      default = "/opt/cribl";
       description = "Installation path for Cribl Edge (set by .pkg installer).";
     };
 
@@ -56,7 +59,8 @@ in
       ${lib.optionalString (cfg.acls != [ ]) ''
         ${lib.concatMapStringsSep "\n" (path: ''
           if [ -e "${path}" ]; then
-            /bin/chmod +a "cribl allow read,readattr,readextattr,readsecurity,list,search" "${path}" 2>/dev/null || true
+            /bin/chmod -a "cribl allow read,readattr,readextattr,readsecurity,list,search" "${path}" 2>/dev/null || true
+            /bin/chmod +a "cribl allow read,readattr,readextattr,readsecurity,list,search" "${path}" 2>&1 || echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] Failed to set ACL on ${path}"
           fi
         '') cfg.acls}
         echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Applied Cribl Edge ACLs to ${toString (builtins.length cfg.acls)} path(s)"
