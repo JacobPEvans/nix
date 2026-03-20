@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.12.2...v1.13.0) (2026-03-20)
+
+
+### Features
+
+* add Cribl Edge nix-darwin module ([#871](https://github.com/JacobPEvans/nix-darwin/issues/871)) ([3d1758b](https://github.com/JacobPEvans/nix-darwin/commit/3d1758b4f0dc683032dcde0559f4fa9c4f796726))
+
 ## [1.12.2](https://github.com/JacobPEvans/nix-darwin/compare/v1.12.1...v1.12.2) (2026-03-19)
 
 
