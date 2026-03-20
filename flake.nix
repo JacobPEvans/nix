@@ -121,8 +121,23 @@
         inherit unstablePkgs userConfig;
       };
 
+      # Guard: fail at eval time if stateVersion drifts from nixpkgs branch.
+      # When Renovate bumps nixpkgs-25.11 → nixpkgs-26.05, this assertion fires
+      # with a clear message — the fix is to update lib/user-config.nix.
+      _stateVersionCheck =
+        let
+          expected = "25.11"; # must match nixpkgs URL: nixpkgs-25.11-darwin
+          actual = userConfig.nix.homeManagerStateVersion;
+        in
+        assert expected == actual
+          || builtins.throw ''
+            homeManagerStateVersion mismatch: expected "${expected}" (from nixpkgs branch) but got "${actual}".
+            Update lib/user-config.nix when bumping nixpkgs.
+          '';
+        true;
+
       # Define configuration once, assign to multiple names
-      darwinConfig = darwin.lib.darwinSystem {
+      darwinConfig = assert _stateVersionCheck; darwin.lib.darwinSystem {
         system = "aarch64-darwin";
         specialArgs = { inherit unstablePkgs; };
         modules = [
