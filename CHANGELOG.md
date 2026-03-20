@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.1](https://github.com/JacobPEvans/nix-darwin/compare/v1.13.0...v1.13.1) (2026-03-20)
+
+
+### Bug Fixes
+
+* bump homeManagerStateVersion to 25.11 ([#873](https://github.com/JacobPEvans/nix-darwin/issues/873)) ([12fd1ee](https://github.com/JacobPEvans/nix-darwin/commit/12fd1ee4c2dd9f69429c50a80986b6a152aedc83))
+* remove Ollama from system packages and disable volume ([#875](https://github.com/JacobPEvans/nix-darwin/issues/875)) ([58ef9f9](https://github.com/JacobPEvans/nix-darwin/commit/58ef9f9b693ab7193e7066ec1bbe5f420837ae47))
+
 ## [1.13.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.12.2...v1.13.0) (2026-03-20)
 
 
