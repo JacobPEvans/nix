@@ -110,13 +110,6 @@ Source: nix-home (`home.packages` via flake input)
 | bws | Bitwarden Secrets Manager CLI |
 | doppler | Doppler secrets manager CLI |
 
-### Cloud Infrastructure
-
-| Package | Description |
-|---------|-------------|
-| awscli2 | AWS CLI v2 |
-| aws-vault | Secure AWS credential storage (uses OS keychain) |
-
 ### Remote Shell
 
 | Package | Description |
@@ -156,7 +149,7 @@ Source: `hosts/macbook-m4/home.nix`
 
 | Package | Description |
 |---------|-------------|
-| ghostty-bin | Terminal emulator (unstable overlay) |
+| ghostty-bin | Terminal emulator |
 | rapidapi | Full-featured HTTP client |
 | code-cursor | Cursor AI IDE (VS Code fork) |
 | chatgpt | OpenAI ChatGPT desktop app |
@@ -238,21 +231,6 @@ Managed by nix-darwin modules but installed externally (not via nixpkgs or Homeb
 | Logging | `modules/darwin/logging.nix` | Syslog forwarding to remote server |
 | File Extensions | `modules/darwin/file-extensions.nix` | File type associations |
 | Auto Recovery | `modules/darwin/auto-recovery.nix` | Activation error recovery |
-
----
-
-## Unstable Overlay
-
-Packages sourced from nixpkgs-unstable for version currency.
-
-Source: `modules/darwin/common.nix` (overlay block)
-
-| Package | Reason |
-|---------|--------|
-| ghostty-bin | GUI app - fast upstream releases |
-| github-mcp-server | AI CLI - stable lags behind upstream |
-| terraform-mcp-server | AI CLI - stable lags behind upstream |
-| whisper-cpp | Speech-to-text - fast-moving (CoreML/Metal support) |
 
 ---
 

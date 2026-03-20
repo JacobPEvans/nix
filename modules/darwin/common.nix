@@ -1,6 +1,5 @@
 {
   pkgs,
-  unstablePkgs,
   ...
 }:
 
@@ -31,29 +30,6 @@ in
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [
     (import ../../overlays/macos-apps.nix)
-    # Fast-moving packages from nixpkgs-unstable for version currency
-    # Stable branches (25.11) only get security fixes, not version bumps
-    # Policy: Add packages here that release faster than the stable branch updates
-    #
-    # GUI apps on STABLE (intentional): bitwarden-desktop, chatgpt, code-cursor,
-    # postman, rapidapi, raycast, swiftbar
-    (_final: _prev: {
-      inherit (unstablePkgs)
-        # GUI applications (need unstable for fast upstream releases)
-        ghostty-bin
-
-        # AI CLI tools (fast-moving, stable lags behind upstream)
-        github-mcp-server
-        terraform-mcp-server
-
-        # Speech-to-text / AI tools (fast-moving releases)
-        whisper-cpp # Local speech-to-text (OpenAI Whisper C++ port, CoreML/Metal)
-        # NOTE: open-webui intentionally omitted — still broken on darwin via nixpkgs:
-        #   stable: open-webui → pgvector → postgresql-test-hook (badPlatforms = darwin)
-        #   unstable: open-webui has unfree license, blocked by allowUnfree = false
-        #   Installed via uv tool install in home-manager activation (see nix-ai)
-        ;
-    })
   ];
 
   # --- User Configuration ---

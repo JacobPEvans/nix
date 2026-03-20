@@ -6,9 +6,6 @@
     # Using stable nixpkgs-25.11 for reliability
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-25.11-darwin";
 
-    # Using unstable nixpkgs for fast-moving packages (select GUI apps and AI CLI tools)
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
     # Consolidated systems input for darwin-only configuration
     # All transitive dependencies should follow this to avoid duplicate systems entries
     systems.url = "github:nix-systems/default-darwin";
@@ -95,7 +92,6 @@
   outputs =
     {
       nixpkgs,
-      nixpkgs-unstable,
       darwin,
       home-manager,
       mac-app-util,
@@ -108,17 +104,11 @@
       userConfig = import ./lib/user-config.nix;
       hmDefaults = import ./lib/home-manager-defaults.nix;
 
-      # Import nixpkgs-unstable for fast-moving packages (select GUI apps and AI CLI tools)
-      unstablePkgs = import nixpkgs-unstable {
-        system = "aarch64-darwin";
-        config.allowUnfree = true;
-      };
-
       # Pass external sources to home-manager modules
       # nix-ai modules get their inputs via _module.args (self-contained)
       # nix-home modules accept userConfig with sensible defaults
       extraSpecialArgs = {
-        inherit unstablePkgs userConfig;
+        inherit userConfig;
       };
 
       # Guard: fail at eval time if stateVersion drifts from nixpkgs branch.
@@ -142,7 +132,7 @@
         assert _stateVersionCheck;
         darwin.lib.darwinSystem {
           system = "aarch64-darwin";
-          specialArgs = { inherit unstablePkgs; };
+          specialArgs = { };
           modules = [
             ./hosts/macbook-m4/default.nix
 
