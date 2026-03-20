@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.13.3](https://github.com/JacobPEvans/nix-darwin/compare/v1.13.2...v1.13.3) (2026-03-20)
+
+
+### Bug Fixes
+
+* remove nixpkgs-unstable overlay ([#879](https://github.com/JacobPEvans/nix-darwin/issues/879)) ([a870f35](https://github.com/JacobPEvans/nix-darwin/commit/a870f356a4d6f6a55043c2f021593151647024a4))
+* update CLAUDE.md to reference three companion repos (quartet) ([#881](https://github.com/JacobPEvans/nix-darwin/issues/881)) ([82ca482](https://github.com/JacobPEvans/nix-darwin/commit/82ca482825280f53b03c007bff894d3260695076))
+
 ## [1.13.2](https://github.com/JacobPEvans/nix-darwin/compare/v1.13.1...v1.13.2) (2026-03-20)
 
 
