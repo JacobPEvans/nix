@@ -1,5 +1,6 @@
 #!/usr/bin/env bats
 # Test check-file-sizes.sh functionality
+# Config is read from .file-size.yml in the working directory
 
 SCRIPT_UNDER_TEST="$BATS_TEST_DIRNAME/../../scripts/workflows/check-file-sizes.sh"
 
@@ -7,6 +8,16 @@ setup() {
   # Create temporary test directory
   TEST_DIR=$(mktemp -d)
   cd "$TEST_DIR" || exit 1
+
+  # Create minimal .file-size.yml config
+  cat > .file-size.yml <<'YAML'
+defaults:
+  warn: 6144
+  error: 12288
+scan:
+  - .md
+  - .nix
+YAML
 }
 
 teardown() {
@@ -19,7 +30,7 @@ teardown() {
   # Create 5KB file (5120 bytes)
   head -c 5120 /dev/zero > small.md
 
-  run bash "$SCRIPT_UNDER_TEST" "" ""
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 0 ]
   [[ ! "$output" =~ "warning" ]]
   [[ ! "$output" =~ "error" ]]
@@ -29,7 +40,7 @@ teardown() {
   # Create 8KB file (8192 bytes)
   head -c 8192 /dev/zero > medium.md
 
-  run bash "$SCRIPT_UNDER_TEST" "" ""
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 0 ]
   [[ "$output" =~ "::warning" ]]
   [[ "$output" =~ "medium.md" ]]
@@ -40,7 +51,7 @@ teardown() {
   # Create 16KB file (16384 bytes)
   head -c 16384 /dev/zero > large.md
 
-  run bash "$SCRIPT_UNDER_TEST" "" ""
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 1 ]
   [[ "$output" =~ "::error" ]]
   [[ "$output" =~ "large.md" ]]
@@ -51,8 +62,15 @@ teardown() {
   # Create 20KB file (20480 bytes)
   head -c 20480 /dev/zero > extended.md
 
-  # Pass "extended" to EXTENDED_LIST
-  run bash "$SCRIPT_UNDER_TEST" "extended" ""
+  # Add extended config
+  cat >> .file-size.yml <<'YAML'
+extended:
+  limit: 32768
+  files:
+    - extended
+YAML
+
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 0 ]
   [[ ! "$output" =~ "::error" ]]
   [[ ! "$output" =~ "::warning" ]]
@@ -62,8 +80,15 @@ teardown() {
   # Create 40KB file (40960 bytes)
   head -c 40960 /dev/zero > extended.md
 
-  # Pass "extended" to EXTENDED_LIST
-  run bash "$SCRIPT_UNDER_TEST" "extended" ""
+  # Add extended config
+  cat >> .file-size.yml <<'YAML'
+extended:
+  limit: 32768
+  files:
+    - extended
+YAML
+
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 1 ]
   [[ "$output" =~ "::error" ]]
   [[ "$output" =~ "extended.md" ]]
@@ -73,8 +98,13 @@ teardown() {
   # Create 20KB file (20480 bytes)
   head -c 20480 /dev/zero > exempt.md
 
-  # Pass "exempt" to EXEMPT_LIST
-  run bash "$SCRIPT_UNDER_TEST" "" "exempt"
+  # Add exempt config
+  cat >> .file-size.yml <<'YAML'
+exempt:
+  - exempt
+YAML
+
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 0 ]
   [[ ! "$output" =~ "exempt.md" ]]
 }
@@ -83,7 +113,7 @@ teardown() {
   # Create oversized .nix file
   head -c 16384 /dev/zero > config.nix
 
-  run bash "$SCRIPT_UNDER_TEST" "" ""
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 1 ]
   [[ "$output" =~ "::error" ]]
   [[ "$output" =~ "config.nix" ]]
@@ -95,6 +125,6 @@ teardown() {
   head -c 16384 /dev/zero > file2.md
   head -c 16384 /dev/zero > file3.nix
 
-  run bash "$SCRIPT_UNDER_TEST" "" ""
+  run bash "$SCRIPT_UNDER_TEST"
   [ "$status" -eq 3 ]
 }

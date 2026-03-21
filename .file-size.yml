@@ -1,0 +1,27 @@
+# File size check configuration
+# Consumed by JacobPEvans/.github/_file-size.yml reusable workflow
+# and scripts/workflows/check-file-sizes.sh (pre-commit hook)
+# Schema: defaults (warn/error bytes), scan (extensions), extended (higher limit), exempt (no limit)
+defaults:
+  warn: 6144
+  error: 12288
+
+scan:
+  - .md
+  - .nix
+
+extended:
+  limit: 32768
+  files:
+    - AGENTS
+    - ANTHROPIC-ECOSYSTEM
+    - TROUBLESHOOTING
+
+exempt:
+  - CHANGELOG
+  - RUNBOOK
+  - copilot-permissions-allow
+  - copilot-permissions-ask
+  - copilot-permissions-deny
+  - gemini-permissions-allow
+  - gemini-permissions-deny

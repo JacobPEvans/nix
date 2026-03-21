@@ -105,8 +105,8 @@ repos:
         types: [json]
 
       # File size check - DRY with GitHub Actions via shared config
-      # Config: scripts/workflows/file-size-config.sh (single source of truth)
-      # Limits: 6KB recommended, 12KB hard, 32KB extended
+      # Config: .file-size.yml (single source of truth for CI and pre-commit)
+      # Limits: 6KB recommended, 12KB hard, 32KB extended, exempt (no limit)
       - id: file-size-check
         name: File size check (6KB warn, 12KB fail)
         entry: scripts/workflows/check-file-sizes.sh
