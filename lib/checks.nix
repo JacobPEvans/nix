@@ -51,6 +51,7 @@
           bats
           bash
           jq
+          yq-go
         ];
       }
       ''
