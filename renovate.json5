@@ -1,5 +1,5 @@
 // Renovate Bot Configuration
-// Automated dependency updates for Nix flakes and npm packages
+// Automated dependency updates for Nix flakes
 //
 // Documentation: https://docs.renovatebot.com/configuration-options/
 // Schema: https://docs.renovatebot.com/config-presets/
@@ -62,31 +62,13 @@
       "schedule": ["after 7am every day"]
     },
 
-    // GROUP 4: GitHub Actions - Weekly Monday 7am
+    // GROUP 3: GitHub Actions - Weekly Monday 7am
     {
       "description": "GitHub Actions updates - weekly at 7am Monday",
       "matchManagers": ["github-actions"],
       "groupName": "github-actions",
       "schedule": ["after 7am on Monday"]
-    },
-
-    // SPECIAL: Node.js LTS tracking (no latest/current versions)
-    // NOTE: Currently inactive - Node.js is managed via nixpkgs flake input (not npm/github-releases)
-    // This rule would only apply if we tracked Node.js directly from npm registry or GitHub releases
-    // To enforce Node.js LTS versions, update nixpkgs to a version that includes the desired LTS
-    {
-      "description": "Node.js - track LTS versions only (inactive - see comment above)",
-      "matchDatasources": ["github-releases", "npm"],
-      "matchPackageNames": ["nodejs", "node"],
-      "allowedVersions": "20.x || 22.x",
-      // TODO(2026-10): Review Node.js LTS versions
-      // - Node.js 24.x becomes LTS in October 2026
-      // - Update allowedVersions to "20.x || 22.x || 24.x" when LTS is confirmed
-      // - Create GitHub issue to track this reminder
-      "automerge": false, // Always review Node.js updates
-      "enabled": false // Disabled: Node.js managed via nixpkgs flake, not direct npm/github-releases
-    },
-
+    }
   ],
 
   // Commit message formatting
@@ -111,29 +93,12 @@
   "dependencyDashboardHeader": "This issue tracks pending dependency updates managed by Renovate Bot.",
   "dependencyDashboardFooter": "For manual updates, use: `nix flake update` or trigger the deps-update-flake.yml workflow.",
 
-  // Post-upgrade tasks (run after updates)
-  "postUpgradeTasks": {
-    "commands": [
-      "nix flake check --no-build"
-    ],
-    "fileFilters": [
-      "flake.lock"
-    ],
-    "executionMode": "branch"
-  },
-
   // Vulnerability alerts
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"],
     "automerge": true
   },
-
-  // Ignore patterns
-  "ignoreDeps": [
-    // Add packages to ignore here (e.g., broken packages, intentional pins)
-    // Example: "superpowers-marketplace" // Archived, pinned intentionally
-  ],
 
   // Platform-specific settings
   "platformCommit": true // Use GitHub API for commits (enables signing)
