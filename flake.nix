@@ -227,6 +227,7 @@
           statix
           deadnix
           treefmt
+          yq-go
         ];
       };
     };

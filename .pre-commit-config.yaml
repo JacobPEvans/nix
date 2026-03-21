@@ -104,9 +104,8 @@ repos:
         files: '\.claude/settings(\.local)?\.json$'
         types: [json]
 
-      # File size check - DRY with GitHub Actions via shared config
-      # Config: scripts/workflows/file-size-config.sh (single source of truth)
-      # Limits: 6KB recommended, 12KB hard, 32KB extended
+      # File size check — reads .file-size.yml (same config as CI shared workflow)
+      # Defaults: 6KB warn, 12KB error, exempt=[CHANGELOG], extended=[32KB]
       - id: file-size-check
         name: File size check (6KB warn, 12KB fail)
         entry: scripts/workflows/check-file-sizes.sh

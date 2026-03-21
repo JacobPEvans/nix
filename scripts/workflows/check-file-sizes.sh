@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
-# Check file sizes against tier limits (bytes as token proxy)
-# Usage: ./scripts/workflows/check-file-sizes.sh [EXTENDED_LIST] [EXEMPT_LIST]
-# If no arguments are provided, reads from file-size-config.sh
-#
-# Limits: 6KB recommended, 12KB hard, 32KB extended
+# Check file sizes — reads .file-size.yml with same defaults as shared workflow.
+# Used by pre-commit hook. CI uses the shared workflow directly.
+# Requires: yq (yq-go in devShell)
 #
 # Exit codes:
 #   0 - All files within limits
@@ -11,17 +9,50 @@
 
 set -euo pipefail
 
-# Load config from shared file if no args provided
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ $# -eq 0 ]] && [[ -f "$SCRIPT_DIR/file-size-config.sh" ]]; then
-  # shellcheck source=file-size-config.sh
-  source "$SCRIPT_DIR/file-size-config.sh"
-  EXTENDED="${FILE_SIZE_EXTENDED:-}"
-  EXEMPT="${FILE_SIZE_EXEMPT:-}"
-else
-  EXTENDED="${1:-}"
-  EXEMPT="${2:-}"
+# Built-in defaults (must match shared workflow _file-size.yml)
+WARN=6144
+ERR=12288
+EXT_LIMIT=0
+DEFAULT_SCAN=".md .nix .tf"
+EXTENDED=" "
+EXEMPT=" CHANGELOG "
+
+# Find .file-size.yml by walking up from script location or cwd
+CONFIG=""
+for dir in "." "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"; do
+  if [[ -f "$dir/.file-size.yml" ]]; then
+    CONFIG="$dir/.file-size.yml"
+    break
+  fi
+done
+
+# Override from .file-size.yml if present
+if [[ -n "$CONFIG" ]]; then
+  WARN=$(yq ".defaults.warn // $WARN" "$CONFIG")
+  ERR=$(yq ".defaults.error // $ERR" "$CONFIG")
+  EXT_LIMIT=$(yq '.extended.limit // 0' "$CONFIG")
+
+  # scan: replaces defaults if specified
+  # tr -d '"' for compatibility with both kislyuk/yq and mikefarah/yq
+  cfg_scan=$(yq '.scan // [] | .[]' "$CONFIG" | tr -d '"' | tr '\n' ' ')
+  [ -n "$cfg_scan" ] && DEFAULT_SCAN="$cfg_scan"
+
+  # extended.files: additive to defaults
+  cfg_ext=$(yq '.extended.files // [] | .[]' "$CONFIG" | tr -d '"' | tr '\n' ' ')
+  [ -n "$cfg_ext" ] && EXTENDED="$EXTENDED$cfg_ext "
+
+  # exempt: additive to defaults (CHANGELOG always exempt)
+  cfg_exempt=$(yq '.exempt // [] | .[]' "$CONFIG" | tr -d '"' | tr '\n' ' ')
+  [ -n "$cfg_exempt" ] && EXEMPT="$EXEMPT$cfg_exempt "
 fi
+
+# Build find name arguments from scan extensions
+name_args=(); first=true
+for ext in $DEFAULT_SCAN; do
+  $first && first=false || name_args+=(-o)
+  name_args+=(-name "*${ext}")
+done
+
 ERRORS=0
 
 while IFS= read -r -d '' f; do
@@ -30,17 +61,15 @@ while IFS= read -r -d '' f; do
   kb=$((size / 1024))
 
   # Skip exempt files
-  if [[ " $EXEMPT " == *" $base "* ]]; then continue; fi
+  if [[ "$EXEMPT" == *" $base "* ]]; then continue; fi
 
-  # Determine limit and warning threshold
-  if [[ " $EXTENDED " == *" $base "* ]]; then
-    # Extended files: 32KB limit, no warning
-    limit=32768
+  # Determine limit: extended or standard
+  if [[ "$EXT_LIMIT" -gt 0 ]] && [[ "$EXTENDED" == *" $base "* ]]; then
+    limit=$EXT_LIMIT
     warn_threshold=$limit
   else
-    # Standard files: 12KB limit, 6KB warning
-    limit=12288
-    warn_threshold=6144
+    limit=$ERR
+    warn_threshold=$WARN
   fi
 
   # Report errors and warnings
@@ -51,6 +80,6 @@ while IFS= read -r -d '' f; do
     echo "::warning file=$f::$f is ${kb}KB (exceeds $((warn_threshold/1024))KB recommended)"
   fi
 # Note: -type f restricts to regular files and excludes symlinks intentionally.
-done < <(find . -path './.git' -prune -o \( -name "*.md" -o -name "*.nix" \) -type f -print0 | sort -z)
+done < <(find . -path './.git' -prune -o \( "${name_args[@]}" \) -type f -print0 | sort -z)
 
 exit $ERRORS
