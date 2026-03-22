@@ -112,8 +112,8 @@ Run each check below **with full output visible** (do NOT pipe to `/dev/null`). 
 
 Run these checks in order:
 
-1. **Format check**: `nix fmt`
-   - If files were reformatted, note which ones
+1. **Format check**: `nix fmt` (prints which files it reformats)
+   - Note any files that were changed
 2. **Static analysis**: `statix check`
    - Note any warnings with file:line references
 3. **Dead code detection**: `deadnix`
