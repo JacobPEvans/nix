@@ -108,7 +108,9 @@ Updated nixpkgs and other inputs across:
 
 ### 6. Run Quality Checks and Rebuild
 
-Run each check below **with full output visible** (do NOT pipe to `/dev/null`). For any check that reports issues, **briefly investigate**: read the output, identify which files/lines are affected, and note the likely cause.
+Run each check below **with full output visible** (do NOT pipe to `/dev/null`).
+For any check that reports issues, **briefly investigate**: read the output,
+identify which files/lines are affected, and note the likely cause.
 
 Run these checks in order:
 
@@ -124,6 +126,7 @@ Run these checks in order:
    - If this fails, read the last 50 lines of output and identify the failing derivation or activation step
 
 **Categorize each finding as:**
+
 - **Critical** — blocks the build or flake check (must fix before merge)
 - **Warning** — non-fatal lint/format issue (CI will also catch these)
 - **Info** — unexpected but harmless output worth noting
@@ -141,7 +144,9 @@ Run these checks in order:
    - For each finding, include: the check that found it, the file/line affected, and a brief assessment of what's wrong and likely cause
 
 2. Use `AskUserQuestion` to ask the user how to proceed:
-   - **Option 1: "Create a resolution plan"** — Enter plan mode. Create a plan with specific fixes for each issue, grouped by category. The user reviews the plan before any fixes are implemented.
+   - **Option 1: "Create a resolution plan"** — Enter plan mode. Create a plan
+     with specific fixes for each issue, grouped by category. The user reviews
+     the plan before any fixes are implemented.
    - **Option 2: "Continue to PR"** — Proceed to Step 8. Issues will be noted in the PR description and caught by CI.
 
 ### 8. Push and Create PR with Auto-Merge
@@ -186,4 +191,3 @@ Tell the user:
 
 **Note**: The worktree at `~/git/nix-darwin/chore/flake-update-YYYY-MM-DD/` will be automatically
 cleaned up by auto-claude after the PR is merged.
-
