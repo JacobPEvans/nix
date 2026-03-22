@@ -1,19 +1,24 @@
 ---
 description: Update all flake inputs and rebuild nix-darwin with issue reporting
 model: haiku
-allowed-tools: Read, Grep, Glob, Bash(nix flake *), Bash(nix fmt), Bash(git *), Bash(gh *), Bash(darwin-rebuild *), Bash(sudo darwin-rebuild *), AskUserQuestion
+allowed-tools: Read, Grep, Glob, Bash(nix flake *), Bash(nix fmt), Bash(statix *), Bash(deadnix), Bash(git *), Bash(gh *), Bash(darwin-rebuild *), Bash(sudo darwin-rebuild *), AskUserQuestion
 ---
 
 # Flake Rebuild
 
-Update all flake inputs and rebuild nix-darwin. Reports any warnings or errors encountered.
+**This is an EXECUTION command. When invoked, EXECUTE all steps below. Do not treat this as documentation to edit.**
+
+Update all flake inputs, rebuild nix-darwin, and create a PR. Reports any warnings or errors encountered.
+
+If the user passes additional arguments (e.g. "also update X" or "fix Y"), handle those AS PART OF the rebuild workflow — do not skip the rebuild itself.
 
 **IMPORTANT**: This command uses GitHub auto-merge. The PR will automatically merge when all required status checks pass.
 
 ## Critical Rules
 
-1. **NEVER commit to main** - Always create or switch to a feature branch FIRST
-2. **NEVER manually merge** - Use `gh pr merge --auto` to enable auto-merge
+1. **ALWAYS EXECUTE THE REBUILD** - This command exists to run, not to be read
+2. **NEVER commit to main** - Always create or switch to a feature branch FIRST
+3. **NEVER manually merge** - Use `gh pr merge --auto` to enable auto-merge
 
 ## Repository Structure
 
