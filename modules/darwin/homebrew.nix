@@ -182,14 +182,18 @@ in
 
   # (Re)create the brew autoupdate LaunchAgent plist on every darwin-rebuild switch,
   # ensuring the schedule and flags stay in sync with this configuration.
+  # Runs as $SUDO_USER because brew autoupdate creates a user-level LaunchAgent —
+  # running as root would install the plist for the wrong user.
   # Delete first because `brew autoupdate start` exits non-zero if already configured.
   system.activationScripts.postActivation.text = lib.mkAfter ''
     echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Configuring brew autoupdate (every 30h, --upgrade --greedy --cleanup)..."
-    if command -v brew &>/dev/null; then
-      brew autoupdate delete 2>/dev/null || true
-      brew autoupdate start ${toString autoupdateInterval} --upgrade --greedy --cleanup || true
+    if [ -z "$SUDO_USER" ]; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] SUDO_USER is not set — skipping brew autoupdate configuration"
+    elif ! sudo -u "$SUDO_USER" command -v brew &>/dev/null; then
+      echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] brew not found for $SUDO_USER — skipping autoupdate configuration"
     else
-      echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] brew not found — skipping autoupdate configuration"
+      sudo -u "$SUDO_USER" brew autoupdate delete 2>/dev/null || true
+      sudo -u "$SUDO_USER" brew autoupdate start ${toString autoupdateInterval} --upgrade --greedy --cleanup || true
     fi
   '';
 }
