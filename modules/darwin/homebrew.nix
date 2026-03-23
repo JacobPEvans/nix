@@ -189,7 +189,7 @@ in
     echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Configuring brew autoupdate (every 30h, --upgrade --greedy --cleanup)..."
     if [ -z "$SUDO_USER" ]; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] SUDO_USER is not set — skipping brew autoupdate configuration"
-    elif ! sudo -u "$SUDO_USER" command -v brew &>/dev/null; then
+    elif ! sudo -u "$SUDO_USER" sh -c 'command -v brew' &>/dev/null; then
       echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] brew not found for $SUDO_USER — skipping autoupdate configuration"
     else
       sudo -u "$SUDO_USER" brew autoupdate delete 2>/dev/null || true
