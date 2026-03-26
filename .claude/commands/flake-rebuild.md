@@ -68,7 +68,7 @@ This command is the **approved method** for updating flake inputs. It enforces:
 - Full quality validation (fmt, statix, deadnix, flake check, darwin-rebuild)
 - CI gating via auto-merge (all required status checks must pass)
 
-**WARNING**: Running raw `nix flake update && darwin-rebuild switch` outside this command
+**WARNING**: Running raw `nix flake update && sudo darwin-rebuild switch --flake .` outside this command
 bypasses all security checks. Always use `/flake-rebuild` for flake updates.
 
 ### 3. Update ALL Flake Inputs
