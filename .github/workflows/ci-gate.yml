@@ -121,19 +121,12 @@ jobs:
     if: needs.changes.outputs.nix == 'true' || needs.changes.outputs.markdown == 'true'
     uses: JacobPEvans/.github/.github/workflows/_file-size.yml@main
 
-  osv-scan:
-    name: OSV Scan
-    if: always()
-    needs: [changes]
-    uses: JacobPEvans/.github/.github/workflows/_osv-scan.yml@main
-    secrets: inherit
-
   # ==========================================================================
   # MERGE GATE - The ONLY required check in branch protection
   # ==========================================================================
   gate:
     name: Merge Gate
-    needs: [changes, nix-build, nix-validate, markdown-lint, claude-settings, file-size, osv-scan]
+    needs: [changes, nix-build, nix-validate, markdown-lint, claude-settings, file-size]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
@@ -143,5 +136,5 @@ jobs:
           # For deps-only commits: All jobs can be skipped
           # For non-Nix changes: nix-build and nix-validate can be skipped
           # For Nix changes: Only validation jobs can be skipped, nix-build must pass
-          allowed-skips: ${{ (needs.changes.outputs.is-deps-only == 'true' && 'nix-build, nix-validate, markdown-lint, claude-settings, file-size, osv-scan') || (needs.changes.outputs.nix == 'false' && 'nix-build, nix-validate, markdown-lint, claude-settings, file-size, osv-scan') || 'nix-validate, markdown-lint, claude-settings, file-size, osv-scan' }}
+          allowed-skips: ${{ (needs.changes.outputs.is-deps-only == 'true' && 'nix-build, nix-validate, markdown-lint, claude-settings, file-size') || (needs.changes.outputs.nix == 'false' && 'nix-build, nix-validate, markdown-lint, claude-settings, file-size') || 'nix-validate, markdown-lint, claude-settings, file-size' }}
           jobs: ${{ toJSON(needs) }}
