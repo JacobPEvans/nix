@@ -21,20 +21,18 @@
 #     Wallet is not actively used on this machine.
 #
 # Implementation:
-#   `launchctl disable` persists to /var/db/com.apple.xpc.launchd/disabled.501.plist
+#   `launchctl disable` persists to /var/db/com.apple.xpc.launchd/disabled.<uid>.plist
 #   and survives reboots. The activation script ensures the disabled state
 #   is maintained across darwin-rebuild switch operations.
 #
 # Re-enabling:
 #   Remove the service label from the list below and run:
-#     launchctl enable gui/501/<service-label>
+#     launchctl enable gui/$(id -u)/<service-label>
 #   Then reboot to allow the daemon to start.
 
 { lib, ... }:
 
 let
-  uid = "501";
-
   # Apple LaunchAgents to disable — each entry documents why
   disabledAgents = [
     {
@@ -57,12 +55,16 @@ in
     # Startup Tuning: Disable unnecessary Apple LaunchAgents
     # ====================================================================
     # See modules/darwin/startup-tuning.nix for documentation.
+    _st_uid=$(id -u)
     _st_disabled=0
     ${lib.concatMapStringsSep "\n" (agent: ''
-      if ! launchctl print-disabled "gui/${uid}" 2>/dev/null | grep -q '"${agent.label}" => disabled'; then
-        launchctl disable "gui/${uid}/${agent.label}" 2>/dev/null || true
-        echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Disabled ${agent.label} (${agent.reason})"
-        _st_disabled=$((_st_disabled + 1))
+      if ! /bin/launchctl print-disabled "gui/$_st_uid" 2>/dev/null | grep -q '"${agent.label}" => disabled'; then
+        if /bin/launchctl disable "gui/$_st_uid/${agent.label}"; then
+          echo "$(date '+%Y-%m-%d %H:%M:%S') [INFO] Disabled ${agent.label} (${agent.reason})"
+          _st_disabled=$((_st_disabled + 1))
+        else
+          echo "$(date '+%Y-%m-%d %H:%M:%S') [WARN] Failed to disable ${agent.label}" >&2
+        fi
       fi
     '') disabledAgents}
     if [ "$_st_disabled" -gt 0 ]; then
