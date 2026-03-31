@@ -57,7 +57,6 @@
         "JacobPEvans/nix-ai"
       ],
       "groupName": "ai-tools",
-      "automerge": true,
       "schedule": ["after 7am every day"]
     },
 
