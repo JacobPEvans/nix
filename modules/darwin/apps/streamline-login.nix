@@ -34,7 +34,7 @@ in
       '';
       example = [
         "com.google.keystone.agent.plist"
-        "screenpipe.plist"
+        "com.example.unwanted-updater.plist"
       ];
     };
 
@@ -83,12 +83,16 @@ in
 
       # --- Disable user-domain services ---
       ${lib.concatMapStringsSep "\n" (svc: ''
-        /bin/launchctl disable "gui/$_uid/${svc}" 2>/dev/null || true
+        if ! _err=$(/bin/launchctl disable "gui/$_uid/${svc}" 2>&1); then
+          echo "${ts} [WARN] Failed to disable ${svc}: $_err" >&2
+        fi
       '') cfg.disableUserServices}
 
       # --- Disable system-domain services ---
       ${lib.concatMapStringsSep "\n" (svc: ''
-        /bin/launchctl disable "system/${svc}" 2>/dev/null || true
+        if ! _err=$(/bin/launchctl disable "system/${svc}" 2>&1); then
+          echo "${ts} [WARN] Failed to disable system/${svc}: $_err" >&2
+        fi
       '') cfg.disableSystemServices}
 
       echo "${ts} [INFO] Streamline login complete ($_cleanup_count plists removed, ${toString (builtins.length cfg.disableUserServices)} user + ${toString (builtins.length cfg.disableSystemServices)} system services disabled)"
