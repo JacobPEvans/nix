@@ -60,11 +60,13 @@ else
   WS_FOOTPRINT="unknown"
 fi
 
-# === DISK I/O (NVMe saturation detection) ===
-# 1-second iostat sample: second row is the delta (KB/s during that second)
+# === DISK I/O (NVMe throughput) ===
+# macOS iostat -d -K outputs: KB/t (avg KB per transfer), tps, MB/s (combined throughput)
+# 1-second sample: second row is the interval delta
 DISK_IO=$(/usr/sbin/iostat -d -K -w 1 -c 2 2>/dev/null | /usr/bin/tail -1 || true)
-DISK_READ_KB=$(echo "$DISK_IO" | /usr/bin/awk '{print $1+0}' || echo 0)
-DISK_WRITE_KB=$(echo "$DISK_IO" | /usr/bin/awk '{print $2+0}' || echo 0)
+DISK_KB_PER_T=$(echo "$DISK_IO" | /usr/bin/awk '{printf "%.0f", $1+0}' || echo 0)
+DISK_TPS=$(echo "$DISK_IO" | /usr/bin/awk '{printf "%.0f", $2+0}' || echo 0)
+DISK_MBS=$(echo "$DISK_IO" | /usr/bin/awk '{printf "%.1f", $3+0}' || echo "0.0")
 
 # === SYSTEM STATE ===
 MEM_FREE=$(/usr/bin/memory_pressure 2>/dev/null | /usr/bin/grep "free percentage" | /usr/bin/grep -oE "[0-9]+%" | /usr/bin/head -1 || echo "unknown")
@@ -78,7 +80,6 @@ if [ "$PING_COUNT" -gt 0 ]; then SEVERITY="degraded"; fi
 if [ "$PING_COUNT" -gt 8 ]; then SEVERITY="critical"; fi
 if [ "$WS_TOTAL" -gt 3000 ]; then SEVERITY="overloaded"; fi
 if [ "$SYNC_TIMEOUTS" -gt 0 ]; then SEVERITY="FREEZE"; fi
-if [ "$DISK_READ_KB" -gt 500000 ] 2>/dev/null; then SEVERITY="io_saturated"; fi
 
 # === EMIT JSONL (safe via jq) ===
 jq -nc \
@@ -99,11 +100,12 @@ jq -nc \
   --arg wsfp "$WS_FOOTPRINT" \
   --arg mem "$MEM_FREE" \
   --arg swap "$SWAP_USED" \
-  --argjson dread "$DISK_READ_KB" \
-  --argjson dwrite "$DISK_WRITE_KB" \
-  '{timestamp:$ts,local_time:$lt,severity:$sev,sync_timeouts:$sync,sync_surfaces:$surf,datagram_clears:$dgram,ping_timeouts:$pings,ping_pids:$ppids,ws_events_total:$ws,sharing_contexts:$share,invalid_window:$inv,conn_debug:$conn,brightness:$bright,gpu_mem:$gpu,ws_footprint:$wsfp,mem_free_pct:$mem,swap_used_mb:$swap,disk_read_kb:$dread,disk_write_kb:$dwrite}' \
+  --argjson dkbt "$DISK_KB_PER_T" \
+  --argjson dtps "$DISK_TPS" \
+  --arg dmbs "$DISK_MBS" \
+  '{timestamp:$ts,local_time:$lt,severity:$sev,sync_timeouts:$sync,sync_surfaces:$surf,datagram_clears:$dgram,ping_timeouts:$pings,ping_pids:$ppids,ws_events_total:$ws,sharing_contexts:$share,invalid_window:$inv,conn_debug:$conn,brightness:$bright,gpu_mem:$gpu,ws_footprint:$wsfp,mem_free_pct:$mem,swap_used_mb:$swap,disk_kb_per_t:$dkbt,disk_tps:$dtps,disk_mbs:$dmbs}' \
   >> "$LOG_FILE"
 
 if [ "$SEVERITY" != "normal" ]; then
-  echo "$LOCAL_TS [$SEVERITY] sync=$SYNC_TIMEOUTS pings=$PING_COUNT ws=$WS_TOTAL disk_r=${DISK_READ_KB}KB disk_w=${DISK_WRITE_KB}KB ws_fp=$WS_FOOTPRINT mem=$MEM_FREE" >&2
+  echo "$LOCAL_TS [$SEVERITY] sync=$SYNC_TIMEOUTS pings=$PING_COUNT ws=$WS_TOTAL disk=${DISK_MBS}MB/s ws_fp=$WS_FOOTPRINT mem=$MEM_FREE" >&2
 fi
