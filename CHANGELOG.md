@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.1](https://github.com/JacobPEvans/nix-darwin/compare/v1.18.0...v1.18.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* **startup:** consolidate startup-tuning into streamline-login ([#935](https://github.com/JacobPEvans/nix-darwin/issues/935)) ([644c909](https://github.com/JacobPEvans/nix-darwin/commit/644c9095cb261f53fc087072c8bbfa3b32950d6f))
+
 ## [1.18.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.17.0...v1.18.0) (2026-03-30)
 
 
