@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.18.2...v1.19.0) (2026-03-31)
+
+
+### Features
+
+* **monitoring:** add WindowServer performance monitor LaunchDaemon ([dbedd55](https://github.com/JacobPEvans/nix-darwin/commit/dbedd550da186f8ee3711d3c42647ea23dcb8922))
+
 ## [1.18.2](https://github.com/JacobPEvans/nix-darwin/compare/v1.18.1...v1.18.2) (2026-03-31)
 
 
