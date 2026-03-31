@@ -21,56 +21,61 @@ let
 
   monitorScript = pkgs.writeShellApplication {
     name = "ws-monitor";
-    runtimeInputs = [ ];
+    runtimeInputs = with pkgs; [ jq ];
     text = ''
       LOG_DIR="${logDir}"
       LOG_FILE="$LOG_DIR/ws-monitor.jsonl"
-      mkdir -p "$LOG_DIR"
-      TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
-      LOCAL_TS=$(date '+%Y-%m-%d %H:%M:%S')
+      /bin/mkdir -p "$LOG_DIR"
+      TS=$(/bin/date -u '+%Y-%m-%dT%H:%M:%SZ')
+      LOCAL_TS=$(/bin/date '+%Y-%m-%d %H:%M:%S')
 
       # Rotate log at 50MB
       if [ -f "$LOG_FILE" ] && [ "$(/usr/bin/stat -f%z "$LOG_FILE" 2>/dev/null || echo 0)" -gt 52428800 ]; then
-        mv "$LOG_FILE" "$LOG_FILE.$(date '+%Y%m%d%H%M%S').bak"
+        mv "$LOG_FILE" "$LOG_FILE.$(/bin/date '+%Y%m%d%H%M%S').bak"
       fi
 
+      # Single log show call — extract all WindowServer events once (16s window for 15s interval)
+      WS_LOG=$(/usr/bin/log show --last 16s --predicate 'process == "WindowServer"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" || true)
+
+      # Single log show call for sync timeouts (separate predicate for non-WS processes)
+      SYNC_LOG=$(/usr/bin/log show --last 16s --predicate 'eventMessage contains "synchronize timed out"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" || true)
+
       # === FREEZE DETECTION ===
-      SYNC_OUTPUT=$(/usr/bin/log show --last 20s --predicate 'eventMessage contains "synchronize timed out"' --style compact 2>&1 | grep -v "Filtering\|Timestamp")
-      SYNC_TIMEOUTS=$(echo "$SYNC_OUTPUT" | grep -c "synchronize timed out" 2>/dev/null || echo 0)
-      SYNC_SURFACES=$(echo "$SYNC_OUTPUT" | grep -oE "for [a-f0-9]+" | sort -u | sed 's/for //' | tr '\n' ',' | sed 's/,$//')
-      DATAGRAM_CLEARS=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer" AND eventMessage contains "Clearing datagram buffer"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" | wc -l | tr -d ' ')
+      SYNC_TIMEOUTS=$(echo "$SYNC_LOG" | grep -c "synchronize timed out" || echo 0)
+      SYNC_SURFACES=$(echo "$SYNC_LOG" | grep -oE "for [a-f0-9]+" | sort -u | sed 's/for //' | tr '\n' ',' | sed 's/,$//' || true)
+      DATAGRAM_CLEARS=$(echo "$WS_LOG" | grep -c "Clearing datagram buffer" || echo 0)
 
       # === WINDOWSERVER HEALTH ===
-      PING_OUTPUT=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer" AND eventMessage contains "ping"' --style compact 2>&1 | grep -v "Filtering\|Timestamp")
-      PING_COUNT=$(echo "$PING_OUTPUT" | grep -c "failed to act" 2>/dev/null || echo 0)
-      PING_PIDS=$(echo "$PING_OUTPUT" | grep -oE "pid [0-9]+" | sort -u | sed 's/pid //' | tr '\n' ',' | sed 's/,$//')
-      WS_TOTAL=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" | wc -l | tr -d ' ')
-      INVALID=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer" AND eventMessage contains "Invalid window"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" | wc -l | tr -d ' ')
+      PING_COUNT=$(echo "$WS_LOG" | grep -c "failed to act" || echo 0)
+      PING_PIDS=$(echo "$WS_LOG" | grep "failed to act" | grep -oE "pid [0-9]+" | sort -u | sed 's/pid //' | tr '\n' ',' | sed 's/,$//' || true)
+      WS_TOTAL=$(echo "$WS_LOG" | wc -l | tr -d ' ')
+      INVALID=$(echo "$WS_LOG" | grep -c "Invalid window" || echo 0)
 
       # === SCREEN CAPTURE ACTIVITY ===
-      SHARING=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer" AND eventMessage contains "Creating sharing"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" | wc -l | tr -d ' ')
+      SHARING=$(echo "$WS_LOG" | grep -c "Creating sharing" || echo 0)
 
       # === GPU & COMPOSITOR ===
-      GPU_IOACCELERATOR=$(vm_stat 2>/dev/null | grep "IOAccelerator" | awk '{print $NF}' | tr -d '.')
-      if [ -n "$GPU_IOACCELERATOR" ]; then
-        GPU_MEM="$((GPU_IOACCELERATOR * 16384 / 1048576)) MB"
+      PAGE_SIZE=$(sysctl -n hw.pagesize 2>/dev/null || echo 16384)
+      GPU_PAGES=$(vm_stat 2>/dev/null | grep "IOAccelerator" | awk '{print $NF}' | tr -d '.' || true)
+      if [ -n "$GPU_PAGES" ]; then
+        GPU_MEM="$((GPU_PAGES * PAGE_SIZE / 1048576)) MB"
       else
         GPU_MEM="unknown"
       fi
 
       # WindowServer footprint (root can read system process memory)
-      WS_PID=$(pgrep -x WindowServer 2>/dev/null | head -1)
+      WS_PID=$(pgrep -x WindowServer 2>/dev/null | head -1 || true)
       if [ -n "$WS_PID" ]; then
-        WS_FOOTPRINT=$(/usr/bin/footprint -p "$WS_PID" 2>/dev/null | grep "phys_footprint:" | grep -oE "[0-9]+ [A-Z]+" | head -1)
+        WS_FOOTPRINT=$(/usr/bin/footprint -p "$WS_PID" 2>/dev/null | grep "phys_footprint:" | grep -oE "[0-9]+ [A-Z]+" | head -1 || echo "unknown")
       else
         WS_FOOTPRINT="unknown"
       fi
 
       # === SYSTEM STATE ===
-      MEM_FREE=$(memory_pressure 2>/dev/null | grep "free percentage" | grep -oE "[0-9]+%" | head -1)
-      SWAP_USED=$(sysctl -n vm.swapusage 2>/dev/null | grep -oE "used = [0-9.]+" | grep -oE "[0-9.]+")
-      CONN_DEBUG=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer" AND eventMessage contains "ConnectionDebug"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" | wc -l | tr -d ' ')
-      BRIGHTNESS=$(/usr/bin/log show --last 20s --predicate 'process == "WindowServer" AND eventMessage contains "commitBrightness"' --style compact 2>&1 | grep -v "Filtering\|Timestamp" | wc -l | tr -d ' ')
+      MEM_FREE=$(memory_pressure 2>/dev/null | grep "free percentage" | grep -oE "[0-9]+%" | head -1 || echo "unknown")
+      SWAP_USED=$(sysctl -n vm.swapusage 2>/dev/null | grep -oE "used = [0-9.]+" | grep -oE "[0-9.]+" || echo "0")
+      CONN_DEBUG=$(echo "$WS_LOG" | grep -c "ConnectionDebug" || echo 0)
+      BRIGHTNESS=$(echo "$WS_LOG" | grep -c "commitBrightness" || echo 0)
 
       # === SEVERITY ===
       SEVERITY="normal"
@@ -79,9 +84,27 @@ let
       if [ "$WS_TOTAL" -gt 3000 ]; then SEVERITY="overloaded"; fi
       if [ "$SYNC_TIMEOUTS" -gt 0 ]; then SEVERITY="FREEZE"; fi
 
-      # === EMIT JSONL ===
-      printf '{"timestamp":"%s","local_time":"%s","severity":"%s","sync_timeouts":%s,"sync_surfaces":"%s","datagram_clears":%s,"ping_timeouts":%s,"ping_pids":"%s","ws_events_total":%s,"sharing_contexts":%s,"invalid_window":%s,"conn_debug":%s,"brightness":%s,"gpu_mem":"%s","ws_footprint":"%s","mem_free_pct":"%s","swap_used_mb":"%s"}\n' \
-        "$TS" "$LOCAL_TS" "$SEVERITY" "$SYNC_TIMEOUTS" "$SYNC_SURFACES" "$DATAGRAM_CLEARS" "$PING_COUNT" "$PING_PIDS" "$WS_TOTAL" "$SHARING" "$INVALID" "$CONN_DEBUG" "$BRIGHTNESS" "$GPU_MEM" "$WS_FOOTPRINT" "$MEM_FREE" "$SWAP_USED" >> "$LOG_FILE"
+      # === EMIT JSONL (safe via jq) ===
+      jq -nc \
+        --arg ts "$TS" \
+        --arg lt "$LOCAL_TS" \
+        --arg sev "$SEVERITY" \
+        --argjson sync "$SYNC_TIMEOUTS" \
+        --arg surf "$SYNC_SURFACES" \
+        --argjson dgram "$DATAGRAM_CLEARS" \
+        --argjson pings "$PING_COUNT" \
+        --arg ppids "$PING_PIDS" \
+        --argjson ws "$WS_TOTAL" \
+        --argjson share "$SHARING" \
+        --argjson inv "$INVALID" \
+        --argjson conn "$CONN_DEBUG" \
+        --argjson bright "$BRIGHTNESS" \
+        --arg gpu "$GPU_MEM" \
+        --arg wsfp "$WS_FOOTPRINT" \
+        --arg mem "$MEM_FREE" \
+        --arg swap "$SWAP_USED" \
+        '{timestamp:$ts,local_time:$lt,severity:$sev,sync_timeouts:$sync,sync_surfaces:$surf,datagram_clears:$dgram,ping_timeouts:$pings,ping_pids:$ppids,ws_events_total:$ws,sharing_contexts:$share,invalid_window:$inv,conn_debug:$conn,brightness:$bright,gpu_mem:$gpu,ws_footprint:$wsfp,mem_free_pct:$mem,swap_used_mb:$swap}' \
+        >> "$LOG_FILE"
 
       if [ "$SEVERITY" != "normal" ]; then
         echo "$LOCAL_TS [$SEVERITY] sync=$SYNC_TIMEOUTS surfaces=$SYNC_SURFACES pings=$PING_COUNT ws=$WS_TOTAL gpu=$GPU_MEM ws_fp=$WS_FOOTPRINT mem=$MEM_FREE" >&2
@@ -90,6 +113,11 @@ let
   };
 in
 {
+  # Ensure log directory exists before launchd tries to open StandardErrorPath
+  system.activationScripts.postActivation.text = lib.mkAfter ''
+    /bin/mkdir -p "${logDir}"
+  '';
+
   # System-level LaunchDaemon — runs as root, sees all system logs and process state
   launchd.daemons.ws-monitor = {
     serviceConfig = {
