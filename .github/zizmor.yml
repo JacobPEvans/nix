@@ -73,7 +73,6 @@ rules:
     ignore:
       - _claude-settings.yml
       - _nix-build.yml
-      - ai-openhands.yml
       - ci-auto-claude.yml
       - ci-eol-check.yml
       - ci-file-length.yml
