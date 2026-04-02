@@ -57,7 +57,7 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Run OpenHands Agent
-        uses: xinbenlv/openhands-action@v1.0.1-rc3
+        uses: xinbenlv/openhands-action@3ad1d1a274c5eba6f53a177140cc8ea08b92c33e # v1.0.1-rc3
         with:
           prompt: |
             You are an autonomous AI agent working on issue #${{ steps.issue.outputs.number }}.
