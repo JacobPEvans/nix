@@ -558,11 +558,11 @@
         "wakatime": "wakatime"
       },
       "locked": {
-        "lastModified": 1775175826,
-        "narHash": "sha256-gZMMx+rR5AIHYwawCVDi4taKqhZaoMvmSfSssGnqQvY=",
+        "lastModified": 1775219277,
+        "narHash": "sha256-w2L8uRlA8WBBn7pObGAm3mCh+wpvCf6RLdyBJMdSxAY=",
         "owner": "JacobPEvans",
         "repo": "nix-ai",
-        "rev": "421a3315f4d9f4d0b40c28438d9e32d3e4812768",
+        "rev": "8f943763df53578652394529174b80cefdd72ad6",
         "type": "github"
       },
       "original": {
