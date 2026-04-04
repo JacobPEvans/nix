@@ -10,7 +10,12 @@
 #
 # Log: /var/log/ws-monitor/ws-monitor.jsonl
 # Query: jq 'select(.severity != "normal")' /var/log/ws-monitor/ws-monitor.jsonl
-set -euo pipefail
+# writeShellApplication injects set -euo pipefail in the Nix wrapper.
+# Undo -e and pipefail: grep -c returns exit 1 on zero matches, which
+# causes the script to abort before writing output. Every command already
+# handles its own errors via || echo 0 or || true.
+set +e
+set +o pipefail
 
 LOG_DIR="/var/log/ws-monitor"
 LOG_FILE="$LOG_DIR/ws-monitor.jsonl"
