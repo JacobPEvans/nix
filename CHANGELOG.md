@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.21.1](https://github.com/JacobPEvans/nix-darwin/compare/v1.21.0...v1.21.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* **monitoring:** ensure ws-monitor produces output on every run ([#956](https://github.com/JacobPEvans/nix-darwin/issues/956)) ([07e5426](https://github.com/JacobPEvans/nix-darwin/commit/07e5426dd96b614d6496aca79197193db8fea225))
+* remove claude-review workflow, migrate review-deps to OpenRouter ([#957](https://github.com/JacobPEvans/nix-darwin/issues/957)) ([4df33bb](https://github.com/JacobPEvans/nix-darwin/commit/4df33bb2dc36b8188581090b889a5226c61664ce))
+
 ## [1.21.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.20.2...v1.21.0) (2026-04-02)
 
 
