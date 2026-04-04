@@ -193,6 +193,7 @@ via LaunchAgent) always installs the latest version rather than deferring to bui
 | claude-code | yes | Anthropic Claude Code CLI |
 | codex | yes | OpenAI Codex CLI (moved from nixpkgs; migrated from homebrew/core to cask) |
 | antigravity | yes | Google AI-powered IDE (Gemini 3) |
+| lm-studio | yes | Local LLM inference UI + OpenAI-compatible API server |
 | postman | yes | API development environment (moved from nixpkgs — version lag caused schema mismatch) |
 | orbstack | yes | Container/Linux VM runtime — cask for TCC permission stability |
 | microsoft-teams | yes | Teams desktop app (not available on Mac App Store) |
