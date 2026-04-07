@@ -7,7 +7,7 @@
 
 stdenvNoCC.mkDerivation rec {
   pname = "ClaudeBar";
-  # renovate: datasource=github-releases depName=tddworks/ClaudeBar
+  # managed by: nix-update (deps-update-flake.yml)
   version = "0.4.57";
 
   src = fetchurl {
