@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.21.3...v1.22.0) (2026-04-07)
+
+
+### Features
+
+* add AI merge gate ([#966](https://github.com/JacobPEvans/nix-darwin/issues/966)) ([f8d19ed](https://github.com/JacobPEvans/nix-darwin/commit/f8d19edee02ce42f3f1f82d5c377807f033a7742))
+
 ## [1.21.3](https://github.com/JacobPEvans/nix-darwin/compare/v1.21.2...v1.21.3) (2026-04-07)
 
 
