@@ -105,7 +105,7 @@
 
       # macOS-specific shell init (appended after cross-platform initContent from nix-home)
       initContent = lib.mkAfter ''
-        # --- API Keys (from macOS Keychain) ---
+        # --- Keychain helper (persists for runtime token switching) ---
 
         _get_keychain_secret() {
           # Fetch a secret from the macOS Keychain by service name.
@@ -121,6 +121,8 @@
         _KC_AI_ACCOUNT='${userConfig.keychain.aiAccount}'
         _KC_AI_DB='${userConfig.keychain.aiDb}'
 
+        # --- API Keys (from macOS Keychain) ---
+
         # GitHub - for github@claude-plugins-official MCP server
         export GITHUB_PERSONAL_ACCESS_TOKEN=''${GITHUB_PERSONAL_ACCESS_TOKEN:-"$(_get_keychain_secret 'github-pat' "$_KC_USER")"}
 
@@ -130,8 +132,22 @@
         # HuggingFace - for huggingface MCP server and hf CLI (model downloads)
         export HF_TOKEN=''${HF_TOKEN:-"$(_get_keychain_secret 'HF_TOKEN' "$_KC_AI_ACCOUNT" "$_KC_AI_DB")"}
 
-        unset -f _get_keychain_secret
-        unset _KC_USER _KC_AI_ACCOUNT _KC_AI_DB
+        unset -f _get_keychain_secret  # No longer needed after init
+        unset _KC_USER _KC_AI_DB  # _KC_AI_ACCOUNT persists for runtime gh-token switching
+
+        # --- GitHub Token Context Switching ---
+        _GH_SVC_RESTRICTED='${userConfig.github.tokens.restricted.service}'
+        _GH_DB_RESTRICTED='${userConfig.github.tokens.restricted.keychain}'
+        _GH_SVC_PRIVATE='${userConfig.github.tokens.private.service}'
+        _GH_DB_PRIVATE='${userConfig.github.tokens.private.keychain}'
+        _GH_SVC_ADMIN='${userConfig.github.tokens.admin.service}'
+        _GH_DB_ADMIN='${userConfig.github.tokens.admin.keychain}'
+
+        source ${./gh-token-switching.zsh}
+
+        # Default to lowest privilege on every new shell
+        unset GITHUB_TOKEN
+        gh-restricted
 
         # --- macOS setup ---
         source ${./macos-setup.zsh}
