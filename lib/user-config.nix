@@ -116,6 +116,29 @@ in
   };
 
   # ==========================================================================
+  # GitHub Token Configuration
+  # ==========================================================================
+  github = {
+    tokens = {
+      # Tiered GitHub PATs — each tier specifies its keychain service + DB.
+      # Restricted uses the unrestricted automation keychain (AI can access freely).
+      # Private/Admin use a password-protected keychain (requires user unlock).
+      restricted = {
+        service = "GH_PAT_RESTRICTED";
+        keychain = "automation.keychain-db";
+      };
+      private = {
+        service = "GH_PAT_PRIVATE";
+        keychain = "elevate-access.keychain-db";
+      };
+      admin = {
+        service = "GH_PAT_ADMIN";
+        keychain = "elevate-access.keychain-db";
+      };
+    };
+  };
+
+  # ==========================================================================
   # Nix/NixOS Configuration
   # ==========================================================================
   nix = {
