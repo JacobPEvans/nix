@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.23.0...v1.24.0) (2026-04-10)
+
+
+### Features
+
+* add libreoffice homebrew cask for document-skills ([#974](https://github.com/JacobPEvans/nix-darwin/issues/974)) ([8fb828f](https://github.com/JacobPEvans/nix-darwin/commit/8fb828ff4a5cfbb0d1ac075a39dfc52392c7164d))
+
 ## [1.23.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.22.1...v1.23.0) (2026-04-10)
 
 
