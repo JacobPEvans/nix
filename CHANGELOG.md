@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.23.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.22.1...v1.23.0) (2026-04-10)
+
+
+### Features
+
+* tiered GitHub token context switching ([#971](https://github.com/JacobPEvans/nix-darwin/issues/971)) ([cf83afc](https://github.com/JacobPEvans/nix-darwin/commit/cf83afc16c037416c8ecca1fda9c3380021ab9ad))
+
 ## [1.22.1](https://github.com/JacobPEvans/nix-darwin/compare/v1.22.0...v1.22.1) (2026-04-08)
 
 
