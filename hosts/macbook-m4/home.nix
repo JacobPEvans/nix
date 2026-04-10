@@ -132,7 +132,8 @@
         # HuggingFace - for huggingface MCP server and hf CLI (model downloads)
         export HF_TOKEN=''${HF_TOKEN:-"$(_get_keychain_secret 'HF_TOKEN' "$_KC_AI_ACCOUNT" "$_KC_AI_DB")"}
 
-        unset _KC_USER  # Only user account var cleaned up; AI vars persist for switching
+        unset -f _get_keychain_secret  # No longer needed after init
+        unset _KC_USER _KC_AI_DB  # _KC_AI_ACCOUNT persists for runtime gh-token switching
 
         # --- GitHub Token Context Switching ---
         _GH_SVC_RESTRICTED='${userConfig.github.tokens.restricted.service}'

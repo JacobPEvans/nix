@@ -16,16 +16,12 @@
 # is available in our Determinate Nix version.
 
 _final: prev:
-
-if prev.stdenv.isDarwin then
-  {
-    direnv = prev.direnv.overrideAttrs (_: {
-      checkPhase = ''
-        runHook preCheck
-        make test-go test-bash test-zsh
-        runHook postCheck
-      '';
-    });
-  }
-else
-  { }
+prev.lib.optionalAttrs prev.stdenv.isDarwin {
+  direnv = prev.direnv.overrideAttrs (_: {
+    checkPhase = ''
+      runHook preCheck
+      make test-go test-bash test-zsh
+      runHook postCheck
+    '';
+  });
+}
