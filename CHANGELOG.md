@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.1](https://github.com/JacobPEvans/nix-darwin/compare/v1.26.0...v1.26.1) (2026-04-11)
+
+
+### Bug Fixes
+
+* **agents:** drop "quartet" and "all four repos" language ([#983](https://github.com/JacobPEvans/nix-darwin/issues/983)) ([6daaf5f](https://github.com/JacobPEvans/nix-darwin/commit/6daaf5f48f7235d8b4138b9ccfb4231b0c8b5f80))
+
 ## [1.26.0](https://github.com/JacobPEvans/nix-darwin/compare/v1.25.0...v1.26.0) (2026-04-11)
 
 
