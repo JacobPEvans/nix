@@ -149,6 +149,11 @@
         unset GITHUB_TOKEN
         gh-restricted
 
+        # --- Custom-auth launchers for `claude` ---
+        # Defines av-claude <profile>, gh-claude-restricted, gh-claude-private,
+        # gh-claude-admin. Depends on the gh-* functions sourced above.
+        source ${./claude-launchers.zsh}
+
         # --- macOS setup ---
         source ${./macos-setup.zsh}
       '';
