@@ -114,7 +114,7 @@ Source: nix-home (`home.packages` via flake input)
 
 ### Visualization & Diagramming
 
-On-demand via `nix run nixpkgs#d2` / `nix run nixpkgs#nodePackages.mermaid-cli` — not installed globally.
+On-demand via `nix run nixpkgs#d2` and `nix run nixpkgs#mermaid-cli` — not installed globally.
 
 ### Python
 
