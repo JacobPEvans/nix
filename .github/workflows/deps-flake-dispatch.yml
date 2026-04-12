@@ -22,6 +22,10 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: flake-dispatch-${{ github.event.client_payload.input_name }}
+  cancel-in-progress: true
+
 jobs:
   update-input:
     name: Update ${{ github.event.client_payload.input_name }}
@@ -31,19 +35,6 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - name: Validate payload
-        env:
-          INPUT_NAME: ${{ github.event.client_payload.input_name }}
-        run: |
-          if [[ -z "$INPUT_NAME" ]]; then
-            echo "::error::Missing client_payload.input_name"
-            exit 1
-          fi
-          if [[ ! "$INPUT_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-            echo "::error::Invalid input name: $INPUT_NAME"
-            exit 1
-          fi
-
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v3
@@ -55,6 +46,13 @@ jobs:
         uses: actions/checkout@v6
         with:
           token: ${{ steps.app-token.outputs.token }}
+
+      - name: Validate payload
+        env:
+          INPUT_NAME: ${{ github.event.client_payload.input_name }}
+          VERSION: ${{ github.event.client_payload.version }}
+          SOURCE_REPO: ${{ github.event.client_payload.source_repo }}
+        run: bash .github/scripts/validate-dispatch-payload.sh
 
       - name: Install Nix
         uses: DeterminateSystems/determinate-nix-action@v3
