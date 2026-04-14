@@ -4,7 +4,8 @@
 tabs -2
 
 # Homebrew: update + doctor once per day; outdated versions on every start.
-_brew_stamp="${TMPDIR:-/tmp}/.brew_daily_$(date +%Y%m%d)"
+_brew_dir="${TMPDIR:-/tmp}/brew" && mkdir -p "$_brew_dir"
+_brew_stamp="$_brew_dir/daily_$(date +%Y%m%d)"
 if [[ ! -f "$_brew_stamp" ]]; then
   touch "$_brew_stamp"
   brew update
