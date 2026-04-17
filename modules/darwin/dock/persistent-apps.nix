@@ -34,7 +34,7 @@ in
 
       # Knowledge & Notes (after Toggl)
       "/Applications/Obsidian.app"
-      "/Applications/Granola.app" # AI meeting notes (manual install)
+      "/Applications/Granola.app" # AI meeting notes (homebrew cask)
 
       # Development & Tools (after Toggl)
       "${homeDir}/Applications/Home Manager Apps/Ghostty.app"

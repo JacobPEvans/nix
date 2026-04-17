@@ -178,6 +178,7 @@ via LaunchAgent) always installs the latest version rather than deferring to bui
 
 | Package | greedy | Description |
 |---------|--------|-------------|
+| granola | yes | AI-powered meeting notes |
 | obsidian | yes | Knowledge base / note-taking |
 | shortwave | yes | AI-powered email client |
 | wispr-flow | yes | AI-powered voice dictation |

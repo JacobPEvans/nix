@@ -94,6 +94,10 @@ in
         greedy = true;
       } # Knowledge base / note-taking
       {
+        name = "granola";
+        greedy = true;
+      } # AI-powered meeting notes
+      {
         name = "shortwave";
         greedy = true;
       } # AI-powered email client
