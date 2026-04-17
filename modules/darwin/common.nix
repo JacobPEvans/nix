@@ -10,6 +10,7 @@ in
   imports = [
     ./apps
     ./dock
+  ] ++ (if builtins.pathExists ./local.nix then [ ./local.nix ] else []) ++ [
     ./energy.nix
     ./file-extensions.nix
     ./finder.nix
