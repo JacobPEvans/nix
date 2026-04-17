@@ -148,12 +148,13 @@ Source: `hosts/macbook-m4/home.nix`
 
 | Package | Description |
 |---------|-------------|
-| ghostty-bin | Terminal emulator |
-| rapidapi | Full-featured HTTP client |
-| code-cursor | Cursor AI IDE (VS Code fork) |
 | chatgpt | OpenAI ChatGPT desktop app |
 | claudebar | Menu bar AI coding assistant quota monitoring |
+| code-cursor | Cursor AI IDE (VS Code fork) |
+| discord | Voice/video chat (copyApps for TCC camera/mic stability) |
 | ffmpeg | Audio/video recording, conversion, streaming |
+| ghostty-bin | Terminal emulator |
+| rapidapi | Full-featured HTTP client |
 
 ---
 
