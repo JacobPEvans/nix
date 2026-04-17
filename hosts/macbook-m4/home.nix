@@ -191,6 +191,7 @@
       claudebar # Menu bar app for AI coding assistant quota monitoring
 
       # Communication
+      discord # Voice/video chat - copyApps gives TCC-stable path for camera/mic permissions
       # zoom-us # DISABLED - no longer using Zoom
 
       # CLI / Media tools (non-GUI, no .app bundle)

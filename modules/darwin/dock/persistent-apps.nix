@@ -10,7 +10,7 @@
 #   - Manual installs: /Applications/
 #   - User apps: ~/Applications/
 #
-# NOTE: TCC-sensitive apps (Ghostty, VS Code) use copyApps (migrated
+# NOTE: TCC-sensitive apps (Ghostty, VS Code, Discord) use copyApps (migrated
 # from mac-app-util trampolines) for stable paths that persist macOS TCC
 # permissions across darwin-rebuild.
 
@@ -34,29 +34,28 @@ in
       "/System/Applications/Reminders.app"
       "/System/Applications/Calendar.app"
       "/Applications/Toggl Track.app"
-      "/Applications/Microsoft Teams.app"
-      "/Applications/Microsoft Outlook.app"
+
+      # Knowledge & Notes (after Toggl)
+      "/Applications/Obsidian.app"
+      "/Applications/Granola.app" # AI meeting notes (manual install)
+
+      # Development & Tools (after Toggl)
+      "${homeDir}/Applications/Home Manager Apps/Ghostty.app"
+      "${homeDir}/Applications/Home Manager Apps/Visual Studio Code.app"
 
       # Communication
       "/Applications/Shortwave.app" # AI-powered email client (homebrew cask)
+      "/Applications/Microsoft Outlook.app"
+      "/Applications/Microsoft Teams.app"
       "/Applications/Slack.app"
-      "/System/Applications/Messages.app"
       "/Applications/zoom.us.app" # Manual install - now at system level
-      "/Applications/Webex.app"
+      "${homeDir}/Applications/Home Manager Apps/Discord.app" # nixpkgs, copyApps for TCC stability
+      "/System/Applications/Messages.app"
 
       # AI Assistants
       "/Applications/Claude.app" # Anthropic Claude desktop app (homebrew cask)
       "${homeDir}/Applications/Gemini.app" # Google Gemini AI assistant
       "/Applications/Antigravity.app" # Google's AI-powered IDE (homebrew cask)
-
-      # Knowledge & Notes
-      "/Applications/Obsidian.app"
-      # Note: Additional note-taking apps may be installed locally
-
-      # Development & Tools
-      "${homeDir}/Applications/Home Manager Apps/Visual Studio Code.app"
-      "${homeDir}/Applications/Home Manager Apps/Ghostty.app"
-      "/Applications/OrbStack.app"
 
       # Browsers
       "/Applications/Safari.app"
