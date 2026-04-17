@@ -8,7 +8,10 @@
 _:
 
 {
-  imports = [ ./persistent-apps.nix ];
+  imports = [
+    ./persistent-apps.nix
+    ./spacers.nix
+  ];
 
   system.defaults.dock = {
     # ==========================================================================
