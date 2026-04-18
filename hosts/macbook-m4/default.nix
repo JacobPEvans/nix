@@ -76,7 +76,7 @@ in
     # Cribl Cloud manages all runtime configuration after enrollment.
     cribl-edge = {
       enable = true;
-      version = "4.17.0-7e952fa7";
+      version = "4.17.0-7e952fa7"; # cribl-edge
       cloud = {
         host = "main-stoic-kaminsky-d9o9i3r.cribl.cloud";
         group = "default_fleet";
