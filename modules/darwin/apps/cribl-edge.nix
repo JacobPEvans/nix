@@ -154,14 +154,15 @@ in
             _major="${cfg.version}"
             _major="''${_major%%-*}"
             _pkg_url="https://cdn.cribl.io/dl/$_major/cribl-${cfg.version}-darwin-universal.pkg"
-            _pkg="/tmp/cribl-${cfg.version}.pkg"
+            _pkg=$(mktemp /tmp/cribl-${cfg.version}.XXXXXX.pkg)
+            trap 'rm -f "$_pkg" "$_pkg.md5"' EXIT
 
             echo "${ts} [INFO] Installing Cribl Edge ${cfg.version}..."
-            if ! curl -Lso "$_pkg" "$_pkg_url"; then
+            if ! curl -LSsfo "$_pkg" "$_pkg_url"; then
               echo "${ts} [ERROR] Failed to download Cribl Edge .pkg" >&2
               exit 1
             fi
-            if curl -Lso "$_pkg.md5" "$_pkg_url.md5"; then
+            if curl -LSsfo "$_pkg.md5" "$_pkg_url.md5"; then
               _expected=$(awk '{print $1}' "$_pkg.md5")
               _actual=$(md5 -q "$_pkg")
               if [ "$_expected" != "$_actual" ]; then
@@ -250,7 +251,10 @@ in
               fi
             ''}
 
-            # ── 7. Start service ──────────────────────────────────────────────────────
+            # ── 7. Re-bootstrap and start service ────────────────────────────────────
+            # bootout (step 1) removed the job from the bootstrap context;
+            # re-bootstrap the plist so kickstart can find the service.
+            /bin/launchctl bootstrap system /Library/LaunchDaemons/com.nix-darwin.cribl-edge.plist 2>/dev/null || true
             /bin/launchctl kickstart system/com.nix-darwin.cribl-edge 2>/dev/null || true
             echo "${ts} [INFO] Cribl Edge service started"
     '';
