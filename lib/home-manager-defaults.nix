@@ -15,7 +15,8 @@
   # Install user packages to /etc/profiles instead of ~/.nix-profile
   useUserPackages = true;
 
-  # Backup conflicting files to allow home-manager to update symlinks
-  # After rebuild, clean up .backup files with: find ~ -name "*.backup" -delete
-  backupFileExtension = "backup";
+  # Remove conflicting files so home-manager can place its symlinks.
+  # Nix store is the source of truth — all managed files are recoverable via
+  # `home-manager generations`. No backups, no .backup file pollution.
+  backupCommand = "rm -rf";
 }
