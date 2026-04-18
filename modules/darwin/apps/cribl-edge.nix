@@ -23,6 +23,7 @@ let
   path = cfg.installPath;
   user = "root";
   group = "wheel";
+  major = builtins.head (builtins.splitString "-" cfg.version);
   ts = "$(date '+%Y-%m-%d %H:%M:%S')";
 
   # Build a deploy script per pack — each invocation is idempotent
@@ -151,9 +152,7 @@ in
 
     system.activationScripts.postActivation.text = lib.mkAfter ''
             # ── 1. Download and install the .pkg ──────────────────────────────────────
-            _major="${cfg.version}"
-            _major="''${_major%%-*}"
-            _pkg_url="https://cdn.cribl.io/dl/$_major/cribl-${cfg.version}-darwin-universal.pkg"
+            _pkg_url="https://cdn.cribl.io/dl/${major}/cribl-${cfg.version}-darwin-universal.pkg"
             _pkg=$(mktemp /tmp/cribl-${cfg.version}.XXXXXX.pkg)
             trap 'rm -f "$_pkg" "$_pkg.md5"' EXIT
 
@@ -251,7 +250,6 @@ in
               fi
             ''}
 
-            # ── 7. Re-bootstrap and start service ────────────────────────────────────
             # bootout (step 1) removed the job from the bootstrap context;
             # re-bootstrap the plist so kickstart can find the service.
             /bin/launchctl bootstrap system /Library/LaunchDaemons/com.nix-darwin.cribl-edge.plist 2>/dev/null || true
