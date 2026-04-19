@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.3](https://github.com/JacobPEvans/nix-darwin/compare/v1.30.2...v1.30.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* **cribl-edge:** replace cc-edge-macos-power with cc-edge-the-mac-pack-io ([#1028](https://github.com/JacobPEvans/nix-darwin/issues/1028)) ([69b6102](https://github.com/JacobPEvans/nix-darwin/commit/69b610203f08e47e9d63be3440a466d34dc69080))
+
 ## [1.30.2](https://github.com/JacobPEvans/nix-darwin/compare/v1.30.1...v1.30.2) (2026-04-19)
 
 
