@@ -120,6 +120,11 @@ in
     '';
 
     system.activationScripts.postActivation.text = lib.mkAfter ''
+      # Activation runs as root — extend PATH to include per-user Nix profiles
+      # so tools like doppler (in home.packages) are resolvable.
+      for _p in /etc/profiles/per-user/*/bin; do PATH="$_p:$PATH"; done
+      export PATH
+
       _org="$(${cfg.cloud.orgIdCommand})"
       _ws="$(${cfg.cloud.workspaceIdCommand})"
       _token="$(${cfg.cloud.tokenCommand})"
